@@ -571,12 +571,22 @@
 
     function lookupRapMatrix(shape, weight, color, clarity, cut, polishSym, fls) {
       const range = getRangeSlab(weight);
+      
+      // 🛠️ BUG FIX: Fancy Shapes (Asscher, Oval etc.) ka Cut grade Excel mein blank hota hai
+      let finalCut = cut;
+      if (shape !== 'ROUND') {
+        finalCut = ""; 
+      }
+
       const [pol, sym] = (polishSym || "EX-EX").split('-');
-      const itemCd = `${range}-${shape}-${color}-${clarity}-${cut}-${pol}-${sym}-${fls}`;
+      
+      // Item code generate karna
+      const itemCd = `${range}-${shape}-${color}-${clarity}-${finalCut}-${pol}-${sym}-${fls}`;
 
       if (liveRapDatabase[itemCd]) {
         return liveRapDatabase[itemCd];
       }
+      
       if (shape === 'ROUND' && range === '1.00 to 1.29' && color === 'D' && clarity === 'VS1') {
         return { rapPrice: 7600, back: 44.0 };
       }
