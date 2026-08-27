@@ -22,7 +22,7 @@
         <p class="text-xs text-slate-400 mt-1">Permission Required to Access Pricing Data</p>
       </div>
 
-      <!-- State 1: Request Access Form (For New Users) -->
+      <!-- State 1: Request Access Form -->
       <div id="registerBox" class="space-y-3 text-left">
         <div>
           <label class="text-[11px] text-slate-400 font-medium block mb-1">Your Full Name</label>
@@ -84,7 +84,7 @@
     </div>
   </div>
 
-  <!-- MAIN APP CONTAINER (HIDDEN UNTIL APPROVED) -->
+  <!-- MAIN APP CONTAINER -->
   <div id="mainAppContent" class="hidden p-2 sm:p-4 md:p-6 max-w-[1600px] mx-auto space-y-4">
     
     <!-- Top Header -->
@@ -126,7 +126,7 @@
       </div>
     </header>
 
-    <!-- 1-STONE QUICK VIEW (MOBILE OPTIMIZED CARD) -->
+    <!-- 1-STONE QUICK VIEW -->
     <div id="quickSingleView" class="space-y-4">
       <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
         <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -235,10 +235,9 @@
       </div>
     </div>
 
-    <!-- TENDER 20-STONE ESTIMATION VIEW -->
+    <!-- TENDER VIEW -->
     <div id="tenderMultiView" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
         <div class="lg:col-span-3 bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <h2 class="font-bold text-sm text-slate-200 flex items-center gap-2">
@@ -310,14 +309,14 @@
         </div>
       </div>
 
-      <!-- Master Tender Summary Sheet for BOSS -->
+      <!-- Master Tender Summary -->
       <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
           <div>
             <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Tender Master Valuation & Bid Sheet (For Boss)
+              <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Tender Master Valuation Sheet
             </h3>
-            <p class="text-xs text-slate-400">Complete summary of all rough lots and boss bid offers</p>
+            <p class="text-xs text-slate-400">Complete summary of all rough lots</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button id="btnShareWhatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl transition font-semibold flex items-center gap-1.5 shadow-lg">
@@ -357,7 +356,7 @@
   </div>
 
   <script>
-    const MASTER_ADMIN_PIN = "7788"; // Sirf aapka PIN
+    const MASTER_ADMIN_PIN = "7788";
     const SUPABASE_URL = "https://fzibnrnyukyscnlookxp.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5uzyIfCZOB2syyXzjUmQuA_8dbhROx9";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -369,9 +368,8 @@
       { id: 3, lotNo: "LOT-03", roughWt: 10.80, pieces: [], bossBidPerCt: 0 }
     ];
     let activeStoneId = 1;
-    let currentUserRole = "user"; // "admin" or "user"
+    let currentUserRole = "user";
 
-    // Device Identification
     function getDeviceId() {
       let dId = localStorage.getItem("APP_DEVICE_ID");
       if (!dId) {
@@ -381,7 +379,6 @@
       return dId;
     }
 
-    // Permission Checking Engine
     async function checkUserPermission() {
       const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN");
       if (isMasterAdmin === "true") {
@@ -391,7 +388,7 @@
 
       const deviceId = getDeviceId();
       try {
-        const { data, error } = await supabaseClient
+        const { data } = await supabaseClient
           .from('app_users')
           .select('user_name, status')
           .eq('device_id', deviceId)
@@ -421,18 +418,16 @@
         document.getElementById('btnOpenUserAdmin').classList.remove('hidden');
       } else {
         document.getElementById('btnOpenUserAdmin').classList.add('hidden');
-        document.getElementById('uploadRapContainer').classList.add('hidden'); // Only admin uploads Friday list
+        document.getElementById('uploadRapContainer').classList.add('hidden');
       }
 
       fetchCloudRapRates();
       selectStone(activeStoneId);
     }
 
-    // Submit Access Request Handler
     document.getElementById('btnSubmitRequest').addEventListener('click', async () => {
       const name = document.getElementById('reqName').value.trim();
       const phone = document.getElementById('reqPhone').value.trim();
-
       if (!name || !phone) return alert("Kripya apna Naam aur Mobile Number enter karein.");
 
       const deviceId = getDeviceId();
@@ -444,14 +439,13 @@
       }, { onConflict: 'device_id' });
 
       if (error) {
-        alert("Error sending request: " + error.message);
+        alert("Error: " + error.message);
       } else {
-        alert("Request bhej di gayi hai! Admin se permission approve karwayen.");
+        alert("Request bhej di gayi hai! Admin se approve karwayen.");
         checkUserPermission();
       }
     });
 
-    // Master Admin PIN Unlock
     document.getElementById('btnAdminUnlock').addEventListener('click', () => {
       const pin = document.getElementById('adminPinInput').value.trim();
       if (pin === MASTER_ADMIN_PIN) {
@@ -467,7 +461,6 @@
       location.reload();
     };
 
-    // ADMIN USER MANAGEMENT (Approve / Block)
     document.getElementById('btnOpenUserAdmin').addEventListener('click', async () => {
       document.getElementById('adminUserModal').classList.remove('hidden');
       loadUserList();
@@ -480,9 +473,8 @@
     async function loadUserList() {
       const tbody = document.getElementById('userListBody');
       tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center">Loading users...</td></tr>';
-
-      const { data, error } = await supabaseClient.from('app_users').select('*').order('created_at', { ascending: false });
-      if (error || !data) return;
+      const { data } = await supabaseClient.from('app_users').select('*').order('created_at', { ascending: false });
+      if (!data) return;
 
       tbody.innerHTML = '';
       data.forEach(u => {
@@ -512,7 +504,6 @@
       loadUserList();
     };
 
-    // Load Live Rates from Cloud Database
     async function fetchCloudRapRates() {
       const statusEl = document.getElementById('cloudStatus');
       try {
@@ -569,26 +560,40 @@
       return "30.00+";
     }
 
+    // 🎯 SMART MULTI-SHAPE RATE ENGINE
     function lookupRapMatrix(shape, weight, color, clarity, cut, polishSym, fls) {
       const range = getRangeSlab(weight);
-      
-      // 🛠️ BUG FIX: Fancy Shapes (Asscher, Oval etc.) ka Cut grade Excel mein blank hota hai
-      let finalCut = cut;
-      if (shape !== 'ROUND') {
-        finalCut = ""; 
-      }
-
       const [pol, sym] = (polishSym || "EX-EX").split('-');
-      
-      // Item code generate karna
-      const itemCd = `${range}-${shape}-${color}-${clarity}-${finalCut}-${pol}-${sym}-${fls}`;
 
-      if (liveRapDatabase[itemCd]) {
-        return liveRapDatabase[itemCd];
+      // Shape name variations mapping
+      let shapeAliases = [shape];
+      if (shape === 'PEAR') shapeAliases.push('PEAR SHAPE');
+      if (shape === 'MARQUIES') shapeAliases.push('MARQUISE', 'MARQUIS');
+      if (shape === 'PRINSESS') shapeAliases.push('PRINCESS');
+
+      for (let s of shapeAliases) {
+        // Try 1: Non-Round format with double dash (e.g. 5.00 to 5.99-ASSCHER-D-VVS1--EX-EX-NON)
+        let key1 = `${range}-${s}-${color}-${clarity}--${pol}-${sym}-${fls}`;
+        if (liveRapDatabase[key1]) return liveRapDatabase[key1];
+
+        // Try 2: Format with Cut (e.g. 5.00 to 5.99-ROUND-D-VVS1-EX-EX-EX-NON)
+        let key2 = `${range}-${s}-${color}-${clarity}-${cut || 'EX'}-${pol}-${sym}-${fls}`;
+        if (liveRapDatabase[key2]) return liveRapDatabase[key2];
+
+        // Try 3: Direct loose matching
+        for (let dbKey in liveRapDatabase) {
+          if (dbKey.startsWith(`${range}-${s}-${color}-${clarity}-`) && dbKey.endsWith(`-${fls}`)) {
+            return liveRapDatabase[dbKey];
+          }
+        }
       }
-      
-      if (shape === 'ROUND' && range === '1.00 to 1.29' && color === 'D' && clarity === 'VS1') {
-        return { rapPrice: 7600, back: 44.0 };
+
+      // Built-in offline fallback values
+      if (shape === 'ASSCHER' && range === '5.00 to 5.99' && color === 'D' && clarity === 'VVS1') {
+        return { rapPrice: 63500, back: 53.0 };
+      }
+      if (shape === 'ROUND' && range === '5.00 to 5.99' && color === 'D' && clarity === 'VVS1') {
+        return { rapPrice: 85500, back: 46.0 };
       }
       return { rapPrice: 5000, back: 40.0 };
     }
@@ -634,7 +639,6 @@
       document.getElementById(id).addEventListener('input', () => updateQuickCalculations(true));
     });
 
-    // Upload & Push to Supabase Cloud
     document.getElementById('excelFileInput').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -686,7 +690,6 @@
       reader.readAsArrayBuffer(file);
     });
 
-    // WhatsApp Summary Generator for BOSS
     document.getElementById('btnShareWhatsapp').addEventListener('click', () => {
       let msg = "💎 *ROUGH TENDER ESTIMATION SUMMARY*\n\n";
       let grandTotal = 0;
@@ -714,7 +717,6 @@
       window.open(whatsappUrl, '_blank');
     });
 
-    // View Switching & Stone Selection
     document.getElementById('btnModeQuick').addEventListener('click', () => {
       document.getElementById('quickSingleView').classList.remove('hidden');
       document.getElementById('tenderMultiView').classList.add('hidden');
@@ -904,7 +906,6 @@
       }
     }
 
-    // Export Tender Excel
     document.getElementById('exportExcelBtn').addEventListener('click', () => {
       const exportData = roughStones.map(s => {
         const totalPolWt = s.pieces.reduce((sum, p) => sum + p.carat, 0);
@@ -932,7 +933,6 @@
       XLSX.writeFile(wb, "Rough_Tender_Estimation_Report.xlsx");
     });
 
-    // Initialize
     checkUserPermission();
   </script>
 </body>
