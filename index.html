@@ -99,11 +99,10 @@
         </div>
       </div>
 
-      <!-- Actions & Mode Switcher -->
       <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
         <div class="bg-slate-950 p-1 rounded-xl border border-slate-800 flex items-center text-xs">
-          <button id="btnModeQuick" class="px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-semibold transition">1-Stone Quick</button>
-          <button id="btnModeTender" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition">Tender Lots (15-20)</button>
+          <button id="btnModeQuick" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition">1-Stone Quick</button>
+          <button id="btnModeTender" class="px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-semibold transition">Tender Lots (15-20)</button>
         </div>
 
         <button id="btnOpenUserAdmin" class="hidden bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 border border-purple-800/60 text-xs px-3 py-2 rounded-xl transition font-semibold flex items-center gap-1.5">
@@ -127,7 +126,7 @@
     </header>
 
     <!-- 1-STONE QUICK VIEW -->
-    <div id="quickSingleView" class="space-y-4">
+    <div id="quickSingleView" class="hidden space-y-4">
       <div class="bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-800 shadow-xl space-y-4">
         <div class="flex justify-between items-center border-b border-slate-800 pb-3">
           <h2 class="font-bold text-sm text-cyan-400 flex items-center gap-2">
@@ -235,38 +234,47 @@
       </div>
     </div>
 
-    <!-- TENDER VIEW -->
-    <div id="tenderMultiView" class="hidden space-y-6">
+    <!-- TENDER 20-STONE ESTIMATION VIEW -->
+    <div id="tenderMultiView" class="space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Panel: All Lots List -->
         <div class="lg:col-span-3 bg-slate-900 p-4 rounded-2xl border border-slate-800 shadow-xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
             <h2 class="font-bold text-sm text-slate-200 flex items-center gap-2">
-              <i class="fa-solid fa-cubes-stacked text-cyan-400"></i> Tender Stones (<span id="stoneCount">3</span>)
+              <i class="fa-solid fa-cubes-stacked text-cyan-400"></i> Tender Lots (<span id="stoneCount">3</span>)
             </h2>
-            <button id="addNewStoneBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1">
+            <button id="addNewStoneBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-2.5 py-1.5 rounded-lg transition font-medium flex items-center gap-1 shadow-md">
               <i class="fa-solid fa-plus"></i> + New Lot
             </button>
           </div>
           <div id="stonesListContainer" class="space-y-2 max-h-[500px] overflow-y-auto pr-1"></div>
         </div>
 
+        <!-- Right Panel: Active Lot Card & Mini Calculator -->
         <div class="lg:col-span-9 space-y-4">
+          
+          <!-- Editable Lot Header Details -->
           <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-              <span class="text-xs bg-cyan-950 text-cyan-400 px-2.5 py-1 rounded-lg border border-cyan-800 font-mono font-bold" id="activeBadgeLot">LOT-01</span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs bg-cyan-950 text-cyan-400 px-3 py-1 rounded-lg border border-cyan-800 font-mono font-bold" id="activeBadgeLot">LOT-01</span>
+                <span class="text-xs text-slate-400">(Aap yahan Lot Name aur Wt change kar sakte hain)</span>
+              </div>
               <button id="deleteActiveLotBtn" class="text-xs bg-red-950/40 text-red-400 hover:bg-red-900/60 border border-red-800/60 px-2.5 py-1 rounded-lg transition flex items-center gap-1.5">
                 <i class="fa-solid fa-trash-can"></i> Delete Lot
               </button>
             </div>
 
+            <!-- Custom Lot Name & Independent Rough Weight Inputs -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div>
-                <label class="text-[11px] text-slate-400 block mb-1 font-semibold uppercase">Lot ID</label>
-                <input type="text" id="activeLotNo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-cyan-300 font-bold font-mono outline-none" />
+                <label class="text-[11px] text-cyan-400 block mb-1 font-semibold uppercase">Lot Name / ID ✏️</label>
+                <input type="text" id="activeLotNo" placeholder="e.g. MAYUR 01" class="w-full bg-slate-950 border border-cyan-500/40 rounded-xl px-3 py-2 text-sm text-cyan-300 font-bold font-mono outline-none focus:border-cyan-400" />
               </div>
               <div>
-                <label class="text-[11px] text-slate-400 block mb-1 font-semibold uppercase">Rough Wt (Ct)</label>
-                <input type="number" id="activeRoughWt" step="0.01" min="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-amber-300 font-bold font-mono outline-none" />
+                <label class="text-[11px] text-amber-400 block mb-1 font-semibold uppercase">Rough Wt (Ct) ✏️</label>
+                <input type="number" id="activeRoughWt" step="0.01" min="0.01" placeholder="e.g. 24.50" class="w-full bg-slate-950 border border-amber-500/40 rounded-xl px-3 py-2 text-sm text-amber-300 font-bold font-mono outline-none focus:border-amber-400" />
               </div>
               <div>
                 <label class="text-[11px] text-slate-400 block mb-1 font-semibold uppercase">Yield %</label>
@@ -278,13 +286,69 @@
               </div>
             </div>
 
-            <div class="pt-2 flex justify-end">
-              <button id="copyFromQuickBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl transition flex items-center gap-2 shadow-lg shadow-cyan-950">
-                <i class="fa-solid fa-plus"></i> Add Current Stone to this Lot
-              </button>
+            <!-- Add Polish Stone to this Lot Builder -->
+            <div class="pt-2 border-t border-slate-800/80">
+              <div class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle text-cyan-400"></i> Add Polish Stone under <span id="currentLotLabelName" class="text-cyan-400 font-mono">LOT-01</span>
+              </div>
+              
+              <!-- Quick mini inputs inside lot -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                <div class="col-span-2 sm:col-span-2">
+                  <select id="lotPieceShape" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none">
+                    <option value="ROUND">ROUND</option>
+                    <option value="ASSCHER">ASSCHER</option>
+                    <option value="EMERALD">EMERALD</option>
+                    <option value="OVAL">OVAL</option>
+                    <option value="PEAR">PEAR</option>
+                    <option value="PRINSESS">PRINSESS</option>
+                    <option value="RADIANT">RADIANT</option>
+                    <option value="S.RADIANT">S.RADIANT</option>
+                    <option value="CMB">CMB</option>
+                    <option value="SCMB">SCMB</option>
+                    <option value="HEART">HEART</option>
+                    <option value="MARQUIES">MARQUIES</option>
+                    <option value="ASHOKA">ASHOKA</option>
+                    <option value="BAGUETTE">BAGUETTE</option>
+                  </select>
+                </div>
+                <div>
+                  <input type="number" id="lotPieceCarat" step="0.01" value="2.50" placeholder="Carat" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-amber-300 font-bold outline-none" />
+                </div>
+                <div>
+                  <select id="lotPieceColor" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none">
+                    <option>D</option><option>E</option><option selected>F</option><option>G</option><option>H</option><option>I</option><option>J</option>
+                  </select>
+                </div>
+                <div>
+                  <select id="lotPieceClarity" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none">
+                    <option>IF</option><option>VVS1</option><option selected>VVS2</option><option>VS1</option><option>VS2</option><option>SI1</option>
+                  </select>
+                </div>
+                <div>
+                  <select id="lotPiecePolishSym" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none">
+                    <option value="EX-EX" selected>EX-EX</option>
+                    <option value="VG-EX">VG-EX</option>
+                    <option value="VG-VG">VG-VG</option>
+                  </select>
+                </div>
+                <div>
+                  <select id="lotPieceFls" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none">
+                    <option value="NON" selected>NON</option>
+                    <option value="FNT">FNT</option>
+                    <option value="MED">MED</option>
+                  </select>
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <button id="addPieceDirectBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition shadow-md">
+                    + Add
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
+          <!-- Polish Pieces Table for Active Rough Stone -->
           <div class="bg-slate-900 p-4 sm:p-5 rounded-2xl border border-slate-800 shadow-xl space-y-3">
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Polish Pieces under this Rough Lot</h4>
             <div class="overflow-x-auto">
@@ -309,14 +373,14 @@
         </div>
       </div>
 
-      <!-- Master Tender Summary -->
+      <!-- Master Tender Summary Sheet for BOSS -->
       <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-2xl space-y-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
           <div>
             <h3 class="text-base font-bold text-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Tender Master Valuation Sheet
+              <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Tender Master Valuation & Bid Sheet (For Boss)
             </h3>
-            <p class="text-xs text-slate-400">Complete summary of all rough lots</p>
+            <p class="text-xs text-slate-400">Complete summary of all custom lots and boss bid offers</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
             <button id="btnShareWhatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-2 rounded-xl transition font-semibold flex items-center gap-1.5 shadow-lg">
@@ -336,7 +400,7 @@
           <table class="w-full text-left text-xs text-slate-300">
             <thead class="bg-slate-950 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800">
               <tr>
-                <th class="py-3 px-3">Lot No</th>
+                <th class="py-3 px-3">Lot Name / ID</th>
                 <th class="py-3 px-3">Rough Wt</th>
                 <th class="py-3 px-3">Polish Wt</th>
                 <th class="py-3 px-3">Pieces</th>
@@ -363,9 +427,9 @@
 
     let liveRapDatabase = {};
     let roughStones = [
-      { id: 1, lotNo: "LOT-01", roughWt: 20.50, pieces: [], bossBidPerCt: 0 },
+      { id: 1, lotNo: "LOT-01", roughWt: 24.50, pieces: [], bossBidPerCt: 0 },
       { id: 2, lotNo: "LOT-02", roughWt: 15.20, pieces: [], bossBidPerCt: 0 },
-      { id: 3, lotNo: "LOT-03", roughWt: 10.80, pieces: [], bossBidPerCt: 0 }
+      { id: 3, lotNo: "LOT-03", roughWt: 8.80, pieces: [], bossBidPerCt: 0 }
     ];
     let activeStoneId = 1;
     let currentUserRole = "user";
@@ -560,27 +624,22 @@
       return "30.00+";
     }
 
-    // 🎯 SMART MULTI-SHAPE RATE ENGINE
     function lookupRapMatrix(shape, weight, color, clarity, cut, polishSym, fls) {
       const range = getRangeSlab(weight);
       const [pol, sym] = (polishSym || "EX-EX").split('-');
 
-      // Shape name variations mapping
       let shapeAliases = [shape];
       if (shape === 'PEAR') shapeAliases.push('PEAR SHAPE');
       if (shape === 'MARQUIES') shapeAliases.push('MARQUISE', 'MARQUIS');
       if (shape === 'PRINSESS') shapeAliases.push('PRINCESS');
 
       for (let s of shapeAliases) {
-        // Try 1: Non-Round format with double dash (e.g. 5.00 to 5.99-ASSCHER-D-VVS1--EX-EX-NON)
         let key1 = `${range}-${s}-${color}-${clarity}--${pol}-${sym}-${fls}`;
         if (liveRapDatabase[key1]) return liveRapDatabase[key1];
 
-        // Try 2: Format with Cut (e.g. 5.00 to 5.99-ROUND-D-VVS1-EX-EX-EX-NON)
         let key2 = `${range}-${s}-${color}-${clarity}-${cut || 'EX'}-${pol}-${sym}-${fls}`;
         if (liveRapDatabase[key2]) return liveRapDatabase[key2];
 
-        // Try 3: Direct loose matching
         for (let dbKey in liveRapDatabase) {
           if (dbKey.startsWith(`${range}-${s}-${color}-${clarity}-`) && dbKey.endsWith(`-${fls}`)) {
             return liveRapDatabase[dbKey];
@@ -588,7 +647,6 @@
         }
       }
 
-      // Built-in offline fallback values
       if (shape === 'ASSCHER' && range === '5.00 to 5.99' && color === 'D' && clarity === 'VVS1') {
         return { rapPrice: 63500, back: 53.0 };
       }
@@ -629,6 +687,59 @@
 
       return { shape, carat: weight, color, clarity, cut, polishSym, fls, rapPrice, discount, netPrice, totalVal, range };
     }
+
+    // ⚡ LIVE EDIT LISTENERS FOR LOT NAME AND ROUGH WT
+    document.getElementById('activeLotNo').addEventListener('input', function(e) {
+      const stone = roughStones.find(s => s.id === activeStoneId);
+      if (stone) {
+        stone.lotNo = e.target.value.trim() || `LOT-${stone.id}`;
+        document.getElementById('activeBadgeLot').innerText = stone.lotNo;
+        document.getElementById('currentLotLabelName').innerText = stone.lotNo;
+        renderStonesList();
+        renderMasterTenderTable();
+      }
+    });
+
+    document.getElementById('activeRoughWt').addEventListener('input', function(e) {
+      const stone = roughStones.find(s => s.id === activeStoneId);
+      if (stone) {
+        stone.roughWt = parseFloat(e.target.value) || 0;
+        renderStonesList();
+        renderPiecesTable();
+        renderMasterTenderTable();
+      }
+    });
+
+    // ⚡ ADD PIECE DIRECTLY INSIDE ACTIVE LOT
+    document.getElementById('addPieceDirectBtn').addEventListener('click', function() {
+      const shape = document.getElementById('lotPieceShape').value;
+      const carat = parseFloat(document.getElementById('lotPieceCarat').value) || 0;
+      const color = document.getElementById('lotPieceColor').value;
+      const clarity = document.getElementById('lotPieceClarity').value;
+      const polishSym = document.getElementById('lotPiecePolishSym').value;
+      const fls = document.getElementById('lotPieceFls').value;
+
+      if (carat <= 0) return alert("Please enter valid stone weight!");
+
+      const match = lookupRapMatrix(shape, carat, color, clarity, shape === 'ROUND' ? 'EX' : '', polishSym, fls);
+      const rapPrice = match.rapPrice;
+      const discount = match.back;
+      const netPrice = rapPrice * (1 - (discount / 100));
+      const totalVal = netPrice * carat;
+
+      const newPiece = {
+        shape, carat, color, clarity, cut: (shape === 'ROUND' ? 'EX' : ''), polishSym, fls,
+        rapPrice, discount, netPrice, totalVal, range: getRangeSlab(carat)
+      };
+
+      const stone = roughStones.find(s => s.id === activeStoneId);
+      if (stone) {
+        stone.pieces.push(newPiece);
+        renderPiecesTable();
+        renderStonesList();
+        renderMasterTenderTable();
+      }
+    });
 
     ['qShape', 'qCarat', 'qColor', 'qClarity', 'qCut', 'qPolishSym', 'qFls'].forEach(id => {
       document.getElementById(id).addEventListener('change', () => updateQuickCalculations(false));
@@ -726,23 +837,12 @@
 
     document.getElementById('btnModeTender').addEventListener('click', () => {
       document.getElementById('tenderMultiView').classList.remove('hidden');
+      document.getElementById('quickSingleView').classList.add('hidden');
       document.getElementById('btnModeTender').className = "px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-semibold transition";
       document.getElementById('btnModeQuick').className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-200 transition";
       renderStonesList();
       renderPiecesTable();
       renderMasterTenderTable();
-    });
-
-    document.getElementById('copyFromQuickBtn').addEventListener('click', () => {
-      const piece = updateQuickCalculations(true);
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (stone) {
-        stone.pieces.push(piece);
-        renderPiecesTable();
-        renderStonesList();
-        renderMasterTenderTable();
-        alert(`Stone added to ${stone.lotNo}!`);
-      }
     });
 
     function selectStone(id) {
@@ -751,6 +851,7 @@
       if (!stone) return;
 
       document.getElementById('activeBadgeLot').innerText = stone.lotNo;
+      document.getElementById('currentLotLabelName').innerText = stone.lotNo;
       document.getElementById('activeLotNo').value = stone.lotNo;
       document.getElementById('activeRoughWt').value = stone.roughWt;
 
@@ -887,7 +988,7 @@
 
     document.getElementById('deleteActiveLotBtn').addEventListener('click', () => {
       if (roughStones.length === 1) return alert("At least 1 stone must remain!");
-      if (confirm(`Delete active stone?`)) {
+      if (confirm(`Delete active lot?`)) {
         roughStones = roughStones.filter(s => s.id !== activeStoneId);
         activeStoneId = roughStones[0].id;
         selectStone(activeStoneId);
@@ -915,7 +1016,7 @@
         const totalBid = (s.bossBidPerCt || 0) * s.roughWt;
 
         return {
-          "Lot No": s.lotNo,
+          "Lot Name / ID": s.lotNo,
           "Rough Wt (ct)": s.roughWt,
           "Polish Wt (ct)": totalPolWt,
           "Pieces": s.pieces.length,
