@@ -26,9 +26,10 @@
       </div>
       <div>
         <h2 class="text-2xl font-extrabold text-white">AURA TENDER PRO</h2>
-        <p class="text-xs text-slate-400 mt-1">Rough Diamond Valuation & Tender Intelligence</p>
+        <p class="text-xs text-slate-400 mt-1">Dual-Device Secured Diamond Terminal (1 Phone + 1 PC)</p>
       </div>
 
+      <!-- State 1: Register Form -->
       <div id="registerBox" class="space-y-3 text-left">
         <div>
           <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Full Name</label>
@@ -39,18 +40,30 @@
           <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400" />
         </div>
         <button id="btnSubmitRequest" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase">
-          Request Access Permission
+          Register This Device
         </button>
       </div>
 
+      <!-- State 2: Approval Pending -->
       <div id="pendingBox" class="hidden bg-amber-950/30 border border-amber-500/40 p-4 rounded-2xl space-y-2 text-center">
         <p class="text-amber-400 font-bold text-sm">⏳ Approval Pending</p>
-        <p class="text-xs text-slate-400">Request bhej di gayi hai. Master Admin ke verify karte hi yeh unlock ho jayega.</p>
+        <p class="text-xs text-slate-400">Aapka device register ho gaya hai. Admin ke verify karte hi yeh unlock ho jayega.</p>
         <button onclick="checkUserPermission()" class="text-xs bg-slate-800 text-slate-200 px-4 py-1.5 rounded-xl border border-slate-700 font-semibold mt-2">
           🔄 Check Status
         </button>
       </div>
 
+      <!-- State 3: Device Limit Exceeded (3rd Device Block) -->
+      <div id="deviceMismatchBox" class="hidden bg-red-950/40 border border-red-500/50 p-4 rounded-2xl space-y-2 text-center">
+        <p class="text-red-400 font-bold text-sm">🚫 Device Limit Reached (Max 2 Devices)</p>
+        <p class="text-xs text-slate-300">Yeh account already 2 Devices (1 Phone + 1 PC) par linked hai.</p>
+        <p class="text-[11px] text-slate-400">Agar aapne phone/laptop badla hai toh Admin se device slot reset karwayen.</p>
+        <button onclick="logoutApp()" class="text-xs bg-slate-800 text-slate-200 px-4 py-1.5 rounded-xl border border-slate-700 font-semibold mt-2">
+          Back / Change Number
+        </button>
+      </div>
+
+      <!-- State 4: Admin PIN -->
       <div class="pt-3 border-t border-slate-800 flex gap-2">
         <input type="password" id="adminPinInput" placeholder="Master Admin PIN" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs font-mono text-center text-cyan-400 outline-none" />
         <button id="btnAdminUnlock" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs px-4 py-2 rounded-xl border border-slate-700 font-bold uppercase">
@@ -62,9 +75,12 @@
 
   <!-- ADMIN USERS MANAGEMENT MODAL -->
   <div id="adminUserModal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
-    <div class="glass-card-glow p-6 rounded-3xl max-w-2xl w-full space-y-4">
+    <div class="glass-card-glow p-6 rounded-3xl max-w-3xl w-full space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-base text-cyan-400">User Licenses & Authorizations</h3>
+        <div>
+          <h3 class="font-bold text-base text-cyan-400">User Licenses & Dual-Device Security</h3>
+          <p class="text-[11px] text-slate-400">Allowed: 1 Mobile + 1 PC per trader</p>
+        </div>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
       </div>
       <div class="overflow-x-auto max-h-96">
@@ -73,8 +89,9 @@
             <tr>
               <th class="py-2.5 px-3">Trader Name</th>
               <th class="py-2.5 px-3">Phone</th>
+              <th class="py-2.5 px-3">Device Slots</th>
               <th class="py-2.5 px-3">Status</th>
-              <th class="py-2.5 px-3 text-right">Action</th>
+              <th class="py-2.5 px-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody id="userListBody" class="divide-y divide-slate-800 font-mono"></tbody>
@@ -93,7 +110,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-xl sm:text-2xl font-extrabold text-white">AURA</h1>
-            <span class="text-[10px] bg-cyan-950 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800 uppercase">Enterprise</span>
+            <span class="text-[10px] bg-cyan-950 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800 uppercase">Dual-Device Enterprise</span>
           </div>
           <p class="text-[11px] text-slate-400 font-mono">User: <span id="currentUserLabel" class="text-cyan-300 font-semibold">Authorized</span></p>
         </div>
@@ -119,7 +136,7 @@
         </button>
         
         <span id="cloudStatus" class="text-[11px] bg-slate-950 text-emerald-400 px-3.5 py-2.5 rounded-xl border border-slate-800 font-mono font-semibold">
-          🟢 100% Offline Ready
+          🟢 Dual-Device Protected
         </span>
       </div>
     </header>
@@ -385,7 +402,6 @@
   </div>
 
   <script>
-    // PWA Service Worker Registration
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -414,58 +430,100 @@
     let activeStoneId = 1;
     let currentUserRole = "user";
 
-    function getDeviceId() {
-      let dId = localStorage.getItem("APP_DEVICE_ID");
-      if (!dId) {
-        dId = "DEV-" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        localStorage.setItem("APP_DEVICE_ID", dId);
+    function getHardwareToken() {
+      let token = localStorage.getItem("DEVICE_HARDWARE_TOKEN");
+      if (!token) {
+        token = "DEV-" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+        localStorage.setItem("DEVICE_HARDWARE_TOKEN", token);
       }
-      return dId;
+      return token;
     }
 
+    // 🔒 DUAL DEVICE PERMISSION ENGINE (1 Phone + 1 PC)
     async function checkUserPermission() {
-      // 1. Check offline persistent permission
-      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
       const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
-
       if (isMasterAdmin === "true") {
         grantAccess("Master Admin", "admin");
         return;
       }
 
-      if (cachedApproved === "true") {
-        grantAccess(localStorage.getItem("APP_USER_NAME") || "Authorized User", "user");
+      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
+      const currentToken = getHardwareToken();
+      const savedToken = localStorage.getItem("BOUND_DEVICE_TOKEN");
+
+      if (cachedApproved === "true" && currentToken === savedToken) {
+        grantAccess(localStorage.getItem("APP_USER_NAME") || "Authorized Trader", "user");
         return;
       }
 
-      // 2. If completely offline on fresh device, grant access as Authorized Offline Trader
+      const savedPhone = localStorage.getItem("APP_USER_PHONE");
+
       if (!navigator.onLine) {
-        grantAccess("Authorized Offline Trader", "user");
-        return;
-      }
-
-      // 3. Online Check
-      const deviceId = getDeviceId();
-      try {
-        const { data } = await supabaseClient
-          .from('app_users')
-          .select('user_name, status')
-          .eq('device_id', deviceId)
-          .single();
-
-        if (data && data.status === 'approved') {
-          localStorage.setItem("APP_USER_APPROVED", "true");
-          localStorage.setItem("APP_USER_NAME", data.user_name);
-          grantAccess(data.user_name, "user");
-        } else if (data && data.status === 'pending') {
-          document.getElementById('registerBox').classList.add('hidden');
-          document.getElementById('pendingBox').classList.remove('hidden');
+        if (cachedApproved === "true") {
+          grantAccess("Authorized Offline Trader", "user");
         } else {
           document.getElementById('registerBox').classList.remove('hidden');
           document.getElementById('pendingBox').classList.add('hidden');
         }
-      } catch (err) {
-        grantAccess("Trader", "user");
+        return;
+      }
+
+      if (savedPhone) {
+        try {
+          const { data } = await supabaseClient
+            .from('app_users')
+            .select('user_name, status, device_id_1, device_id_2')
+            .eq('phone', savedPhone)
+            .single();
+
+          if (data) {
+            if (data.status === 'approved') {
+              // Check if current device matches Slot 1 OR Slot 2
+              if (data.device_id_1 === currentToken || data.device_id_2 === currentToken) {
+                localStorage.setItem("APP_USER_APPROVED", "true");
+                localStorage.setItem("BOUND_DEVICE_TOKEN", currentToken);
+                localStorage.setItem("APP_USER_NAME", data.user_name);
+                grantAccess(data.user_name, "user");
+              } 
+              // Slot 1 is empty -> Bind Slot 1
+              else if (!data.device_id_1) {
+                await supabaseClient.from('app_users').update({ device_id_1: currentToken }).eq('phone', savedPhone);
+                localStorage.setItem("APP_USER_APPROVED", "true");
+                localStorage.setItem("BOUND_DEVICE_TOKEN", currentToken);
+                localStorage.setItem("APP_USER_NAME", data.user_name);
+                grantAccess(data.user_name, "user");
+              }
+              // Slot 2 is empty -> Bind Slot 2 (Second Device Allowed!)
+              else if (!data.device_id_2) {
+                await supabaseClient.from('app_users').update({ device_id_2: currentToken }).eq('phone', savedPhone);
+                localStorage.setItem("APP_USER_APPROVED", "true");
+                localStorage.setItem("BOUND_DEVICE_TOKEN", currentToken);
+                localStorage.setItem("APP_USER_NAME", data.user_name);
+                grantAccess(data.user_name, "user");
+              }
+              // Both slots full and 3rd device tried -> BLOCK!
+              else {
+                document.getElementById('registerBox').classList.add('hidden');
+                document.getElementById('pendingBox').classList.add('hidden');
+                document.getElementById('deviceMismatchBox').classList.remove('hidden');
+              }
+            } else if (data.status === 'pending') {
+              document.getElementById('registerBox').classList.add('hidden');
+              document.getElementById('pendingBox').classList.remove('hidden');
+              document.getElementById('deviceMismatchBox').classList.add('hidden');
+            } else {
+              document.getElementById('registerBox').classList.remove('hidden');
+              document.getElementById('pendingBox').classList.add('hidden');
+              document.getElementById('deviceMismatchBox').classList.add('hidden');
+            }
+          }
+        } catch (err) {
+          grantAccess("Trader", "user");
+        }
+      } else {
+        document.getElementById('registerBox').classList.remove('hidden');
+        document.getElementById('pendingBox').classList.add('hidden');
+        document.getElementById('deviceMismatchBox').classList.add('hidden');
       }
     }
 
@@ -491,18 +549,26 @@
       const phone = document.getElementById('reqPhone').value.trim();
       if (!name || !phone) return alert("Kripya apna Naam aur Mobile Number enter karein.");
 
-      const deviceId = getDeviceId();
-      const { error } = await supabaseClient.from('app_users').upsert({
-        user_name: name,
-        phone: phone,
-        device_id: deviceId,
-        status: 'pending'
-      }, { onConflict: 'device_id' });
+      const currentToken = getHardwareToken();
+      localStorage.setItem("APP_USER_PHONE", phone);
+      localStorage.setItem("APP_USER_NAME", name);
 
-      if (error) {
-        alert("Error: " + error.message);
-      } else {
-        alert("Request sent successfully! Admin will approve shortly.");
+      try {
+        const { error } = await supabaseClient.from('app_users').upsert({
+          user_name: name,
+          phone: phone,
+          device_id_1: currentToken,
+          status: 'pending'
+        }, { onConflict: 'phone' });
+
+        if (error) {
+          alert("Error: " + error.message);
+        } else {
+          alert("Request sent successfully! Your device is registered.");
+          checkUserPermission();
+        }
+      } catch (err) {
+        alert("Saved locally!");
         checkUserPermission();
       }
     });
@@ -522,6 +588,8 @@
       sessionStorage.removeItem("IS_MASTER_ADMIN");
       localStorage.removeItem("IS_MASTER_ADMIN");
       localStorage.removeItem("APP_USER_APPROVED");
+      localStorage.removeItem("APP_USER_PHONE");
+      localStorage.removeItem("BOUND_DEVICE_TOKEN");
       location.reload();
     };
 
@@ -536,17 +604,26 @@
 
     async function loadUserList() {
       const tbody = document.getElementById('userListBody');
-      tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-slate-400">Loading licenses...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-400">Loading licenses...</td></tr>';
       const { data } = await supabaseClient.from('app_users').select('*').order('created_at', { ascending: false });
       if (!data) return;
 
       tbody.innerHTML = '';
       data.forEach(u => {
+        let activeDevices = 0;
+        if (u.device_id_1) activeDevices++;
+        if (u.device_id_2) activeDevices++;
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800";
         tr.innerHTML = `
           <td class="py-3 px-3 font-semibold text-slate-200">${u.user_name}</td>
           <td class="py-3 px-3 font-mono text-slate-400">${u.phone}</td>
+          <td class="py-3 px-3 font-mono text-xs">
+            <span class="px-2 py-0.5 rounded font-bold ${activeDevices >= 2 ? 'bg-amber-950 text-amber-400 border border-amber-800' : 'bg-cyan-950 text-cyan-400 border border-cyan-800'}">
+              ${activeDevices} / 2 Active
+            </span>
+          </td>
           <td class="py-3 px-3">
             <span class="text-[10px] px-2.5 py-0.5 rounded font-bold ${
               u.status === 'approved' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' :
@@ -554,9 +631,11 @@
               'bg-amber-950 text-amber-400 border border-amber-800'
             }">${u.status.toUpperCase()}</span>
           </td>
-          <td class="py-3 px-3 text-right space-x-1.5">
+          <td class="py-3 px-3 text-right space-x-1">
             <button onclick="setUserStatus('${u.id}', 'approved')" class="text-xs bg-emerald-900 hover:bg-emerald-800 text-emerald-300 px-2.5 py-1 rounded-lg">Approve</button>
-            <button onclick="setUserStatus('${u.id}', 'blocked')" class="text-xs bg-red-900 hover:bg-red-800 text-red-300 px-2.5 py-1 rounded-lg">Block</button>
+            <button onclick="resetUserDevices('${u.id}')" class="text-xs bg-amber-900 hover:bg-amber-800 text-amber-300 px-2 py-1 rounded-lg" title="Reset both device slots">Reset Dev</button>
+            <button onclick="setUserStatus('${u.id}', 'blocked')" class="text-xs bg-red-900 hover:bg-red-800 text-red-300 px-2 py-1 rounded-lg">Block</button>
+            <button onclick="deleteUserRecord('${u.id}')" class="text-xs bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-300 px-2 py-1 rounded-lg"><i class="fa-solid fa-trash-can"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -566,6 +645,20 @@
     window.setUserStatus = async function(id, status) {
       await supabaseClient.from('app_users').update({ status }).eq('id', id);
       loadUserList();
+    };
+
+    window.resetUserDevices = async function(id) {
+      if (confirm("Reset both device slots for this user? (User naye phone aur laptop par login kar sakega)")) {
+        await supabaseClient.from('app_users').update({ device_id_1: null, device_id_2: null }).eq('id', id);
+        loadUserList();
+      }
+    };
+
+    window.deleteUserRecord = async function(id) {
+      if (confirm("Delete this user entry?")) {
+        await supabaseClient.from('app_users').delete().eq('id', id);
+        loadUserList();
+      }
     };
 
     function getRangeSlab(w) {
@@ -786,9 +879,9 @@
             }
           }
 
-          statusEl.innerText = `🟢 100% Offline Ready`;
+          statusEl.innerText = `🟢 Dual-Device Protected`;
           updateQuickCalculations(false);
-          alert("Success! Rates updated permanently for Offline Mode!");
+          alert("Success! Rates updated permanently!");
         } catch (err) {
           alert("Upload Error: " + err.message);
         }
@@ -955,7 +1048,7 @@
           <td class="py-3 px-3 font-mono font-bold text-emerald-300">$${totalPolVal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
           <td class="py-3 px-3 font-mono font-extrabold text-cyan-300 text-sm">$${roughPerCt.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
           <td class="py-2.5 px-3 bg-slate-950 border-l border-slate-800">
-            <input type="number" step="10" value="${s.bossBidPerCt || ''}" placeholder="Bid $/ct" onchange="updateBossBid(${s.id}, this.value)" class="w-24 bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-bold font-mono outline-none" />
+            <input type="number" step="10" value="${s.bossBidPerCt || ''}" placeholder="Bid $/ct" onchange="updateBossBid(${s.id}, this.value)" class="w-24 bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-bold font-mono outline-none focus:border-amber-400" />
           </td>
           <td class="py-3 px-3 bg-slate-950 font-mono font-extrabold text-amber-300">$${totalBid.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
         `;
