@@ -3,79 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AURA DIAMOND | Institutional Rough Tender & Valuation Suite</title>
+  <title>AURA DIAMOND | Institutional Rough Tender Suite</title>
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            gold: { 400: '#F59E0B', 500: '#D97706', 600: '#B45309' },
-            slate: { 850: '#0f172a', 925: '#090d16', 950: '#040711' }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    body { background: radial-gradient(circle at 50% 0%, #111827 0%, #040711 100%); }
-    .glass-card { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.07); }
-    .glass-card-glow { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(6, 182, 212, 0.25); box-shadow: 0 0 30px -10px rgba(6, 182, 212, 0.15); }
+    body { background-color: #040711; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .glass-card { background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card-glow { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(6, 182, 212, 0.3); }
   </style>
 </head>
-<body class="text-slate-100 min-h-screen font-sans select-none antialiased">
+<body class="min-h-screen select-none antialiased">
 
   <!-- ACCESS CONTROL / AUTH MODAL -->
-  <div id="authLockOverlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-    <div class="glass-card-glow p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-6">
-      <div class="inline-flex p-4 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 text-3xl shadow-lg shadow-cyan-950">
-        <i class="fa-solid fa-gem"></i>
+  <div id="authLockOverlay" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4">
+    <div class="glass-card-glow p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-5">
+      <div class="inline-flex p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 text-3xl">
+        💎
       </div>
       <div>
-        <h2 class="text-2xl font-extrabold tracking-tight text-white">AURA TENDER PRO</h2>
-        <p class="text-xs text-slate-400 mt-1">Institutional Rough Diamond Valuation & Tender Intelligence</p>
+        <h2 class="text-2xl font-extrabold text-white">AURA TENDER PRO</h2>
+        <p class="text-xs text-slate-400 mt-1">Rough Diamond Valuation & Tender Intelligence</p>
       </div>
 
-      <!-- State 1: Request Access Form -->
-      <div id="registerBox" class="space-y-4 text-left">
+      <div id="registerBox" class="space-y-3 text-left">
         <div>
-          <label class="text-[11px] text-slate-400 font-semibold tracking-wider uppercase block mb-1">Full Name</label>
-          <input type="text" id="reqName" placeholder="e.g. Ramesh Bhai" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400 transition" />
+          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Full Name</label>
+          <input type="text" id="reqName" placeholder="e.g. Ramesh Bhai" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400" />
         </div>
         <div>
-          <label class="text-[11px] text-slate-400 font-semibold tracking-wider uppercase block mb-1">Mobile / WhatsApp Number</label>
-          <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-slate-100 outline-none focus:border-cyan-400 transition" />
+          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Mobile / WhatsApp Number</label>
+          <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400" />
         </div>
-        <button id="btnSubmitRequest" class="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-cyan-950/60 text-sm tracking-wide uppercase">
+        <button id="btnSubmitRequest" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase">
           Request Access Permission
         </button>
       </div>
 
-      <!-- State 2: Approval Pending -->
-      <div id="pendingBox" class="hidden bg-amber-950/20 border border-amber-500/30 p-5 rounded-2xl space-y-2 text-center">
-        <p class="text-amber-400 font-bold text-sm">⏳ Approval in Progress</p>
-        <p class="text-xs text-slate-400 leading-relaxed">Aapki request safe store ho chuki hai. Master admin ke verify karte hi yeh terminal unlock ho jayega.</p>
-        <button onclick="checkUserPermission()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl border border-slate-700 font-semibold mt-2">
-          🔄 Refresh Verification
+      <div id="pendingBox" class="hidden bg-amber-950/30 border border-amber-500/40 p-4 rounded-2xl space-y-2 text-center">
+        <p class="text-amber-400 font-bold text-sm">⏳ Approval Pending</p>
+        <p class="text-xs text-slate-400">Request bhej di gayi hai. Master Admin ke verify karte hi yeh unlock ho jayega.</p>
+        <button onclick="checkUserPermission()" class="text-xs bg-slate-800 text-slate-200 px-4 py-1.5 rounded-xl border border-slate-700 font-semibold mt-2">
+          🔄 Check Status
         </button>
       </div>
 
-      <!-- State 3: Admin Quick PIN Unlock -->
-      <div class="pt-4 border-t border-slate-800/80 flex gap-2">
-        <input type="password" id="adminPinInput" placeholder="Master Admin PIN" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs font-mono text-center text-cyan-400 outline-none focus:border-cyan-500" />
-        <button id="btnAdminUnlock" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs px-5 py-2.5 rounded-xl border border-slate-700 font-bold tracking-wider uppercase transition">
+      <div class="pt-3 border-t border-slate-800 flex gap-2">
+        <input type="password" id="adminPinInput" placeholder="Master Admin PIN" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs font-mono text-center text-cyan-400 outline-none" />
+        <button id="btnAdminUnlock" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs px-4 py-2 rounded-xl border border-slate-700 font-bold uppercase">
           Admin
         </button>
       </div>
@@ -83,18 +61,15 @@
   </div>
 
   <!-- ADMIN USERS MANAGEMENT MODAL -->
-  <div id="adminUserModal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="glass-card-glow p-6 rounded-3xl max-w-2xl w-full shadow-2xl space-y-4">
+  <div id="adminUserModal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4">
+    <div class="glass-card-glow p-6 rounded-3xl max-w-2xl w-full space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-base text-cyan-400 flex items-center gap-2">
-          <i class="fa-solid fa-users-gear"></i> User Licenses & Authorizations
-        </h3>
+        <h3 class="font-bold text-base text-cyan-400">User Licenses & Authorizations</h3>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
       </div>
-
       <div class="overflow-x-auto max-h-96">
         <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase tracking-wider">
+          <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-mono">
             <tr>
               <th class="py-2.5 px-3">Trader Name</th>
               <th class="py-2.5 px-3">Phone</th>
@@ -102,52 +77,49 @@
               <th class="py-2.5 px-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody id="userListBody" class="divide-y divide-slate-800/60 font-mono"></tbody>
+          <tbody id="userListBody" class="divide-y divide-slate-800 font-mono"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- MAIN TERMINAL APP -->
+  <!-- MAIN APP -->
   <div id="mainAppContent" class="hidden p-3 sm:p-5 md:p-8 max-w-[1600px] mx-auto space-y-5">
     
-    <!-- Top Bar -->
+    <!-- Header -->
     <header class="glass-card p-4 sm:p-5 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div class="flex items-center gap-3">
-        <div class="p-2.5 bg-gradient-to-tr from-cyan-600 to-blue-500 rounded-2xl text-white shadow-md shadow-cyan-950">
-          <i class="fa-solid fa-gem text-lg"></i>
-        </div>
+        <div class="p-2.5 bg-cyan-600 rounded-2xl text-white">💎</div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">AURA</h1>
-            <span class="text-[10px] bg-cyan-950/80 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800/60 uppercase">Enterprise</span>
+            <h1 class="text-xl sm:text-2xl font-extrabold text-white">AURA</h1>
+            <span class="text-[10px] bg-cyan-950 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800 uppercase">Enterprise</span>
           </div>
-          <p class="text-[11px] text-slate-400 font-mono">Active User: <span id="currentUserLabel" class="text-cyan-300 font-semibold">Authorized</span></p>
+          <p class="text-[11px] text-slate-400 font-mono">User: <span id="currentUserLabel" class="text-cyan-300 font-semibold">Authorized</span></p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-        <div class="bg-slate-900/90 p-1 rounded-2xl border border-slate-800 flex items-center text-xs font-semibold">
-          <button id="btnModeQuick" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-md transition">1-Stone Quick</button>
-          <button id="btnModeTender" class="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition">Tender Lots (15-20)</button>
+        <div class="bg-slate-900 p-1 rounded-2xl border border-slate-800 flex items-center text-xs font-semibold">
+          <button id="btnModeQuick" class="px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md">1-Stone Quick</button>
+          <button id="btnModeTender" class="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200">Tender Lots (15-20)</button>
         </div>
 
-        <button id="btnOpenUserAdmin" class="hidden bg-purple-950/50 hover:bg-purple-900/70 text-purple-300 border border-purple-800/60 text-xs px-3.5 py-2.5 rounded-xl transition font-semibold flex items-center gap-1.5">
-          <i class="fa-solid fa-shield-halved"></i> Admin
+        <button id="btnOpenUserAdmin" class="hidden bg-purple-950/60 text-purple-300 border border-purple-800 text-xs px-3.5 py-2.5 rounded-xl font-semibold">
+          Admin
         </button>
 
-        <label id="uploadRapContainer" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs px-3.5 py-2.5 rounded-xl cursor-pointer flex items-center gap-2 transition font-semibold">
-          <i class="fa-solid fa-file-excel text-emerald-400"></i>
-          <span>Friday List</span>
+        <label id="uploadRapContainer" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs px-3.5 py-2.5 rounded-xl cursor-pointer flex items-center gap-2 font-semibold">
+          <span>Friday Excel</span>
           <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" />
         </label>
 
-        <button onclick="logoutApp()" class="bg-slate-900 hover:bg-red-950/40 text-slate-400 hover:text-red-400 border border-slate-800 text-xs px-3 py-2.5 rounded-xl transition">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <button onclick="logoutApp()" class="bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-slate-800 text-xs px-3 py-2.5 rounded-xl">
+          Lock
         </button>
         
-        <span id="cloudStatus" class="text-[11px] bg-slate-950/80 text-emerald-400 px-3.5 py-2.5 rounded-xl border border-slate-800 font-mono font-semibold">
-          ⚡ 0.001s Instant Engine
+        <span id="cloudStatus" class="text-[11px] bg-slate-950 text-emerald-400 px-3.5 py-2.5 rounded-xl border border-slate-800 font-mono font-semibold">
+          🟢 100% Offline Ready
         </span>
       </div>
     </header>
@@ -155,17 +127,15 @@
     <!-- 1-STONE QUICK VIEW -->
     <div id="quickSingleView" class="space-y-4">
       <div class="glass-card p-5 sm:p-8 rounded-3xl space-y-6">
-        <div class="flex justify-between items-center border-b border-slate-800/80 pb-4">
-          <h2 class="font-bold text-base text-cyan-400 flex items-center gap-2">
-            <i class="fa-solid fa-calculator"></i> Real-time Single Stone Valuation
-          </h2>
-          <span id="quickRangeBadge" class="text-xs bg-slate-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800/50 font-mono font-bold">1.00 to 1.29</span>
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <h2 class="font-bold text-base text-cyan-400">Real-time Single Stone Valuation</h2>
+          <span id="quickRangeBadge" class="text-xs bg-slate-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800 font-mono font-bold">1.00 to 1.29</span>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
           <div class="col-span-2 sm:col-span-2">
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Shape</label>
-            <select id="qShape" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs text-cyan-300 font-bold focus:border-cyan-400 outline-none">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Shape</label>
+            <select id="qShape" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-cyan-300 font-bold outline-none">
               <option value="ROUND" selected>ROUND</option>
               <option value="ASSCHER">ASSCHER</option>
               <option value="EMERALD">EMERALD</option>
@@ -184,13 +154,13 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Weight (Ct)</label>
-            <input type="number" id="qCarat" step="0.01" min="0.01" value="1.01" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs text-amber-300 font-bold font-mono focus:border-cyan-400 outline-none" />
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Weight (Ct)</label>
+            <input type="number" id="qCarat" step="0.01" min="0.01" value="1.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-amber-300 font-bold font-mono outline-none" />
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Color</label>
-            <select id="qColor" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs focus:border-cyan-400 outline-none">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Color</label>
+            <select id="qColor" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
               <option selected>D</option><option>E</option><option>F</option><option>G</option>
               <option>H</option><option>I</option><option>J</option><option>K</option>
               <option>L</option><option>M</option>
@@ -198,8 +168,8 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Clarity</label>
-            <select id="qClarity" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs focus:border-cyan-400 outline-none">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Clarity</label>
+            <select id="qClarity" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
               <option>IF</option><option>VVS1</option><option>VVS2</option>
               <option selected>VS1</option><option>VS2</option><option>SI1</option>
               <option>SI2</option><option>I1</option><option>I2</option><option>I3</option>
@@ -207,8 +177,8 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Cut</label>
-            <select id="qCut" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs focus:border-cyan-400 outline-none">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Cut</label>
+            <select id="qCut" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
               <option value="EX" selected>EX</option>
               <option value="VG">VG</option>
               <option value="GD">GD</option>
@@ -217,8 +187,8 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Pol / Sym</label>
-            <select id="qPolishSym" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs focus:border-cyan-400 outline-none">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Pol / Sym</label>
+            <select id="qPolishSym" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
               <option value="EX-EX" selected>EX-EX</option>
               <option value="VG-EX">VG-EX</option>
               <option value="VG-VG">VG-VG</option>
@@ -226,8 +196,8 @@
           </div>
 
           <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Fls</label>
-            <select id="qFls" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2.5 text-xs focus:border-cyan-400 outline-none">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Fls</label>
+            <select id="qFls" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
               <option value="NON" selected>NON</option>
               <option value="FNT">FNT</option>
               <option value="MED">MED</option>
@@ -237,20 +207,20 @@
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
-          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Rap Price</span>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Rap Price</span>
             <input type="number" id="qRapPriceInput" value="7600" class="w-full bg-transparent text-xl font-bold font-mono text-slate-100 outline-none" />
           </div>
-          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Back / Discount %</span>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Back / Discount %</span>
             <input type="number" id="qDiscountInput" step="0.1" value="44.0" class="w-full bg-transparent text-xl font-bold font-mono text-emerald-400 outline-none" />
           </div>
-          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Net Rate / Ct</span>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Net Rate / Ct</span>
             <div id="qNetPriceDisplay" class="text-xl font-extrabold font-mono text-cyan-300">$4,256</div>
           </div>
-          <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase tracking-wider block mb-1">Total Stone Value</span>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Total Stone Value</span>
             <div id="qTotalValDisplay" class="text-xl font-extrabold font-mono text-emerald-300">$4,298.56</div>
           </div>
         </div>
@@ -262,55 +232,44 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-3 glass-card p-4 sm:p-5 rounded-3xl space-y-4">
           <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-            <h2 class="font-bold text-sm text-slate-200 flex items-center gap-2">
-              <i class="fa-solid fa-cubes-stacked text-cyan-400"></i> Tender Lots (<span id="stoneCount">3</span>)
-            </h2>
-            <button id="addNewStoneBtn" class="bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white text-xs px-3 py-1.5 rounded-xl transition font-bold flex items-center gap-1 shadow-md">
-              <i class="fa-solid fa-plus"></i> + Lot
-            </button>
+            <h2 class="font-bold text-sm text-slate-200">Tender Lots (<span id="stoneCount">3</span>)</h2>
+            <button id="addNewStoneBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-1.5 rounded-xl font-bold">+ Lot</button>
           </div>
           <div id="stonesListContainer" class="space-y-2.5 max-h-[520px] overflow-y-auto pr-1"></div>
         </div>
 
         <div class="lg:col-span-9 space-y-5">
           <div class="glass-card-glow p-5 sm:p-6 rounded-3xl space-y-5">
-            <div class="flex justify-between items-center border-b border-slate-800/80 pb-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-xl border border-cyan-800 font-mono font-bold" id="activeBadgeLot">LOT-01</span>
-                <span class="text-xs text-slate-400 font-medium">Rough Lot Parameter Console</span>
-              </div>
-              <button id="deleteActiveLotBtn" class="text-xs bg-red-950/40 text-red-400 hover:bg-red-900/60 border border-red-800/60 px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 font-semibold">
-                <i class="fa-solid fa-trash-can"></i> Delete
-              </button>
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <span class="text-xs bg-cyan-950 text-cyan-300 px-3 py-1 rounded-xl border border-cyan-800 font-mono font-bold" id="activeBadgeLot">LOT-01</span>
+              <button id="deleteActiveLotBtn" class="text-xs bg-red-950/40 text-red-400 hover:bg-red-900 border border-red-800 px-3 py-1.5 rounded-xl font-semibold">Delete</button>
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
-                <label class="text-[11px] text-cyan-400 block mb-1 font-bold uppercase tracking-wider">Lot Name / ID ✏️</label>
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <label class="text-[11px] text-cyan-400 block mb-1 font-bold uppercase">Lot Name / ID ✏️</label>
                 <input type="text" id="activeLotNo" placeholder="e.g. MAYUR 01" class="w-full bg-transparent text-base text-cyan-200 font-bold font-mono outline-none" />
               </div>
-              <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
-                <label class="text-[11px] text-amber-400 block mb-1 font-bold uppercase tracking-wider">Rough Wt (Ct) ✏️</label>
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <label class="text-[11px] text-amber-400 block mb-1 font-bold uppercase">Rough Wt (Ct) ✏️</label>
                 <input type="number" id="activeRoughWt" step="0.01" min="0.01" placeholder="e.g. 24.50" class="w-full bg-transparent text-base text-amber-300 font-bold font-mono outline-none" />
               </div>
-              <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
-                <label class="text-[11px] text-slate-400 block mb-1 font-bold uppercase tracking-wider">Calculated Yield</label>
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <label class="text-[11px] text-slate-400 block mb-1 font-bold uppercase">Calculated Yield</label>
                 <div id="activeYieldDisplay" class="text-base text-emerald-400 font-bold font-mono">0.00%</div>
               </div>
-              <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
-                <label class="text-[11px] text-slate-400 block mb-1 font-bold uppercase tracking-wider">R.PER CT ($)</label>
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <label class="text-[11px] text-slate-400 block mb-1 font-bold uppercase">R.PER CT ($)</label>
                 <div id="activeRoughPerCtDisplay" class="text-base text-cyan-300 font-extrabold font-mono">$0.00</div>
               </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-800/80">
-              <div class="text-xs font-bold text-slate-300 mb-2.5 flex items-center gap-2">
-                <i class="fa-solid fa-plus-circle text-cyan-400"></i> Add Polish Stone under <span id="currentLotLabelName" class="text-cyan-400 font-mono">LOT-01</span>
-              </div>
+            <div class="pt-3 border-t border-slate-800">
+              <div class="text-xs font-bold text-slate-300 mb-2.5">Add Polish Stone under <span id="currentLotLabelName" class="text-cyan-400 font-mono">LOT-01</span></div>
               
-              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2.5 bg-slate-950/90 p-3.5 rounded-2xl border border-slate-800/90">
+              <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
                 <div class="col-span-2 sm:col-span-2">
-                  <select id="lotPieceShape" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
+                  <select id="lotPieceShape" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
                     <option value="ROUND">ROUND</option>
                     <option value="ASSCHER">ASSCHER</option>
                     <option value="EMERALD">EMERALD</option>
@@ -328,36 +287,34 @@
                   </select>
                 </div>
                 <div>
-                  <input type="number" id="lotPieceCarat" step="0.01" value="2.50" placeholder="Carat" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-amber-300 font-bold font-mono outline-none" />
+                  <input type="number" id="lotPieceCarat" step="0.01" value="2.50" placeholder="Carat" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-amber-300 font-bold font-mono outline-none" />
                 </div>
                 <div>
-                  <select id="lotPieceColor" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
+                  <select id="lotPieceColor" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
                     <option>D</option><option>E</option><option selected>F</option><option>G</option><option>H</option><option>I</option><option>J</option>
                   </select>
                 </div>
                 <div>
-                  <select id="lotPieceClarity" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
+                  <select id="lotPieceClarity" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
                     <option>IF</option><option>VVS1</option><option selected>VVS2</option><option>VS1</option><option>VS2</option><option>SI1</option>
                   </select>
                 </div>
                 <div>
-                  <select id="lotPiecePolishSym" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
+                  <select id="lotPiecePolishSym" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
                     <option value="EX-EX" selected>EX-EX</option>
                     <option value="VG-EX">VG-EX</option>
                     <option value="VG-VG">VG-VG</option>
                   </select>
                 </div>
                 <div>
-                  <select id="lotPieceFls" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
+                  <select id="lotPieceFls" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-slate-200 outline-none font-semibold">
                     <option value="NON" selected>NON</option>
                     <option value="FNT">FNT</option>
                     <option value="MED">MED</option>
                   </select>
                 </div>
                 <div class="col-span-2 sm:col-span-1">
-                  <button id="addPieceDirectBtn" class="w-full bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white text-xs font-bold py-2 px-3 rounded-xl transition shadow-lg shadow-cyan-950/60">
-                    + Add
-                  </button>
+                  <button id="addPieceDirectBtn" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold py-2 px-3 rounded-xl">+ Add</button>
                 </div>
               </div>
             </div>
@@ -367,7 +324,7 @@
             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Polish Stones in this Rough Lot</h4>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-xs text-slate-300">
-                <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800 uppercase tracking-wider font-mono">
+                <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-mono">
                   <tr>
                     <th class="py-3 px-3">#</th>
                     <th class="py-3 px-3">Shape</th>
@@ -380,7 +337,7 @@
                     <th class="py-3 px-3 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody id="piecesTableBody" class="divide-y divide-slate-800/60 font-mono"></tbody>
+                <tbody id="piecesTableBody" class="divide-y divide-slate-800 font-mono"></tbody>
               </table>
             </div>
           </div>
@@ -390,22 +347,14 @@
       <div class="glass-card p-6 sm:p-8 rounded-3xl space-y-5">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
           <div>
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Master Tender Estimation & Bid Sheet
-            </h3>
-            <p class="text-xs text-slate-400">Automated Rough Yield Calculation & Final Valuation Table</p>
+            <h3 class="text-lg font-bold text-white">Master Tender Estimation & Bid Sheet</h3>
+            <p class="text-xs text-slate-400">Rough Yield Calculation & Final Valuation Table</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button id="btnShareWhatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl transition font-bold flex items-center gap-2 shadow-lg shadow-emerald-950/60">
-              <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp to Boss
-            </button>
-            <button onclick="window.print()" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs px-4 py-2.5 rounded-xl transition font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-print"></i> Print
-            </button>
-            <button id="exportExcelBtn" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700/80 text-xs px-4 py-2.5 rounded-xl transition font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-file-excel text-emerald-400"></i> Excel
-            </button>
-            <div class="text-right ml-2 bg-slate-950/90 px-4 py-2 rounded-xl border border-slate-800">
+            <button id="btnShareWhatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl font-bold">WhatsApp to Boss</button>
+            <button onclick="window.print()" class="bg-slate-900 text-slate-200 border border-slate-700 text-xs px-4 py-2.5 rounded-xl font-bold">Print</button>
+            <button id="exportExcelBtn" class="bg-slate-900 text-slate-200 border border-slate-700 text-xs px-4 py-2.5 rounded-xl font-bold">Excel</button>
+            <div class="text-right ml-2 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
               <span class="text-[11px] text-slate-400 uppercase font-bold block">Grand Total:</span>
               <span id="grandTotalValDisplay" class="text-lg font-extrabold text-cyan-300 font-mono">$0.00</span>
             </div>
@@ -427,7 +376,7 @@
                 <th class="py-3 px-3 bg-slate-950 text-amber-300 font-bold">Total Bid ($)</th>
               </tr>
             </thead>
-            <tbody id="masterTenderTableBody" class="divide-y divide-slate-800/80 font-mono"></tbody>
+            <tbody id="masterTenderTableBody" class="divide-y divide-slate-800 font-mono"></tbody>
           </table>
         </div>
       </div>
@@ -436,22 +385,24 @@
   </div>
 
   <script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
     const MASTER_ADMIN_PIN = "7788";
     const SUPABASE_URL = "https://fzibnrnyukyscnlookxp.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5uzyIfCZOB2syyXzjUmQuA_8dbhROx9";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ⚡ 0.0001s In-Memory Cache
     let liveRapCache = new Map();
-
-    // Load locally saved Friday rates from localStorage instantly on start
     try {
-      const savedRates = localStorage.getItem("LOCAL_RAP_CACHE");
-      if (savedRates) {
-        const parsed = JSON.parse(savedRates);
-        for (let k in parsed) {
-          liveRapCache.set(k, parsed[k]);
-        }
+      const saved = localStorage.getItem("LOCAL_RAP_CACHE");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        for (let k in parsed) liveRapCache.set(k, parsed[k]);
       }
     } catch(e) {}
 
@@ -473,23 +424,27 @@
     }
 
     async function checkUserPermission() {
-      const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN");
+      // 1. Check offline persistent permission
+      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
+      const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
+
       if (isMasterAdmin === "true") {
         grantAccess("Master Admin", "admin");
         return;
       }
 
-      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
       if (cachedApproved === "true") {
-        grantAccess(localStorage.getItem("APP_USER_NAME") || "User", "user");
+        grantAccess(localStorage.getItem("APP_USER_NAME") || "Authorized User", "user");
         return;
       }
 
+      // 2. If completely offline on fresh device, grant access as Authorized Offline Trader
       if (!navigator.onLine) {
-        grantAccess("Authorized Offline User", "user");
+        grantAccess("Authorized Offline Trader", "user");
         return;
       }
 
+      // 3. Online Check
       const deviceId = getDeviceId();
       try {
         const { data } = await supabaseClient
@@ -556,6 +511,7 @@
       const pin = document.getElementById('adminPinInput').value.trim();
       if (pin === MASTER_ADMIN_PIN) {
         sessionStorage.setItem("IS_MASTER_ADMIN", "true");
+        localStorage.setItem("IS_MASTER_ADMIN", "true");
         grantAccess("Master Admin", "admin");
       } else {
         alert("Incorrect Admin PIN!");
@@ -564,6 +520,7 @@
 
     window.logoutApp = function() {
       sessionStorage.removeItem("IS_MASTER_ADMIN");
+      localStorage.removeItem("IS_MASTER_ADMIN");
       localStorage.removeItem("APP_USER_APPROVED");
       location.reload();
     };
@@ -586,7 +543,7 @@
       tbody.innerHTML = '';
       data.forEach(u => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-800/40";
+        tr.className = "hover:bg-slate-800";
         tr.innerHTML = `
           <td class="py-3 px-3 font-semibold text-slate-200">${u.user_name}</td>
           <td class="py-3 px-3 font-mono text-slate-400">${u.phone}</td>
@@ -598,8 +555,8 @@
             }">${u.status.toUpperCase()}</span>
           </td>
           <td class="py-3 px-3 text-right space-x-1.5">
-            <button onclick="setUserStatus('${u.id}', 'approved')" class="text-xs bg-emerald-900/60 hover:bg-emerald-800 text-emerald-300 px-2.5 py-1 rounded-lg transition font-semibold">Approve</button>
-            <button onclick="setUserStatus('${u.id}', 'blocked')" class="text-xs bg-red-900/60 hover:bg-red-800 text-red-300 px-2.5 py-1 rounded-lg transition font-semibold">Block</button>
+            <button onclick="setUserStatus('${u.id}', 'approved')" class="text-xs bg-emerald-900 hover:bg-emerald-800 text-emerald-300 px-2.5 py-1 rounded-lg">Approve</button>
+            <button onclick="setUserStatus('${u.id}', 'blocked')" class="text-xs bg-red-900 hover:bg-red-800 text-red-300 px-2.5 py-1 rounded-lg">Block</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -642,7 +599,6 @@
       return "30.00+";
     }
 
-    // ⚡ ZERO-DELAY MATHEMATICAL ENGINE (Instant Fallback in 0.0001 sec)
     function calculateDynamicRapRate(shape, weight, color, clarity, cut, fls) {
       let base = 7600;
       if (weight >= 5.0) base = 65000;
@@ -672,7 +628,6 @@
       return { rapPrice: Math.max(calculatedRap, 800), back: Math.min(Math.max(baseBack, 10.0), 85.0) };
     }
 
-    // ⚡ ZERO-DELAY INSTANT LOOKUP (Offline-Safe)
     function lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls) {
       const range = getRangeSlab(weight);
       const [pol, sym] = (polishSym || "EX-EX").split('-');
@@ -685,12 +640,10 @@
         candidates.push(`${range}-${shape}-${color}-${clarity}-${cut}-${pol}-${sym}-${fls}`);
       }
 
-      // 1. Check RAM Cache (0.00001 sec)
       for (let k of candidates) {
         if (liveRapCache.has(k)) return liveRapCache.get(k);
       }
 
-      // 2. Mathematical Exact Engine (0.0001 sec - No Network Wait!)
       return calculateDynamicRapRate(shape, weight, color, clarity, cut, fls);
     }
 
@@ -786,7 +739,7 @@
       document.getElementById(id).addEventListener('input', () => updateQuickCalculations(true));
     });
 
-    // Upload & Save to localStorage & Cloud
+    // Upload Friday Excel
     document.getElementById('excelFileInput').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -812,10 +765,7 @@
               const backVal = parseFloat(row[12]);
               if (itemCode && !isNaN(rapVal)) {
                 const itemStr = String(itemCode).trim();
-                const record = {
-                  rap_price: rapVal,
-                  back: isNaN(backVal) ? 0 : backVal
-                };
+                const record = { rap_price: rapVal, back: isNaN(backVal) ? 0 : backVal };
                 liveRapCache.set(itemStr, record);
                 localCacheObj[itemStr] = record;
                 rowsToInsert.push({ item_cd: itemStr, rap_price: rapVal, back: record.back });
@@ -823,12 +773,10 @@
             }
           }
 
-          // Save to LocalStorage for instant 0.001s offline boot
           try {
             localStorage.setItem("LOCAL_RAP_CACHE", JSON.stringify(localCacheObj));
           } catch(e) {}
 
-          // Cloud sync in background
           if (navigator.onLine) {
             statusEl.innerText = `☁️ Syncing Cloud...`;
             const chunkSize = 2000;
@@ -838,9 +786,9 @@
             }
           }
 
-          statusEl.innerText = `⚡ ${rowsToInsert.length.toLocaleString()} Rates Live`;
+          statusEl.innerText = `🟢 100% Offline Ready`;
           updateQuickCalculations(false);
-          alert("Success! Rates updated permanently!");
+          alert("Success! Rates updated permanently for Offline Mode!");
         } catch (err) {
           alert("Upload Error: " + err.message);
         }
@@ -878,15 +826,15 @@
     document.getElementById('btnModeQuick').addEventListener('click', () => {
       document.getElementById('quickSingleView').classList.remove('hidden');
       document.getElementById('tenderMultiView').classList.add('hidden');
-      document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-md transition";
-      document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
+      document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md";
+      document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200";
     });
 
     document.getElementById('btnModeTender').addEventListener('click', () => {
       document.getElementById('tenderMultiView').classList.remove('hidden');
       document.getElementById('quickSingleView').classList.add('hidden');
-      document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-cyan-500 text-white shadow-md transition";
-      document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
+      document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md";
+      document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200";
       renderStonesList();
       renderPiecesTable();
       renderMasterTenderTable();
@@ -921,7 +869,7 @@
         const div = document.createElement('div');
         div.onclick = () => selectStone(s.id);
         div.className = `p-3.5 rounded-2xl cursor-pointer border transition flex flex-col gap-1.5 ${
-          isActive ? 'bg-cyan-950/80 border-cyan-500 shadow-lg shadow-cyan-950/50 ring-1 ring-cyan-500/30' : 'bg-slate-900/60 border-slate-800/80 hover:border-slate-700'
+          isActive ? 'bg-cyan-950 border-cyan-500 ring-1 ring-cyan-500/30' : 'bg-slate-900 border-slate-800'
         }`;
 
         div.innerHTML = `
@@ -946,7 +894,7 @@
 
       stone.pieces.forEach((p, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-800/40 transition";
+        tr.className = "hover:bg-slate-800";
         tr.innerHTML = `
           <td class="py-2.5 px-3 font-semibold text-cyan-400">#${idx + 1}</td>
           <td class="py-2.5 px-3 font-medium text-slate-200">${p.shape}</td>
@@ -997,7 +945,7 @@
         grandTotalValue += totalPolVal;
 
         const tr = document.createElement('tr');
-        tr.className = `hover:bg-slate-800/40 transition ${s.id === activeStoneId ? 'bg-cyan-950/20' : ''}`;
+        tr.className = `hover:bg-slate-800 ${s.id === activeStoneId ? 'bg-cyan-950/20' : ''}`;
         tr.innerHTML = `
           <td class="py-3 px-3 font-bold text-slate-100 cursor-pointer" onclick="selectStone(${s.id})">${s.lotNo}</td>
           <td class="py-3 px-3 font-mono font-bold text-amber-300">${s.roughWt.toFixed(2)}</td>
@@ -1006,10 +954,10 @@
           <td class="py-3 px-3 font-mono text-emerald-400 font-bold">${yieldPct.toFixed(1)}%</td>
           <td class="py-3 px-3 font-mono font-bold text-emerald-300">$${totalPolVal.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
           <td class="py-3 px-3 font-mono font-extrabold text-cyan-300 text-sm">$${roughPerCt.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
-          <td class="py-2.5 px-3 bg-slate-950/80 border-l border-slate-800">
-            <input type="number" step="10" value="${s.bossBidPerCt || ''}" placeholder="Bid $/ct" onchange="updateBossBid(${s.id}, this.value)" class="w-24 bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-bold font-mono outline-none focus:border-amber-400" />
+          <td class="py-2.5 px-3 bg-slate-950 border-l border-slate-800">
+            <input type="number" step="10" value="${s.bossBidPerCt || ''}" placeholder="Bid $/ct" onchange="updateBossBid(${s.id}, this.value)" class="w-24 bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-bold font-mono outline-none" />
           </td>
-          <td class="py-3 px-3 bg-slate-950/80 font-mono font-extrabold text-amber-300">$${totalBid.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+          <td class="py-3 px-3 bg-slate-950 font-mono font-extrabold text-amber-300">$${totalBid.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
         `;
         tbody.appendChild(tr);
       });
