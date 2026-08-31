@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AURA DIAMOND | Sarine Advisor Rough Tender Planning Suite</title>
+  <title>AURA DIAMOND | Sarine Advisor Rough Valuation Suite</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -11,11 +11,35 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
-    body { background-color: #040711; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    .glass-card { background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .glass-card-glow { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(6, 182, 212, 0.3); }
-    .sarine-table th { background: #0f172a; border: 1px solid #334155; padding: 5px 4px; font-size: 10px; text-transform: uppercase; font-weight: 700; }
-    .sarine-table td { border: 1px solid #1e293b; padding: 4px 4px; font-size: 11px; }
+    :root {
+      --bg-main: #040711;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.3);
+    }
+    body.theme-gold {
+      --bg-main: #0b0904;
+      --card-bg: rgba(28, 22, 10, 0.9);
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.3);
+    }
+    body.theme-emerald {
+      --bg-main: #020c08;
+      --card-bg: rgba(6, 30, 20, 0.9);
+      --accent: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+    }
+    body.theme-sapphire {
+      --bg-main: #03071e;
+      --card-bg: rgba(15, 23, 50, 0.9);
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.3);
+    }
+    body { background-color: var(--bg-main); color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s ease; }
+    .glass-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .glass-card-glow { background: var(--card-bg); border: 1px solid var(--accent-glow); }
+    .sarine-table th { background: #0f172a; border: 1px solid #334155; padding: 5px 3px; font-size: 10px; text-transform: uppercase; font-weight: 700; text-align: center; }
+    .sarine-table td { border: 1px solid #1e293b; padding: 3px 2px; font-size: 11px; text-align: center; }
     @media print {
       body { background: #fff !important; color: #000 !important; }
       .no-print { display: none !important; }
@@ -26,13 +50,13 @@
 </head>
 <body class="min-h-screen select-none antialiased">
 
-  <!-- AUTH LOCK OVERLAY -->
+  <!-- ACCESS CONTROL / AUTH MODAL -->
   <div id="authLockOverlay" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 no-print">
     <div class="glass-card-glow p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-5">
       <div class="inline-flex p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 text-3xl">💎</div>
       <div>
         <h2 class="text-2xl font-extrabold text-white">AURA TENDER PRO</h2>
-        <p class="text-xs text-slate-400 mt-1">Sarine Advisor Tender & Valuation Integration</p>
+        <p class="text-xs text-slate-400 mt-1">Dual-Device Secured Diamond Terminal</p>
       </div>
 
       <div id="registerBox" class="space-y-3 text-left">
@@ -45,7 +69,7 @@
           <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400" />
         </div>
         <button id="btnSubmitRequest" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase">
-          Register This Terminal
+          Register Device
         </button>
       </div>
 
@@ -91,29 +115,43 @@
   </div>
 
   <!-- MAIN APP CONTAINER -->
-  <div id="mainAppContent" class="hidden p-2 sm:p-4 md:p-6 max-w-[1900px] mx-auto space-y-4">
+  <div id="mainAppContent" class="hidden p-2 sm:p-4 md:p-6 max-w-[1920px] mx-auto space-y-4">
     
-    <!-- Header -->
+    <!-- Top Bar -->
     <header class="glass-card p-3 sm:p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
       <div class="flex items-center gap-3">
         <div class="p-2 bg-cyan-600 rounded-xl text-white text-lg">💎</div>
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-lg sm:text-xl font-extrabold text-white">AURA</h1>
-            <span class="text-[10px] bg-cyan-950 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800 uppercase">Sarine Integrated</span>
+            <span class="text-[10px] bg-cyan-950 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800 uppercase">Sarine Advisor Pro</span>
           </div>
           <p class="text-[11px] text-slate-400 font-mono">Planner: <span id="currentUserLabel" class="text-cyan-300 font-semibold">Authorized</span></p>
         </div>
       </div>
 
+      <!-- Center: 1-Stone Quick vs Sarine Mode Switcher -->
+      <div class="bg-slate-900 p-1 rounded-2xl border border-slate-800 flex items-center text-xs font-semibold">
+        <button id="btnModeQuick" onclick="switchAppMode('quick')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition">1-Stone Quick</button>
+        <button id="btnModeTender" onclick="switchAppMode('tender')" class="px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition">Sarine Tender Master</button>
+      </div>
+
+      <!-- Right Controls: Themes, Upload, Logout -->
       <div class="flex flex-wrap items-center gap-2">
-        <button id="btnOpenUserAdmin" class="hidden bg-purple-950/60 text-purple-300 border border-purple-800 text-xs px-3 py-2 rounded-xl font-semibold">
-          Admin
-        </button>
+        
+        <!-- Theme Switcher -->
+        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
+          <button onclick="setTheme('cyan')" class="w-5 h-5 rounded-full bg-cyan-500 border border-white/40" title="Cyan Theme"></button>
+          <button onclick="setTheme('gold')" class="w-5 h-5 rounded-full bg-amber-500 border border-white/40" title="Gold Theme"></button>
+          <button onclick="setTheme('emerald')" class="w-5 h-5 rounded-full bg-emerald-500 border border-white/40" title="Emerald Theme"></button>
+          <button onclick="setTheme('sapphire')" class="w-5 h-5 rounded-full bg-blue-500 border border-white/40" title="Sapphire Theme"></button>
+        </div>
+
+        <button id="btnOpenUserAdmin" class="hidden bg-purple-950/60 text-purple-300 border border-purple-800 text-xs px-3 py-2 rounded-xl font-semibold">Admin</button>
 
         <label class="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 text-xs px-3 py-2 rounded-xl cursor-pointer flex items-center gap-1.5 font-bold shadow-md">
           <i class="fa-solid fa-file-import"></i>
-          <span>Import Sarine / Advisor Excel</span>
+          <span>Import Sarine</span>
           <input type="file" id="sarineImportInput" accept=".xlsx,.xls,.csv" class="hidden" />
         </label>
 
@@ -122,24 +160,119 @@
           <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" />
         </label>
 
-        <button onclick="clearTenderData()" class="bg-slate-900 hover:bg-amber-950 text-slate-400 hover:text-amber-400 border border-slate-800 text-xs px-3 py-2 rounded-xl">
-          Reset Lots
-        </button>
-
-        <button onclick="logoutApp()" class="bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-slate-800 text-xs px-3 py-2 rounded-xl">
-          Lock
-        </button>
-
-        <span id="cloudStatus" class="text-[11px] bg-slate-950 text-emerald-400 px-3 py-2 rounded-xl border border-slate-800 font-mono font-semibold">
-          🟢 Auto-Saved
-        </span>
+        <button onclick="clearTenderData()" class="bg-slate-900 hover:bg-amber-950 text-slate-400 hover:text-amber-400 border border-slate-800 text-xs px-3 py-2 rounded-xl">Reset</button>
+        <button onclick="logoutApp()" class="bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-slate-800 text-xs px-3 py-2 rounded-xl">Lock</button>
       </div>
     </header>
 
-    <!-- MAIN VALUATION WORKBENCH -->
-    <div class="space-y-4">
+    <!-- VIEW 1: 1-STONE QUICK LOOKUP VIEW -->
+    <div id="quickSingleView" class="hidden space-y-4 no-print">
+      <div class="glass-card p-5 sm:p-8 rounded-3xl space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+          <h2 class="font-bold text-base text-cyan-400">Real-time Single Stone Valuation</h2>
+          <span id="quickRangeBadge" class="text-xs bg-slate-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800 font-mono font-bold">1.00 to 1.29</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+          <div class="col-span-2 sm:col-span-2">
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Shape</label>
+            <select id="qShape" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-cyan-300 font-bold outline-none">
+              <option value="ROUND" selected>ROUND</option>
+              <option value="SCMB">SCMB</option>
+              <option value="CMB">CMB</option>
+              <option value="RADIANT">RADIANT</option>
+              <option value="S.RADIANT">S.RADIANT</option>
+              <option value="ASSCHER">ASSCHER</option>
+              <option value="EMERALD">EMERALD</option>
+              <option value="OVAL">OVAL</option>
+              <option value="PEAR">PEAR</option>
+              <option value="PRINSESS">PRINSESS</option>
+              <option value="HEART">HEART</option>
+              <option value="MARQUIES">MARQUIES</option>
+              <option value="ASHOKA">ASHOKA</option>
+              <option value="BAGUETTE">BAGUETTE</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Weight (Ct)</label>
+            <input type="number" id="qCarat" step="0.01" min="0.01" value="1.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-amber-300 font-bold font-mono outline-none" />
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Color (D - Fancy)</label>
+            <select id="qColor" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
+              <option selected>D</option><option>E</option><option>F</option><option>G</option>
+              <option>H</option><option>I</option><option>J</option><option>K</option>
+              <option>L</option><option>M</option><option>N</option><option>O-P</option>
+              <option>Q-R</option><option>S-Z</option><option>FANCY</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Clarity (IF - I3)</label>
+            <select id="qClarity" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
+              <option>IF</option><option>VVS1</option><option>VVS2</option>
+              <option selected>VS1</option><option>VS2</option><option>SI1</option>
+              <option>SI2</option><option>I1</option><option>I2</option><option>I3</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Cut</label>
+            <select id="qCut" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
+              <option value="EX" selected>EX</option>
+              <option value="VG">VG</option>
+              <option value="GD">GD</option>
+              <option value="">NONE</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Pol / Sym</label>
+            <select id="qPolishSym" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
+              <option value="EX-EX" selected>EX-EX</option>
+              <option value="VG-EX">VG-EX</option>
+              <option value="VG-VG">VG-VG</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Fls</label>
+            <select id="qFls" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
+              <option value="NON" selected>NON</option>
+              <option value="FNT">FNT</option>
+              <option value="MED">MED</option>
+              <option value="STG">STG</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Rap Price</span>
+            <input type="number" id="qRapPriceInput" value="7600" class="w-full bg-transparent text-xl font-bold font-mono text-slate-100 outline-none" />
+          </div>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Back / Discount %</span>
+            <input type="number" id="qDiscountInput" step="0.1" value="44.0" class="w-full bg-transparent text-xl font-bold font-mono text-emerald-400 outline-none" />
+          </div>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Net Rate / Ct</span>
+            <div id="qNetPriceDisplay" class="text-xl font-extrabold font-mono text-cyan-300">$4,256</div>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Total Stone Value</span>
+            <div id="qTotalValDisplay" class="text-xl font-extrabold font-mono text-emerald-300">$4,298.56</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: SARINE TENDER MASTER WORKBENCH -->
+    <div id="tenderMultiView" class="space-y-4">
       
-      <!-- Lots Bar & Active Lot Selector -->
+      <!-- Lots Bar -->
       <div class="glass-card p-3 rounded-2xl flex items-center justify-between gap-3 overflow-x-auto no-print">
         <div class="flex items-center gap-2 overflow-x-auto pr-2" id="lotsTabsBar"></div>
         <button id="addNewStoneBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-2 rounded-xl font-bold whitespace-nowrap shadow-md">
@@ -147,13 +280,11 @@
         </button>
       </div>
 
-      <!-- SARINE ADVISOR EXACT MASTER CARD -->
+      <!-- SARINE ADVISOR MASTER CARD -->
       <div class="glass-card-glow p-4 sm:p-5 rounded-3xl space-y-4">
         
-        <!-- 1:1 SARINE HEADER BOX (COLOR METER + PACKET ID + WEIGHT + PLANNER + PROCESS + TENSION + COMMENTS) -->
+        <!-- Header Box (Color Meter + Packet ID + Weight + Planner + Process + Tension + Comments) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
-          
-          <!-- Color Meter (3 Slabs) -->
           <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-red-900/40 text-center">
             <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block border-b border-red-900/40 pb-1 mb-1.5">Color Meter</span>
             <div class="grid grid-cols-3 gap-1 text-[11px] font-mono">
@@ -163,44 +294,38 @@
             </div>
           </div>
 
-          <!-- Packet ID -->
           <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Packet / Lot ID</span>
-            <input type="text" id="activePacketId" value="NP04" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-cyan-300 font-bold font-mono outline-none" />
+            <input type="text" id="activePacketId" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-cyan-300 font-bold font-mono outline-none" />
           </div>
 
-          <!-- Rough Weight (Ct) -->
           <div class="lg:col-span-1 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
             <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">Rough Wt</span>
-            <input type="number" id="activeRoughWt" step="0.01" value="19.08" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-amber-300 font-bold font-mono outline-none" />
+            <input type="number" id="activeRoughWt" step="0.01" min="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-amber-300 font-bold font-mono outline-none" />
           </div>
 
-          <!-- Planner Name -->
           <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Planner Name</span>
-            <input type="text" id="activePlannerName" value="SAGAR" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-slate-200 font-bold outline-none" />
+            <input type="text" id="activePlannerName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-slate-200 font-bold outline-none" />
           </div>
 
-          <!-- Process -->
           <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
             <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block mb-1">Process</span>
-            <input type="text" id="activeProcess" value="SARIN MANUAL" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-red-400 font-bold font-mono outline-none" />
+            <input type="text" id="activeProcess" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-red-400 font-bold font-mono outline-none" />
           </div>
 
-          <!-- Tension & Fluorescence -->
           <div class="lg:col-span-1 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tension</span>
-            <input type="text" id="activeTension" value="T-0" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-cyan-400 font-mono outline-none font-bold" />
+            <input type="text" id="activeTension" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-cyan-400 font-mono outline-none font-bold" />
           </div>
 
-          <!-- Main Stone Comment -->
           <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
             <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block mb-1">Stone Remark</span>
             <input type="text" id="activeMainComment" placeholder="Rough Comment" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-200 outline-none" />
           </div>
         </div>
 
-        <!-- 🎯 MULTI-PLAN TABLE ACCORDION -->
+        <!-- MULTI-PLAN TABLE ACCORDION -->
         <div class="space-y-4" id="plansAccordionContainer"></div>
 
         <!-- Add New Plan Action -->
@@ -209,7 +334,7 @@
             <i class="fa-solid fa-plus"></i> + Add Another Plan (Plan 2, Plan 3...)
           </button>
           <div class="text-xs text-slate-400 font-mono">
-            Active Selected Valuation Plan: <span id="activeBestPlanBadge" class="text-emerald-400 font-bold">Plan 1</span>
+            Auto-Selected Valuation: <span id="activeBestPlanBadge" class="text-emerald-400 font-bold">Plan 1</span>
           </div>
         </div>
 
@@ -222,7 +347,7 @@
             <h3 class="text-base font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-table text-emerald-400"></i> Master Sarine Tender Evaluation & Export Engine
             </h3>
-            <p class="text-xs text-slate-400">Generates 100% 1:1 multi-plan excel report matching your screenshot</p>
+            <p class="text-xs text-slate-400">Automated 1:1 Sarine sheet report matching your planning</p>
           </div>
           <div class="flex flex-wrap items-center gap-2 no-print">
             <button id="btnShareWhatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 shadow-lg">
@@ -242,7 +367,7 @@
             <thead class="bg-slate-950 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800 font-mono">
               <tr>
                 <th class="py-3 px-3">Packet ID</th>
-                <th class="py-3 px-3">Selected Plan</th>
+                <th class="py-3 px-3">Auto-Selected Plan</th>
                 <th class="py-3 px-3">Rough Wt</th>
                 <th class="py-3 px-3">Polish Wt</th>
                 <th class="py-3 px-3">Pieces</th>
@@ -283,6 +408,31 @@
       }
     } catch(e) {}
 
+    // 🎨 THEME SWITCHER
+    window.setTheme = function(themeName) {
+      document.body.className = "min-h-screen select-none antialiased " + (themeName === 'cyan' ? '' : `theme-${themeName}`);
+      localStorage.setItem("APP_THEME_COLOR", themeName);
+    };
+    const savedTheme = localStorage.getItem("APP_THEME_COLOR");
+    if (savedTheme) setTheme(savedTheme);
+
+    // 🔀 APP MODE SWITCHER (1-Stone Quick vs Sarine Tender)
+    window.switchAppMode = function(mode) {
+      if (mode === 'quick') {
+        document.getElementById('quickSingleView').classList.remove('hidden');
+        document.getElementById('tenderMultiView').classList.add('hidden');
+        document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
+        document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
+        updateQuickCalculations(false);
+      } else {
+        document.getElementById('tenderMultiView').classList.remove('hidden');
+        document.getElementById('quickSingleView').classList.add('hidden');
+        document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
+        document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
+        renderWorkbench();
+      }
+    };
+
     // 💎 EXACT SARINE ADVISOR STRUCTURE DATA
     const defaultSarineStone = {
       id: 1,
@@ -294,32 +444,17 @@
       colorMeter: { m1: "028", m2: "L002", m3: "NFY" },
       mainComment: "",
       bossBidPerCt: 0,
-      activePlanIndex: 0,
       plans: [
         {
           planNum: 1,
-          isBest: true,
           pieces: [
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 90.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 69000, rapBack: 5.0, perCt: 65550, totalVal: 5899500 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "SCMB", weight: 90.00, color: "D", clarity: "VS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 57000, rapBack: -2.0, perCt: 58140, totalVal: 5232600 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "SCMB", weight: 90.00, color: "D", clarity: "VS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 57000, rapBack: -2.0, perCt: 58140, totalVal: 5232600 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "SCMB", weight: 90.00, color: "D", clarity: "VS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 57000, rapBack: -2.0, perCt: 58140, totalVal: 5232600 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "SCMB", weight: 90.00, color: "D", clarity: "VS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 57000, rapBack: -2.0, perCt: 58140, totalVal: 5232600 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "CMB", weight: 5.00, color: "D", clarity: "VS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 57000, rapBack: 46.0, perCt: 30780, totalVal: 153900 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 6.00, color: "D", clarity: "VVS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 85500, rapBack: 46.0, perCt: 46170, totalVal: 277020 }
+            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }
           ]
         },
         {
           planNum: 2,
-          isBest: false,
           pieces: [
-            { itemCd: "", docNo: "", lotNo: "", shape: "RADIANT", weight: 7.00, color: "D", clarity: "VVS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 63500, rapBack: 44.0, perCt: 35560, totalVal: 248920 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "S.RADIANT", weight: 8.00, color: "D", clarity: "VVS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 63500, rapBack: 31.0, perCt: 43815, totalVal: 350520 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "S.RADIANT", weight: 9.00, color: "D", clarity: "VVS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 63500, rapBack: 26.0, perCt: 46990, totalVal: 422910 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "S.RADIANT", weight: 10.00, color: "D", clarity: "VVS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 63500, rapBack: 18.0, perCt: 52070, totalVal: 520700 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "S.RADIANT", weight: 10.00, color: "D", clarity: "VVS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 63500, rapBack: 18.0, perCt: 52070, totalVal: 520700 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "S.RADIANT", weight: 10.00, color: "D", clarity: "VVS1", cut: "", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 63500, rapBack: 18.0, perCt: 52070, totalVal: 520700 },
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 12.00, color: "D", clarity: "VVS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 85500, rapBack: 22.0, perCt: 66690, totalVal: 800280 }
+            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 40.0, perCt: 16800, totalVal: 50400 }
           ]
         }
       ]
@@ -489,12 +624,104 @@
       if (w >= 90.00) return "90.00+";
       if (w >= 10.00) return "10.00 to 14.99";
       if (w >= 5.00) return "5.00 to 5.99";
+      if (w >= 4.00) return "4.00 to 4.49";
+      if (w >= 3.00) return "3.00 to 3.49";
       if (w >= 2.00) return "2.00 to 2.49";
+      if (w >= 1.50) return "1.50 to 1.79";
       if (w >= 1.00) return "1.00 to 1.29";
-      return "0.30 to 0.99";
+      if (w >= 0.70) return "0.70 to 0.79";
+      if (w >= 0.50) return "0.50 to 0.59";
+      return "0.30 to 0.39";
     }
 
-    // ⚡ WORKBENCH RENDERING ENGINE (Exact 1:1 Sarine Table)
+    function calculateDynamicRapRate(shape, weight, color, clarity, cut, fls) {
+      let base = 7600;
+      if (weight >= 90.0) base = 69000;
+      else if (weight >= 10.0) base = 63500;
+      else if (weight >= 5.0) base = 57000;
+      else if (weight >= 4.0) base = 42000;
+      else if (weight >= 3.0) base = 28000;
+      else if (weight >= 2.0) base = 15000;
+      else if (weight >= 1.5) base = 10500;
+      else if (weight >= 1.0) base = 7600;
+      else if (weight >= 0.7) base = 4800;
+      else if (weight >= 0.5) base = 3200;
+      else base = 2100;
+
+      const colorMap = { 'D': 1.0, 'E': 0.90, 'F': 0.82, 'G': 0.74, 'H': 0.65, 'I': 0.56, 'J': 0.48, 'K': 0.40, 'L': 0.35, 'M': 0.30, 'N': 0.25, 'O-P': 0.20, 'Q-R': 0.16, 'S-Z': 0.12, 'FANCY': 0.85 };
+      const colMul = colorMap[color] || 0.70;
+
+      const clarityMap = { 'IF': 1.15, 'VVS1': 1.0, 'VVS2': 0.88, 'VS1': 0.78, 'VS2': 0.68, 'SI1': 0.55, 'SI2': 0.44, 'I1': 0.32, 'I2': 0.22, 'I3': 0.15 };
+      const claMul = clarityMap[clarity] || 0.70;
+
+      let shapeMul = (shape === 'ROUND') ? 1.0 : 0.82;
+      let calculatedRap = Math.round((base * colMul * claMul * shapeMul) / 100) * 100;
+
+      let baseBack = (shape === 'ROUND') ? 44.0 : 52.0;
+      if (fls === 'MED') baseBack += 4.0;
+      if (fls === 'STG') baseBack += 8.0;
+
+      return { rapPrice: Math.max(calculatedRap, 600), back: Math.min(Math.max(baseBack, -10.0), 85.0) };
+    }
+
+    function lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls) {
+      const range = getRangeSlab(weight);
+      const [pol, sym] = (polishSym || "EX-EX").split('-');
+
+      let candidates = [];
+      if (shape === 'ROUND') {
+        candidates.push(`${range}-${shape}-${color}-${clarity}-${cut || 'EX'}-${pol}-${sym}-${fls}`);
+      } else {
+        candidates.push(`${range}-${shape}-${color}-${clarity}--${pol}-${sym}-${fls}`);
+        candidates.push(`${range}-${shape}-${color}-${clarity}-${cut}-${pol}-${sym}-${fls}`);
+      }
+
+      for (let k of candidates) {
+        if (liveRapCache.has(k)) return liveRapCache.get(k);
+      }
+
+      return calculateDynamicRapRate(shape, weight, color, clarity, cut, fls);
+    }
+
+    // ⚡ 1-STONE QUICK LOOKUP ENGINE
+    function updateQuickCalculations(isManual = false) {
+      const shape = document.getElementById('qShape').value;
+      const weight = parseFloat(document.getElementById('qCarat').value) || 0;
+      const color = document.getElementById('qColor').value;
+      const clarity = document.getElementById('qClarity').value;
+      const cut = document.getElementById('qCut').value;
+      const polishSym = document.getElementById('qPolishSym').value;
+      const fls = document.getElementById('qFls').value;
+
+      document.getElementById('quickRangeBadge').innerText = getRangeSlab(weight);
+
+      let rapPrice = parseFloat(document.getElementById('qRapPriceInput').value);
+      let discount = parseFloat(document.getElementById('qDiscountInput').value);
+
+      if (!isManual) {
+        const match = lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls);
+        rapPrice = match.rapPrice;
+        discount = match.back;
+        document.getElementById('qRapPriceInput').value = rapPrice;
+        document.getElementById('qDiscountInput').value = discount;
+      }
+
+      const netPrice = rapPrice * (1 - (discount / 100));
+      const totalVal = netPrice * weight;
+
+      document.getElementById('qNetPriceDisplay').innerText = `$${Math.round(netPrice).toLocaleString()}`;
+      document.getElementById('qTotalValDisplay').innerText = `$${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    ['qShape', 'qCarat', 'qColor', 'qClarity', 'qCut', 'qPolishSym', 'qFls'].forEach(id => {
+      document.getElementById(id).addEventListener('change', () => updateQuickCalculations(false));
+      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(false));
+    });
+    ['qRapPriceInput', 'qDiscountInput'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(true));
+    });
+
+    // ⚡ WORKBENCH RENDERING ENGINE (Exact 1:1 Sarine Table with Auto-Best-Plan)
     function renderWorkbench() {
       renderLotsTabs();
       renderActiveStoneCard();
@@ -506,9 +733,16 @@
       container.innerHTML = '';
       roughStones.forEach(s => {
         const isActive = s.id === activeStoneId;
-        const bestPlan = s.plans.find(p => p.isBest) || s.plans[0];
-        const totalVal = bestPlan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const rPerCt = s.roughWt > 0 ? (totalVal / s.roughWt) : 0;
+        
+        // Auto-find highest value plan
+        let maxVal = -1;
+        let bestP = s.plans[0];
+        s.plans.forEach(p => {
+          const val = p.pieces.reduce((sum, pc) => sum + pc.totalVal, 0);
+          if (val > maxVal) { maxVal = val; bestP = p; }
+        });
+
+        const rPerCt = s.roughWt > 0 ? (maxVal / s.roughWt) : 0;
 
         const btn = document.createElement('button');
         btn.onclick = () => { activeStoneId = s.id; renderWorkbench(); };
@@ -538,8 +772,19 @@
       document.getElementById('cm2').value = stone.colorMeter?.m2 || 'L002';
       document.getElementById('cm3').value = stone.colorMeter?.m3 || 'NFY';
 
-      const bestPlan = stone.plans.find(p => p.isBest) || stone.plans[0];
-      document.getElementById('activeBestPlanBadge').innerText = `Plan ${bestPlan.planNum}`;
+      // 🎯 AUTO-DETECT BEST PLAN BY MAXIMUM VALUE ($)
+      let maxPlanVal = -1;
+      let bestPlanIndex = 0;
+      stone.plans.forEach((p, idx) => {
+        const val = p.pieces.reduce((sum, pc) => sum + pc.totalVal, 0);
+        if (val > maxPlanVal) {
+          maxPlanVal = val;
+          bestPlanIndex = idx;
+        }
+      });
+
+      stone.plans.forEach((p, idx) => p.isBest = (idx === bestPlanIndex));
+      document.getElementById('activeBestPlanBadge').innerText = `Plan ${stone.plans[bestPlanIndex].planNum}`;
 
       const container = document.getElementById('plansAccordionContainer');
       container.innerHTML = '';
@@ -581,10 +826,12 @@
                   <option ${pc.shape==='BAGUETTE'?'selected':''}>BAGUETTE</option>
                 </select>
               </td>
-              <td><input type="number" step="0.01" value="${pc.weight}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'weight', parseFloat(this.value))" class="w-14 bg-slate-950 font-bold text-amber-300 text-center rounded outline-none" /></td>
+              <td>
+                <input type="number" step="0.01" value="${pc.weight.toFixed(2)}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'weight', parseFloat(this.value))" class="w-14 bg-slate-950 font-bold text-amber-300 text-center rounded outline-none" />
+              </td>
               <td>
                 <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'color', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option ${pc.color==='D'?'selected':''}>D</option><option ${pc.color==='E'?'selected':''}>E</option><option ${pc.color==='F'?'selected':''}>F</option><option ${pc.color==='G'?'selected':''}>G</option><option ${pc.color==='H'?'selected':''}>H</option><option ${pc.color==='I'?'selected':''}>I</option><option ${pc.color==='J'?'selected':''}>J</option><option ${pc.color==='K'?'selected':''}>K</option><option ${pc.color==='L'?'selected':''}>L</option><option ${pc.color==='M'?'selected':''}>M</option>
+                  <option ${pc.color==='D'?'selected':''}>D</option><option ${pc.color==='E'?'selected':''}>E</option><option ${pc.color==='F'?'selected':''}>F</option><option ${pc.color==='G'?'selected':''}>G</option><option ${pc.color==='H'?'selected':''}>H</option><option ${pc.color==='I'?'selected':''}>I</option><option ${pc.color==='J'?'selected':''}>J</option><option ${pc.color==='K'?'selected':''}>K</option><option ${pc.color==='L'?'selected':''}>L</option><option ${pc.color==='M'?'selected':''}>M</option><option ${pc.color==='N'?'selected':''}>N</option><option ${pc.color==='O-P'?'selected':''}>O-P</option><option ${pc.color==='Q-R'?'selected':''}>Q-R</option><option ${pc.color==='S-Z'?'selected':''}>S-Z</option><option ${pc.color==='FANCY'?'selected':''}>FANCY</option>
                 </select>
               </td>
               <td>
@@ -592,12 +839,32 @@
                   <option ${pc.clarity==='IF'?'selected':''}>IF</option><option ${pc.clarity==='VVS1'?'selected':''}>VVS1</option><option ${pc.clarity==='VVS2'?'selected':''}>VVS2</option><option ${pc.clarity==='VS1'?'selected':''}>VS1</option><option ${pc.clarity==='VS2'?'selected':''}>VS2</option><option ${pc.clarity==='SI1'?'selected':''}>SI1</option><option ${pc.clarity==='SI2'?'selected':''}>SI2</option><option ${pc.clarity==='I1'?'selected':''}>I1</option><option ${pc.clarity==='I2'?'selected':''}>I2</option><option ${pc.clarity==='I3'?'selected':''}>I3</option>
                 </select>
               </td>
-              <td><input type="text" value="${pc.cut || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'cut', this.value)" class="w-8 bg-transparent text-center text-slate-200 font-bold outline-none" /></td>
-              <td><input type="text" value="${pc.polish || 'EX'}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'polish', this.value)" class="w-8 bg-transparent text-center text-slate-200 outline-none" /></td>
-              <td><input type="text" value="${pc.sym || 'EX'}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'sym', this.value)" class="w-8 bg-transparent text-center text-slate-200 outline-none" /></td>
-              <td><input type="text" value="${pc.fls || 'NON'}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'fls', this.value)" class="w-10 bg-transparent text-center text-slate-200 outline-none" /></td>
+              <td>
+                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'cut', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
+                  <option value="EX" ${pc.cut==='EX'?'selected':''}>EX</option><option value="VG" ${pc.cut==='VG'?'selected':''}>VG</option><option value="GD" ${pc.cut==='GD'?'selected':''}>GD</option><option value="" ${!pc.cut?'selected':''}>NONE</option>
+                </select>
+              </td>
+              <td>
+                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'polish', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
+                  <option value="EX" ${pc.polish==='EX'?'selected':''}>EX</option><option value="VG" ${pc.polish==='VG'?'selected':''}>VG</option><option value="GD" ${pc.polish==='GD'?'selected':''}>GD</option>
+                </select>
+              </td>
+              <td>
+                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'sym', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
+                  <option value="EX" ${pc.sym==='EX'?'selected':''}>EX</option><option value="VG" ${pc.sym==='VG'?'selected':''}>VG</option><option value="GD" ${pc.sym==='GD'?'selected':''}>GD</option>
+                </select>
+              </td>
+              <td>
+                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'fls', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
+                  <option value="NON" ${pc.fls==='NON'?'selected':''}>NON</option><option value="FNT" ${pc.fls==='FNT'?'selected':''}>FNT</option><option value="MED" ${pc.fls==='MED'?'selected':''}>MED</option><option value="STG" ${pc.fls==='STG'?'selected':''}>STG</option>
+                </select>
+              </td>
               <td><input type="text" value="${pc.comment || ''}" placeholder="-" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'comment', this.value)" class="w-20 bg-slate-950 text-slate-200 text-left px-1 rounded outline-none" /></td>
-              <td class="font-bold text-emerald-400"><input type="text" value="${pc.eyeClean || 'YES'}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'eyeClean', this.value)" class="w-10 bg-transparent text-center text-emerald-400 outline-none" /></td>
+              <td>
+                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'eyeClean', this.value)" class="bg-slate-900 text-emerald-400 rounded outline-none font-bold">
+                  <option value="YES" ${pc.eyeClean==='YES'?'selected':''}>YES</option><option value="NO" ${pc.eyeClean==='NO'?'selected':''}>NO</option>
+                </select>
+              </td>
               <td><input type="text" value="${pc.dm || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'dm', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
               <td><input type="text" value="${pc.table || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'table', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
               <td><input type="text" value="${pc.ratio || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'ratio', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
@@ -624,11 +891,11 @@
               <span class="text-xs bg-slate-950 text-emerald-400 px-2.5 py-0.5 rounded font-mono font-bold">Yield: ${yieldPct.toFixed(1)}%</span>
             </div>
             <div class="flex items-center gap-3">
-              <button onclick="setAsFinalPlan(${pIdx})" class="text-xs font-extrabold px-3 py-1 rounded-xl transition flex items-center gap-1.5 ${
-                plan.isBest ? 'bg-emerald-950 text-emerald-400 border border-emerald-600' : 'bg-slate-900 text-slate-400 border border-slate-700 hover:text-white'
+              <span class="text-xs font-extrabold px-3 py-1 rounded-xl transition flex items-center gap-1.5 ${
+                plan.isBest ? 'bg-emerald-950 text-emerald-400 border border-emerald-600' : 'bg-slate-900 text-slate-400 border border-slate-700'
               }">
-                ${plan.isBest ? '✔ FINAL VALUATION PLAN' : '★ Set as Final Plan'}
-              </button>
+                ${plan.isBest ? '✔ AUTO SELECTED (HIGHEST $)' : '★ Alternative Plan'}
+              </span>
               <button onclick="addPieceToPlan(${pIdx})" class="text-xs bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 px-2.5 py-1 rounded-lg font-bold no-print">
                 + Add Stone
               </button>
@@ -646,12 +913,11 @@
             </table>
           </div>
 
-          <!-- Plan Bottom Summary Matching Screenshot -->
           <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-950/90 p-2.5 rounded-xl border border-slate-800/80 mt-2 font-mono text-xs">
             <div class="flex items-center gap-4">
               <span class="font-bold text-amber-400">Total Polish Wt: ${planPolWt.toFixed(2)} ct</span>
               <span class="font-bold ${plan.isBest ? 'text-emerald-400' : 'text-slate-400'}">
-                ${plan.isBest ? '✔ Plan Status: Selected' : '✖ Plan Status: Alternative'}
+                ${plan.isBest ? '✔ Plan Status: Selected (Best Yield)' : '✖ Plan Status: Alternative'}
               </span>
             </div>
             <div class="flex items-center gap-5">
@@ -669,19 +935,22 @@
       });
     }
 
-    // UPDATE VALUE & AUTO RE-CALCULATE
+    // ⚡ DYNAMIC LIVE CALCULATION ON PARAMETER EDIT
     window.updatePieceVal = function(pIdx, pcIdx, field, val) {
       const stone = roughStones.find(s => s.id === activeStoneId);
       if (!stone) return;
       const pc = stone.plans[pIdx].pieces[pcIdx];
       pc[field] = val;
 
-      // Re-calc rate
-      if (['weight', 'shape', 'color', 'clarity', 'cut', 'rapBack'].includes(field)) {
-        let baseRap = pc.rapPrice || 60000;
-        pc.perCt = baseRap * (1 - (pc.rapBack / 100));
-        pc.totalVal = pc.perCt * pc.weight;
+      // Auto-lookup dynamic Rap & Back on parameters change
+      if (['weight', 'shape', 'color', 'clarity', 'cut', 'fls', 'polish', 'sym'].includes(field)) {
+        const match = lookupInstantRate(pc.shape, pc.weight, pc.color, pc.clarity, pc.cut, `${pc.polish}-${pc.sym}`, pc.fls);
+        pc.rapPrice = match.rapPrice;
+        if (field !== 'rapBack') pc.rapBack = match.back;
       }
+
+      pc.perCt = pc.rapPrice * (1 - (pc.rapBack / 100));
+      pc.totalVal = pc.perCt * pc.weight;
 
       autoSaveSarineData();
       renderWorkbench();
@@ -706,22 +975,12 @@
       }
     };
 
-    window.setAsFinalPlan = function(pIdx) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (stone) {
-        stone.plans.forEach((p, i) => p.isBest = (i === pIdx));
-        autoSaveSarineData();
-        renderWorkbench();
-      }
-    };
-
     document.getElementById('addNewPlanBtn').addEventListener('click', () => {
       const stone = roughStones.find(s => s.id === activeStoneId);
       if (!stone) return;
       const nextNum = stone.plans.length + 1;
       stone.plans.push({
         planNum: nextNum,
-        isBest: false,
         pieces: [
           { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 2.00, color: "D", clarity: "VVS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 15000, rapBack: 40.0, perCt: 9000, totalVal: 18000 }
         ]
@@ -743,12 +1002,35 @@
         mainComment: "",
         bossBidPerCt: 0,
         plans: [
-          { planNum: 1, isBest: true, pieces: [{ itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }] }
+          { planNum: 1, pieces: [{ itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }] }
         ]
       });
       activeStoneId = roughStones[roughStones.length - 1].id;
       autoSaveSarineData();
       renderWorkbench();
+    });
+
+    // LOT PARAMETER LISTENERS
+    ['activePacketId', 'activeRoughWt', 'activePlannerName', 'activeProcess', 'activeTension', 'activeMainComment', 'cm1', 'cm2', 'cm3'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        const stone = roughStones.find(s => s.id === activeStoneId);
+        if (stone) {
+          stone.packetId = document.getElementById('activePacketId').value.trim();
+          stone.roughWt = parseFloat(document.getElementById('activeRoughWt').value) || 0;
+          stone.plannerName = document.getElementById('activePlannerName').value.trim();
+          stone.process = document.getElementById('activeProcess').value.trim();
+          stone.tension = document.getElementById('activeTension').value.trim();
+          stone.mainComment = document.getElementById('activeMainComment').value.trim();
+          stone.colorMeter = {
+            m1: document.getElementById('cm1').value.trim(),
+            m2: document.getElementById('cm2').value.trim(),
+            m3: document.getElementById('cm3').value.trim()
+          };
+          autoSaveSarineData();
+          renderLotsTabs();
+          renderMasterTenderTable();
+        }
+      });
     });
 
     function renderMasterTenderTable() {
@@ -784,12 +1066,11 @@
       });
     }
 
-    // 🎯 1:1 SARINE MULTI-ROW DEEP EXCEL EXPORT (EXACT MATCH TO YOUR SCREENSHOT)
+    // 🎯 1:1 SARINE MULTI-ROW DEEP EXCEL EXPORT (MATCHING SCREENSHOT)
     document.getElementById('exportExcelBtn').addEventListener('click', () => {
       const exportRows = [];
 
       roughStones.forEach(s => {
-        // Header info row
         exportRows.push({
           "COLOR METER": `${s.colorMeter?.m1 || '028'}-${s.colorMeter?.m2 || 'L002'}-${s.colorMeter?.m3 || 'NFY'}`,
           "PACKET ID": s.packetId,
@@ -801,7 +1082,6 @@
           "COMMENT": s.mainComment || ""
         });
 
-        // Add each Plan and its Stones
         s.plans.forEach(plan => {
           const planTotalVal = plan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
           const rPerCt = s.roughWt > 0 ? (planTotalVal / s.roughWt) : 0;
@@ -813,7 +1093,7 @@
               "LOT NO": pc.lotNo || "",
               "PLAN": plan.planNum,
               "SHAPE": pc.shape,
-              "WEIGHT": pc.weight,
+              "WEIGHT": pc.weight.toFixed(2),
               "COLOR": pc.color,
               "CLARITY": pc.clarity,
               "CUT": pc.cut || "",
@@ -838,7 +1118,6 @@
           });
         });
 
-        // Blank separator
         exportRows.push({});
       });
 
@@ -848,28 +1127,33 @@
       XLSX.writeFile(wb, `Sarine_Advisor_Tender_${Date.now()}.xlsx`);
     });
 
-    // IMPORT SARINE EXCEL
-    document.getElementById('sarineImportInput').addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (!file) return;
+    // WHATSAPP SHARE
+    document.getElementById('btnShareWhatsapp').addEventListener('click', () => {
+      let msg = "💎 *AURA SARINE TENDER EVALUATION SHEET*\n\n";
+      let grandTotal = 0;
 
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const data = new Uint8Array(evt.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const json = XLSX.utils.sheet_to_json(sheet);
+      roughStones.forEach(s => {
+        const bestPlan = s.plans.find(p => p.isBest) || s.plans[0];
+        const polWt = bestPlan.pieces.reduce((sum, p) => sum + p.weight, 0);
+        const polVal = bestPlan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
+        const rPerCt = s.roughWt > 0 ? (polVal / s.roughWt) : 0;
+        grandTotal += polVal;
 
-          if (json && json.length > 0) {
-            alert("Sarine Plan Imported Successfully!");
-            renderWorkbench();
-          }
-        } catch (err) {
-          alert("Import Error: " + err.message);
+        msg += `📦 *${s.packetId}* (Rough: ${s.roughWt.toFixed(2)} ct)\n`;
+        msg += `   • Selected: *Plan ${bestPlan.planNum}* (${bestPlan.pieces.length} pcs | ${polWt.toFixed(2)} ct)\n`;
+        msg += `   • *R.PER CT:* $${Math.round(rPerCt).toLocaleString()} /ct\n`;
+        msg += `   • *Total Polish:* $${Math.round(polVal).toLocaleString()}\n`;
+        if (s.bossBidPerCt > 0) {
+          msg += `   • *Boss Bid:* $${s.bossBidPerCt}/ct ($${Math.round(s.bossBidPerCt * s.roughWt).toLocaleString()})\n`;
         }
-      };
-      reader.readAsArrayBuffer(file);
+        msg += `\n`;
+      });
+
+      msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+      msg += `💰 *GRAND TOTAL ESTIMATED VALUE:* $${Math.round(grandTotal).toLocaleString()}\n`;
+
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+      window.open(whatsappUrl, '_blank');
     });
 
     checkUserPermission();
