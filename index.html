@@ -50,7 +50,7 @@
 </head>
 <body class="min-h-screen select-none antialiased">
 
-  <!-- AUTH MODAL -->
+  <!-- AUTH MODAL WITH REGISTER & PIN LOGIN TABS -->
   <div id="authLockOverlay" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 no-print">
     <div class="glass-card-glow p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-5">
       <div class="inline-flex p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 text-3xl">💎</div>
@@ -595,7 +595,6 @@
       renderWorkbench();
     }
 
-    // 🔑 ADMIN DIRECT UNLOCK (Master PIN 7788)
     window.unlockMasterAdmin = function() {
       const pin = document.getElementById('adminPinInput').value.trim();
       if (pin === MASTER_ADMIN_PIN) {
@@ -608,7 +607,6 @@
       }
     };
 
-    // 🔒 OPEN & LOAD ADMIN MODAL
     window.openAdminModal = async function() {
       document.getElementById('adminUserModal').classList.remove('hidden');
       const tbody = document.getElementById('userListBody');
@@ -682,6 +680,7 @@
       }
     };
 
+    // SAFE REGISTRATION (No ON CONFLICT Error)
     window.handleUserRegister = async function() {
       const name = document.getElementById('reqName').value.trim();
       const phone = document.getElementById('reqPhone').value.trim();
@@ -693,17 +692,42 @@
       const devInfo = getDevicePlatformInfo();
 
       try {
-        const { error } = await supabaseClient.from('app_users').upsert({
-          user_name: name,
-          phone: phone,
-          pin: pin,
-          device_id_1: currentToken,
-          device_1_info: devInfo,
-          status: 'pending'
-        }, { onConflict: 'phone' });
+        const { data: existingUser } = await supabaseClient
+          .from('app_users')
+          .select('id')
+          .eq('phone', phone)
+          .maybeSingle();
 
-        if (error) {
-          alert("Error: " + error.message);
+        let resError = null;
+
+        if (existingUser) {
+          const { error } = await supabaseClient
+            .from('app_users')
+            .update({
+              user_name: name,
+              pin: pin,
+              device_id_1: currentToken,
+              device_1_info: devInfo,
+              status: 'pending'
+            })
+            .eq('phone', phone);
+          resError = error;
+        } else {
+          const { error } = await supabaseClient
+            .from('app_users')
+            .insert([{
+              user_name: name,
+              phone: phone,
+              pin: pin,
+              device_id_1: currentToken,
+              device_1_info: devInfo,
+              status: 'pending'
+            }]);
+          resError = error;
+        }
+
+        if (resError) {
+          alert("Error: " + resError.message);
         } else {
           localStorage.setItem("APP_USER_PHONE", phone);
           alert("Registration Submitted! Admin will approve once.");
