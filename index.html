@@ -50,39 +50,67 @@
 </head>
 <body class="min-h-screen select-none antialiased">
 
-  <!-- ACCESS CONTROL / AUTH MODAL -->
+  <!-- AUTH MODAL WITH REGISTER & PIN LOGIN TABS -->
   <div id="authLockOverlay" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 no-print">
     <div class="glass-card-glow p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-5">
       <div class="inline-flex p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 text-3xl">💎</div>
       <div>
         <h2 class="text-2xl font-extrabold text-white">AURA TENDER PRO</h2>
-        <p class="text-xs text-slate-400 mt-1">Dual-Device Secured Diamond Terminal</p>
+        <p class="text-xs text-slate-400 mt-1">Multi-Device Secured Diamond Terminal</p>
       </div>
 
-      <div id="registerBox" class="space-y-3 text-left">
-        <div>
-          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Full Name</label>
-          <input type="text" id="reqName" placeholder="e.g. Sagar Planner" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400" />
-        </div>
+      <!-- Tab Switcher: Login vs Register -->
+      <div class="flex bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1 text-xs font-bold">
+        <button id="tabBtnLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-cyan-600 text-white transition">Login with PIN</button>
+        <button id="tabBtnRegister" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition">New Register</button>
+      </div>
+
+      <!-- State 1: Login Form -->
+      <div id="loginFormBox" class="space-y-3 text-left">
         <div>
           <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Mobile Number</label>
-          <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400" />
+          <input type="tel" id="loginPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono" />
         </div>
-        <button id="btnSubmitRequest" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase">
-          Register Device
+        <div>
+          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Your 4-Digit Security PIN</label>
+          <input type="password" id="loginPin" maxlength="6" placeholder="****" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono tracking-widest text-center" />
+        </div>
+        <button onclick="handleUserLogin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase shadow-lg shadow-cyan-950">
+          Login Terminal
         </button>
       </div>
 
-      <div id="pendingBox" class="hidden bg-amber-950/30 border border-amber-500/40 p-4 rounded-2xl space-y-2 text-center">
+      <!-- State 2: Register Form -->
+      <div id="registerFormBox" class="hidden space-y-3 text-left">
+        <div>
+          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Full Name</label>
+          <input type="text" id="reqName" placeholder="e.g. Ramesh Bhai" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Mobile Number</label>
+          <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono" />
+        </div>
+        <div>
+          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Create 4-Digit Security PIN</label>
+          <input type="password" id="reqPin" maxlength="6" placeholder="Set PIN (e.g. 1234)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono tracking-widest text-center" />
+        </div>
+        <button onclick="handleUserRegister()" class="w-full bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white font-bold py-2.5 rounded-xl transition text-sm uppercase shadow-lg">
+          Request Approval
+        </button>
+      </div>
+
+      <!-- Status Notices -->
+      <div id="pendingBox" class="hidden bg-amber-950/40 border border-amber-500/50 p-4 rounded-2xl space-y-2 text-center">
         <p class="text-amber-400 font-bold text-sm">⏳ Approval Pending</p>
-        <button onclick="checkUserPermission()" class="text-xs bg-slate-800 text-slate-200 px-4 py-1.5 rounded-xl border border-slate-700 font-semibold mt-2">🔄 Check Status</button>
+        <p class="text-xs text-slate-300">Aapka account admin ke verification mein hai. Approve hote hi PIN se direct khul jayega.</p>
       </div>
 
       <div id="deviceMismatchBox" class="hidden bg-red-950/40 border border-red-500/50 p-4 rounded-2xl space-y-2 text-center">
-        <p class="text-red-400 font-bold text-sm">🚫 Device Limit Reached (Max 2 Devices)</p>
-        <button onclick="logoutApp()" class="text-xs bg-slate-800 text-slate-200 px-4 py-1.5 rounded-xl border border-slate-700 font-semibold mt-2">Back</button>
+        <p class="text-red-400 font-bold text-sm">🚫 Device Limit Exceeded (Max 2 Devices)</p>
+        <p class="text-xs text-slate-300">Yeh account already 2 devices par active hai. Purana device reset karwane ke liye Admin se sampark karein.</p>
       </div>
 
+      <!-- Admin PIN Direct Access -->
       <div class="pt-3 border-t border-slate-800 flex gap-2">
         <input type="password" id="adminPinInput" placeholder="Master Admin PIN" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs font-mono text-center text-cyan-400 outline-none" />
         <button id="btnAdminUnlock" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs px-4 py-2 rounded-xl border border-slate-700 font-bold uppercase">Admin</button>
@@ -90,11 +118,14 @@
     </div>
   </div>
 
-  <!-- ADMIN MODAL -->
+  <!-- ADMIN USERS TRACKING MODAL -->
   <div id="adminUserModal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 no-print">
-    <div class="glass-card-glow p-6 rounded-3xl max-w-3xl w-full space-y-4">
+    <div class="glass-card-glow p-6 rounded-3xl max-w-4xl w-full space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-base text-cyan-400">User Licenses & Security (1 Phone + 1 PC)</h3>
+        <div>
+          <h3 class="font-bold text-base text-cyan-400">User Licenses & Active Device Tracker</h3>
+          <p class="text-[11px] text-slate-400">Track exact device hardware and connection location</p>
+        </div>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-200 text-lg">✕</button>
       </div>
       <div class="overflow-x-auto max-h-96">
@@ -103,7 +134,8 @@
             <tr>
               <th class="py-2.5 px-3">Trader Name</th>
               <th class="py-2.5 px-3">Phone</th>
-              <th class="py-2.5 px-3">Slots</th>
+              <th class="py-2.5 px-3">PIN</th>
+              <th class="py-2.5 px-3">Active Devices (Slots)</th>
               <th class="py-2.5 px-3">Status</th>
               <th class="py-2.5 px-3 text-right">Actions</th>
             </tr>
@@ -130,16 +162,12 @@
         </div>
       </div>
 
-      <!-- Center: 1-Stone Quick vs Sarine Mode Switcher -->
       <div class="bg-slate-900 p-1 rounded-2xl border border-slate-800 flex items-center text-xs font-semibold">
         <button id="btnModeQuick" onclick="switchAppMode('quick')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition">1-Stone Quick</button>
         <button id="btnModeTender" onclick="switchAppMode('tender')" class="px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition">Sarine Tender Master</button>
       </div>
 
-      <!-- Right Controls: Themes, Upload, Logout -->
       <div class="flex flex-wrap items-center gap-2">
-        
-        <!-- Theme Switcher -->
         <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
           <button onclick="setTheme('cyan')" class="w-5 h-5 rounded-full bg-cyan-500 border border-white/40" title="Cyan Theme"></button>
           <button onclick="setTheme('gold')" class="w-5 h-5 rounded-full bg-amber-500 border border-white/40" title="Gold Theme"></button>
@@ -388,773 +416,127 @@
   </div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
+    // 🔍 HARDWARE & BROWSER DETECTION FOR ADMIN TRACKING
+    function getDevicePlatformInfo() {
+      const ua = navigator.userAgent;
+      let os = "PC";
+      if (/android/i.test(ua)) os = "📱 Android";
+      else if (/iPad|iPhone|iPod/.test(ua)) os = "🍎 iPhone/iPad";
+      else if (/Macintosh/i.test(ua)) os = "💻 Mac";
+      else if (/Windows/i.test(ua)) os = "💻 Windows";
+
+      let browser = "Web";
+      if (/chrome|crios/i.test(ua)) browser = "Chrome";
+      else if (/safari/i.test(ua)) browser = "Safari";
+      else if (/firefox/i.test(ua)) browser = "Firefox";
+
+      return `${os} (${browser})`;
     }
 
-    const MASTER_ADMIN_PIN = "7788";
-    const SUPABASE_URL = "https://fzibnrnyukyscnlookxp.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_5uzyIfCZOB2syyXzjUmQuA_8dbhROx9";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    let liveRapCache = new Map();
-    try {
-      const saved = localStorage.getItem("LOCAL_RAP_CACHE");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        for (let k in parsed) liveRapCache.set(k, parsed[k]);
-      }
-    } catch(e) {}
-
-    // 🎨 THEME SWITCHER
-    window.setTheme = function(themeName) {
-      document.body.className = "min-h-screen select-none antialiased " + (themeName === 'cyan' ? '' : `theme-${themeName}`);
-      localStorage.setItem("APP_THEME_COLOR", themeName);
-    };
-    const savedTheme = localStorage.getItem("APP_THEME_COLOR");
-    if (savedTheme) setTheme(savedTheme);
-
-    // 🔀 APP MODE SWITCHER (1-Stone Quick vs Sarine Tender)
-    window.switchAppMode = function(mode) {
-      if (mode === 'quick') {
-        document.getElementById('quickSingleView').classList.remove('hidden');
-        document.getElementById('tenderMultiView').classList.add('hidden');
-        document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
-        document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
-        updateQuickCalculations(false);
+    // 🔒 AUTH TABS
+    window.switchAuthTab = function(tab) {
+      if (tab === 'login') {
+        document.getElementById('loginFormBox').classList.remove('hidden');
+        document.getElementById('registerFormBox').classList.add('hidden');
+        document.getElementById('tabBtnLogin').className = "flex-1 py-2 rounded-lg bg-cyan-600 text-white transition";
+        document.getElementById('tabBtnRegister').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition";
       } else {
-        document.getElementById('tenderMultiView').classList.remove('hidden');
-        document.getElementById('quickSingleView').classList.add('hidden');
-        document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
-        document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
-        renderWorkbench();
+        document.getElementById('registerFormBox').classList.remove('hidden');
+        document.getElementById('loginFormBox').classList.add('hidden');
+        document.getElementById('tabBtnRegister').className = "flex-1 py-2 rounded-lg bg-cyan-600 text-white transition";
+        document.getElementById('tabBtnLogin').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition";
       }
     };
 
-    // 💎 EXACT SARINE ADVISOR STRUCTURE DATA
-    const defaultSarineStone = {
-      id: 1,
-      packetId: "NP04",
-      roughWt: 19.08,
-      plannerName: "SAGAR",
-      process: "SARIN MANUAL",
-      tension: "T-0",
-      colorMeter: { m1: "028", m2: "L002", m3: "NFY" },
-      mainComment: "",
-      bossBidPerCt: 0,
-      plans: [
-        {
-          planNum: 1,
-          pieces: [
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }
-          ]
-        },
-        {
-          planNum: 2,
-          pieces: [
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 40.0, perCt: 16800, totalVal: 50400 }
-          ]
-        }
-      ]
-    };
-
-    let roughStones = [defaultSarineStone];
-    try {
-      const stored = localStorage.getItem("SARINE_TENDER_AUTOSAVE");
-      if (stored) roughStones = JSON.parse(stored);
-    } catch(e) {}
-
-    let activeStoneId = roughStones[0] ? roughStones[0].id : 1;
-    let currentUserRole = "user";
-
-    function autoSaveSarineData() {
-      try {
-        localStorage.setItem("SARINE_TENDER_AUTOSAVE", JSON.stringify(roughStones));
-      } catch(e) {}
-    }
-
-    window.clearTenderData = function() {
-      if (confirm("Reset current lots and start a new fresh tender?")) {
-        roughStones = [defaultSarineStone];
-        activeStoneId = 1;
-        autoSaveSarineData();
-        renderWorkbench();
-      }
-    };
-
-    function getHardwareToken() {
-      let token = localStorage.getItem("DEVICE_HARDWARE_TOKEN");
-      if (!token) {
-        token = "DEV-" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        localStorage.setItem("DEVICE_HARDWARE_TOKEN", token);
-      }
-      return token;
-    }
-
-    async function checkUserPermission() {
-      const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
-      if (isMasterAdmin === "true") {
-        grantAccess("Master Admin", "admin");
-        return;
-      }
-
-      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
-      const currentToken = getHardwareToken();
-      const savedToken = localStorage.getItem("BOUND_DEVICE_TOKEN");
-
-      if (cachedApproved === "true" && currentToken === savedToken) {
-        grantAccess(localStorage.getItem("APP_USER_NAME") || "Authorized Trader", "user");
-        return;
-      }
-
-      const savedPhone = localStorage.getItem("APP_USER_PHONE");
-
-      if (!navigator.onLine) {
-        grantAccess("Authorized Offline Planner", "user");
-        return;
-      }
-
-      if (savedPhone) {
-        try {
-          const { data } = await supabaseClient
-            .from('app_users')
-            .select('user_name, status, device_id_1, device_id_2')
-            .eq('phone', savedPhone)
-            .single();
-
-          if (data && data.status === 'approved') {
-            if (data.device_id_1 === currentToken || data.device_id_2 === currentToken) {
-              localStorage.setItem("APP_USER_APPROVED", "true");
-              localStorage.setItem("BOUND_DEVICE_TOKEN", currentToken);
-              localStorage.setItem("APP_USER_NAME", data.user_name);
-              grantAccess(data.user_name, "user");
-            } else if (!data.device_id_1) {
-              await supabaseClient.from('app_users').update({ device_id_1: currentToken }).eq('phone', savedPhone);
-              grantAccess(data.user_name, "user");
-            } else if (!data.device_id_2) {
-              await supabaseClient.from('app_users').update({ device_id_2: currentToken }).eq('phone', savedPhone);
-              grantAccess(data.user_name, "user");
-            } else {
-              document.getElementById('registerBox').classList.add('hidden');
-              document.getElementById('deviceMismatchBox').classList.remove('hidden');
-            }
-          }
-        } catch (err) {
-          grantAccess("Planner", "user");
-        }
-      }
-    }
-
-    function grantAccess(userName, role) {
-      currentUserRole = role;
-      document.getElementById('authLockOverlay').classList.add('hidden');
-      document.getElementById('mainAppContent').classList.remove('hidden');
-      document.getElementById('currentUserLabel').innerText = `${userName} (${role === 'admin' ? '👑 Admin' : 'Planner'})`;
-
-      if (role === 'admin') {
-        document.getElementById('btnOpenUserAdmin').classList.remove('hidden');
-      }
-
-      renderWorkbench();
-    }
-
-    document.getElementById('btnSubmitRequest').addEventListener('click', async () => {
+    // 🔑 NEW USER REGISTRATION WITH CUSTOM PIN
+    window.handleUserRegister = async function() {
       const name = document.getElementById('reqName').value.trim();
       const phone = document.getElementById('reqPhone').value.trim();
-      if (!name || !phone) return alert("Please enter Name & Mobile!");
+      const pin = document.getElementById('reqPin').value.trim();
+
+      if (!name || !phone || !pin) return alert("Please fill Name, Phone & 4-Digit PIN!");
 
       const currentToken = getHardwareToken();
-      localStorage.setItem("APP_USER_PHONE", phone);
-      localStorage.setItem("APP_USER_NAME", name);
+      const devInfo = getDevicePlatformInfo();
 
-      await supabaseClient.from('app_users').upsert({
-        user_name: name,
-        phone: phone,
-        device_id_1: currentToken,
-        status: 'pending'
-      }, { onConflict: 'phone' });
+      try {
+        const { error } = await supabaseClient.from('app_users').upsert({
+          user_name: name,
+          phone: phone,
+          pin: pin,
+          device_id_1: currentToken,
+          device_1_info: devInfo,
+          status: 'pending'
+        }, { onConflict: 'phone' });
 
-      alert("Request sent!");
-      checkUserPermission();
-    });
-
-    document.getElementById('btnAdminUnlock').addEventListener('click', () => {
-      const pin = document.getElementById('adminPinInput').value.trim();
-      if (pin === MASTER_ADMIN_PIN) {
-        sessionStorage.setItem("IS_MASTER_ADMIN", "true");
-        localStorage.setItem("IS_MASTER_ADMIN", "true");
-        grantAccess("Master Admin", "admin");
-      }
-    });
-
-    window.logoutApp = function() {
-      sessionStorage.clear();
-      localStorage.clear();
-      location.reload();
-    };
-
-    document.getElementById('btnOpenUserAdmin').addEventListener('click', async () => {
-      document.getElementById('adminUserModal').classList.remove('hidden');
-      const tbody = document.getElementById('userListBody');
-      const { data } = await supabaseClient.from('app_users').select('*');
-      tbody.innerHTML = '';
-      (data || []).forEach(u => {
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800">
-            <td class="py-2.5 px-3 font-semibold">${u.user_name}</td>
-            <td class="py-2.5 px-3 text-slate-400 font-mono">${u.phone}</td>
-            <td class="py-2.5 px-3">${u.device_id_2 ? '2/2' : (u.device_id_1 ? '1/2' : '0/2')}</td>
-            <td class="py-2.5 px-3 font-bold ${u.status === 'approved' ? 'text-emerald-400' : 'text-amber-400'}">${u.status}</td>
-            <td class="py-2.5 px-3 text-right space-x-1">
-              <button onclick="approveUser('${u.id}')" class="bg-emerald-900 px-2 py-1 rounded">Approve</button>
-              <button onclick="resetUser('${u.id}')" class="bg-amber-900 px-2 py-1 rounded">Reset</button>
-            </td>
-          </tr>
-        `;
-      });
-    });
-
-    window.closeAdminModal = () => document.getElementById('adminUserModal').classList.add('hidden');
-    window.approveUser = async (id) => { await supabaseClient.from('app_users').update({ status: 'approved' }).eq('id', id); };
-    window.resetUser = async (id) => { await supabaseClient.from('app_users').update({ device_id_1: null, device_id_2: null }).eq('id', id); };
-
-    function getRangeSlab(w) {
-      if (w >= 90.00) return "90.00+";
-      if (w >= 10.00) return "10.00 to 14.99";
-      if (w >= 5.00) return "5.00 to 5.99";
-      if (w >= 4.00) return "4.00 to 4.49";
-      if (w >= 3.00) return "3.00 to 3.49";
-      if (w >= 2.00) return "2.00 to 2.49";
-      if (w >= 1.50) return "1.50 to 1.79";
-      if (w >= 1.00) return "1.00 to 1.29";
-      if (w >= 0.70) return "0.70 to 0.79";
-      if (w >= 0.50) return "0.50 to 0.59";
-      return "0.30 to 0.39";
-    }
-
-    function calculateDynamicRapRate(shape, weight, color, clarity, cut, fls) {
-      let base = 7600;
-      if (weight >= 90.0) base = 69000;
-      else if (weight >= 10.0) base = 63500;
-      else if (weight >= 5.0) base = 57000;
-      else if (weight >= 4.0) base = 42000;
-      else if (weight >= 3.0) base = 28000;
-      else if (weight >= 2.0) base = 15000;
-      else if (weight >= 1.5) base = 10500;
-      else if (weight >= 1.0) base = 7600;
-      else if (weight >= 0.7) base = 4800;
-      else if (weight >= 0.5) base = 3200;
-      else base = 2100;
-
-      const colorMap = { 'D': 1.0, 'E': 0.90, 'F': 0.82, 'G': 0.74, 'H': 0.65, 'I': 0.56, 'J': 0.48, 'K': 0.40, 'L': 0.35, 'M': 0.30, 'N': 0.25, 'O-P': 0.20, 'Q-R': 0.16, 'S-Z': 0.12, 'FANCY': 0.85 };
-      const colMul = colorMap[color] || 0.70;
-
-      const clarityMap = { 'IF': 1.15, 'VVS1': 1.0, 'VVS2': 0.88, 'VS1': 0.78, 'VS2': 0.68, 'SI1': 0.55, 'SI2': 0.44, 'I1': 0.32, 'I2': 0.22, 'I3': 0.15 };
-      const claMul = clarityMap[clarity] || 0.70;
-
-      let shapeMul = (shape === 'ROUND') ? 1.0 : 0.82;
-      let calculatedRap = Math.round((base * colMul * claMul * shapeMul) / 100) * 100;
-
-      let baseBack = (shape === 'ROUND') ? 44.0 : 52.0;
-      if (fls === 'MED') baseBack += 4.0;
-      if (fls === 'STG') baseBack += 8.0;
-
-      return { rapPrice: Math.max(calculatedRap, 600), back: Math.min(Math.max(baseBack, -10.0), 85.0) };
-    }
-
-    function lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls) {
-      const range = getRangeSlab(weight);
-      const [pol, sym] = (polishSym || "EX-EX").split('-');
-
-      let candidates = [];
-      if (shape === 'ROUND') {
-        candidates.push(`${range}-${shape}-${color}-${clarity}-${cut || 'EX'}-${pol}-${sym}-${fls}`);
-      } else {
-        candidates.push(`${range}-${shape}-${color}-${clarity}--${pol}-${sym}-${fls}`);
-        candidates.push(`${range}-${shape}-${color}-${clarity}-${cut}-${pol}-${sym}-${fls}`);
-      }
-
-      for (let k of candidates) {
-        if (liveRapCache.has(k)) return liveRapCache.get(k);
-      }
-
-      return calculateDynamicRapRate(shape, weight, color, clarity, cut, fls);
-    }
-
-    // ⚡ 1-STONE QUICK LOOKUP ENGINE
-    function updateQuickCalculations(isManual = false) {
-      const shape = document.getElementById('qShape').value;
-      const weight = parseFloat(document.getElementById('qCarat').value) || 0;
-      const color = document.getElementById('qColor').value;
-      const clarity = document.getElementById('qClarity').value;
-      const cut = document.getElementById('qCut').value;
-      const polishSym = document.getElementById('qPolishSym').value;
-      const fls = document.getElementById('qFls').value;
-
-      document.getElementById('quickRangeBadge').innerText = getRangeSlab(weight);
-
-      let rapPrice = parseFloat(document.getElementById('qRapPriceInput').value);
-      let discount = parseFloat(document.getElementById('qDiscountInput').value);
-
-      if (!isManual) {
-        const match = lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls);
-        rapPrice = match.rapPrice;
-        discount = match.back;
-        document.getElementById('qRapPriceInput').value = rapPrice;
-        document.getElementById('qDiscountInput').value = discount;
-      }
-
-      const netPrice = rapPrice * (1 - (discount / 100));
-      const totalVal = netPrice * weight;
-
-      document.getElementById('qNetPriceDisplay').innerText = `$${Math.round(netPrice).toLocaleString()}`;
-      document.getElementById('qTotalValDisplay').innerText = `$${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    ['qShape', 'qCarat', 'qColor', 'qClarity', 'qCut', 'qPolishSym', 'qFls'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => updateQuickCalculations(false));
-      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(false));
-    });
-    ['qRapPriceInput', 'qDiscountInput'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(true));
-    });
-
-    // ⚡ WORKBENCH RENDERING ENGINE (Exact 1:1 Sarine Table with Auto-Best-Plan)
-    function renderWorkbench() {
-      renderLotsTabs();
-      renderActiveStoneCard();
-      renderMasterTenderTable();
-    }
-
-    function renderLotsTabs() {
-      const container = document.getElementById('lotsTabsBar');
-      container.innerHTML = '';
-      roughStones.forEach(s => {
-        const isActive = s.id === activeStoneId;
-        
-        // Auto-find highest value plan
-        let maxVal = -1;
-        let bestP = s.plans[0];
-        s.plans.forEach(p => {
-          const val = p.pieces.reduce((sum, pc) => sum + pc.totalVal, 0);
-          if (val > maxVal) { maxVal = val; bestP = p; }
-        });
-
-        const rPerCt = s.roughWt > 0 ? (maxVal / s.roughWt) : 0;
-
-        const btn = document.createElement('button');
-        btn.onclick = () => { activeStoneId = s.id; renderWorkbench(); };
-        btn.className = `px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border ${
-          isActive ? 'bg-cyan-600 text-white border-cyan-400 shadow-lg' : 'bg-slate-900 text-slate-300 border-slate-700'
-        }`;
-        btn.innerHTML = `
-          <span>${s.packetId || 'LOT'}</span>
-          <span class="text-[11px] font-mono text-amber-300">${s.roughWt.toFixed(2)}ct</span>
-          <span class="text-[11px] font-mono text-emerald-300">$${Math.round(rPerCt).toLocaleString()}/ct</span>
-        `;
-        container.appendChild(btn);
-      });
-    }
-
-    function renderActiveStoneCard() {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-
-      document.getElementById('activePacketId').value = stone.packetId;
-      document.getElementById('activeRoughWt').value = stone.roughWt;
-      document.getElementById('activePlannerName').value = stone.plannerName;
-      document.getElementById('activeProcess').value = stone.process;
-      document.getElementById('activeTension').value = stone.tension;
-      document.getElementById('activeMainComment').value = stone.mainComment || '';
-      document.getElementById('cm1').value = stone.colorMeter?.m1 || '028';
-      document.getElementById('cm2').value = stone.colorMeter?.m2 || 'L002';
-      document.getElementById('cm3').value = stone.colorMeter?.m3 || 'NFY';
-
-      // 🎯 AUTO-DETECT BEST PLAN BY MAXIMUM VALUE ($)
-      let maxPlanVal = -1;
-      let bestPlanIndex = 0;
-      stone.plans.forEach((p, idx) => {
-        const val = p.pieces.reduce((sum, pc) => sum + pc.totalVal, 0);
-        if (val > maxPlanVal) {
-          maxPlanVal = val;
-          bestPlanIndex = idx;
+        if (error) {
+          alert("Error: " + error.message);
+        } else {
+          localStorage.setItem("APP_USER_PHONE", phone);
+          localStorage.setItem("APP_USER_PIN", pin);
+          alert("Registration Submitted! Admin will approve once.");
+          switchAuthTab('login');
+          document.getElementById('loginPhone').value = phone;
         }
-      });
-
-      stone.plans.forEach((p, idx) => p.isBest = (idx === bestPlanIndex));
-      document.getElementById('activeBestPlanBadge').innerText = `Plan ${stone.plans[bestPlanIndex].planNum}`;
-
-      const container = document.getElementById('plansAccordionContainer');
-      container.innerHTML = '';
-
-      stone.plans.forEach((plan, pIdx) => {
-        const planPolWt = plan.pieces.reduce((sum, p) => sum + p.weight, 0);
-        const planTotalVal = plan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const yieldPct = stone.roughWt > 0 ? ((planPolWt / stone.roughWt) * 100) : 0;
-        const rPerCt = stone.roughWt > 0 ? (planTotalVal / stone.roughWt) : 0;
-
-        const planCard = document.createElement('div');
-        planCard.className = `p-3 rounded-2xl border transition ${
-          plan.isBest ? 'bg-slate-900/90 border-emerald-500/80 shadow-lg' : 'bg-slate-950/70 border-slate-800'
-        }`;
-
-        let rowsHtml = '';
-        plan.pieces.forEach((pc, pcIdx) => {
-          rowsHtml += `
-            <tr class="hover:bg-slate-800/60 font-mono text-center">
-              <td class="text-slate-400 font-bold">${pcIdx + 1}</td>
-              <td><input type="text" value="${pc.itemCd || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'itemCd', this.value)" class="w-12 bg-transparent text-center text-slate-300 outline-none" /></td>
-              <td><input type="text" value="${pc.docNo || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'docNo', this.value)" class="w-10 bg-transparent text-center text-slate-300 outline-none" /></td>
-              <td><input type="text" value="${pc.lotNo || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'lotNo', this.value)" class="w-12 bg-transparent text-center text-slate-300 outline-none" /></td>
-              <td class="font-bold text-cyan-400">${plan.planNum}</td>
-              <td class="font-bold text-slate-200">
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'shape', this.value)" class="bg-slate-900 text-xs text-slate-200 rounded px-1 outline-none font-bold">
-                  <option ${pc.shape==='ROUND'?'selected':''}>ROUND</option>
-                  <option ${pc.shape==='SCMB'?'selected':''}>SCMB</option>
-                  <option ${pc.shape==='CMB'?'selected':''}>CMB</option>
-                  <option ${pc.shape==='RADIANT'?'selected':''}>RADIANT</option>
-                  <option ${pc.shape==='S.RADIANT'?'selected':''}>S.RADIANT</option>
-                  <option ${pc.shape==='ASSCHER'?'selected':''}>ASSCHER</option>
-                  <option ${pc.shape==='EMERALD'?'selected':''}>EMERALD</option>
-                  <option ${pc.shape==='PEAR'?'selected':''}>PEAR</option>
-                  <option ${pc.shape==='OVAL'?'selected':''}>OVAL</option>
-                  <option ${pc.shape==='PRINSESS'?'selected':''}>PRINSESS</option>
-                  <option ${pc.shape==='HEART'?'selected':''}>HEART</option>
-                  <option ${pc.shape==='MARQUIES'?'selected':''}>MARQUIES</option>
-                  <option ${pc.shape==='BAGUETTE'?'selected':''}>BAGUETTE</option>
-                </select>
-              </td>
-              <td>
-                <input type="number" step="0.01" value="${pc.weight.toFixed(2)}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'weight', parseFloat(this.value))" class="w-14 bg-slate-950 font-bold text-amber-300 text-center rounded outline-none" />
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'color', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option ${pc.color==='D'?'selected':''}>D</option><option ${pc.color==='E'?'selected':''}>E</option><option ${pc.color==='F'?'selected':''}>F</option><option ${pc.color==='G'?'selected':''}>G</option><option ${pc.color==='H'?'selected':''}>H</option><option ${pc.color==='I'?'selected':''}>I</option><option ${pc.color==='J'?'selected':''}>J</option><option ${pc.color==='K'?'selected':''}>K</option><option ${pc.color==='L'?'selected':''}>L</option><option ${pc.color==='M'?'selected':''}>M</option><option ${pc.color==='N'?'selected':''}>N</option><option ${pc.color==='O-P'?'selected':''}>O-P</option><option ${pc.color==='Q-R'?'selected':''}>Q-R</option><option ${pc.color==='S-Z'?'selected':''}>S-Z</option><option ${pc.color==='FANCY'?'selected':''}>FANCY</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'clarity', this.value)" class="bg-slate-900 text-red-400 font-bold rounded outline-none">
-                  <option ${pc.clarity==='IF'?'selected':''}>IF</option><option ${pc.clarity==='VVS1'?'selected':''}>VVS1</option><option ${pc.clarity==='VVS2'?'selected':''}>VVS2</option><option ${pc.clarity==='VS1'?'selected':''}>VS1</option><option ${pc.clarity==='VS2'?'selected':''}>VS2</option><option ${pc.clarity==='SI1'?'selected':''}>SI1</option><option ${pc.clarity==='SI2'?'selected':''}>SI2</option><option ${pc.clarity==='I1'?'selected':''}>I1</option><option ${pc.clarity==='I2'?'selected':''}>I2</option><option ${pc.clarity==='I3'?'selected':''}>I3</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'cut', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="EX" ${pc.cut==='EX'?'selected':''}>EX</option><option value="VG" ${pc.cut==='VG'?'selected':''}>VG</option><option value="GD" ${pc.cut==='GD'?'selected':''}>GD</option><option value="" ${!pc.cut?'selected':''}>NONE</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'polish', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="EX" ${pc.polish==='EX'?'selected':''}>EX</option><option value="VG" ${pc.polish==='VG'?'selected':''}>VG</option><option value="GD" ${pc.polish==='GD'?'selected':''}>GD</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'sym', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="EX" ${pc.sym==='EX'?'selected':''}>EX</option><option value="VG" ${pc.sym==='VG'?'selected':''}>VG</option><option value="GD" ${pc.sym==='GD'?'selected':''}>GD</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'fls', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="NON" ${pc.fls==='NON'?'selected':''}>NON</option><option value="FNT" ${pc.fls==='FNT'?'selected':''}>FNT</option><option value="MED" ${pc.fls==='MED'?'selected':''}>MED</option><option value="STG" ${pc.fls==='STG'?'selected':''}>STG</option>
-                </select>
-              </td>
-              <td><input type="text" value="${pc.comment || ''}" placeholder="-" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'comment', this.value)" class="w-20 bg-slate-950 text-slate-200 text-left px-1 rounded outline-none" /></td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'eyeClean', this.value)" class="bg-slate-900 text-emerald-400 rounded outline-none font-bold">
-                  <option value="YES" ${pc.eyeClean==='YES'?'selected':''}>YES</option><option value="NO" ${pc.eyeClean==='NO'?'selected':''}>NO</option>
-                </select>
-              </td>
-              <td><input type="text" value="${pc.dm || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'dm', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.table || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'table', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.ratio || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'ratio', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.height || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'height', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.girdle || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'girdle', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td class="font-bold text-slate-200">$${pc.rapPrice.toLocaleString()}</td>
-              <td class="font-bold ${pc.rapBack < 0 ? 'text-red-400' : 'text-emerald-400'}">
-                <input type="number" step="1" value="${pc.rapBack}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'rapBack', parseFloat(this.value))" class="w-12 bg-slate-950 text-center rounded outline-none font-bold" />%
-              </td>
-              <td class="font-bold text-cyan-300">$${Math.round(pc.perCt).toLocaleString()}</td>
-              <td class="font-bold text-slate-200">$${Math.round(pc.totalVal).toLocaleString()}</td>
-              <td class="no-print">
-                <button onclick="removePiece(${pIdx}, ${pcIdx})" class="text-slate-500 hover:text-red-400 px-1">✕</button>
-              </td>
-            </tr>
-          `;
-        });
-
-        planCard.innerHTML = `
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="font-black text-sm text-cyan-400">PLAN ${plan.planNum}</span>
-              <span class="text-xs bg-slate-950 text-amber-300 px-2.5 py-0.5 rounded font-mono font-bold">${plan.pieces.length} Pieces (${planPolWt.toFixed(2)} ct)</span>
-              <span class="text-xs bg-slate-950 text-emerald-400 px-2.5 py-0.5 rounded font-mono font-bold">Yield: ${yieldPct.toFixed(1)}%</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-extrabold px-3 py-1 rounded-xl transition flex items-center gap-1.5 ${
-                plan.isBest ? 'bg-emerald-950 text-emerald-400 border border-emerald-600' : 'bg-slate-900 text-slate-400 border border-slate-700'
-              }">
-                ${plan.isBest ? '✔ AUTO SELECTED (HIGHEST $)' : '★ Alternative Plan'}
-              </span>
-              <button onclick="addPieceToPlan(${pIdx})" class="text-xs bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 px-2.5 py-1 rounded-lg font-bold no-print">
-                + Add Stone
-              </button>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left sarine-table text-slate-300">
-              <thead>
-                <tr class="text-center">
-                  <th>#</th><th>ITEM CD</th><th>DOC NO</th><th>LOT NO</th><th>PLAN</th><th>SHAPE</th><th>WEIGHT</th><th>COLOR</th><th>CLARITY</th><th>CUT</th><th>POLISH</th><th>SYM</th><th>FLS</th><th>COMMENT</th><th>EYE CLN</th><th>DM</th><th>TBL</th><th>RATIO</th><th>HGT</th><th>GRD</th><th>Rap-Price</th><th>Rap%</th><th>PER CT $</th><th>AFTER DIC</th><th class="no-print">ACT</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
-          </div>
-
-          <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-950/90 p-2.5 rounded-xl border border-slate-800/80 mt-2 font-mono text-xs">
-            <div class="flex items-center gap-4">
-              <span class="font-bold text-amber-400">Total Polish Wt: ${planPolWt.toFixed(2)} ct</span>
-              <span class="font-bold ${plan.isBest ? 'text-emerald-400' : 'text-slate-400'}">
-                ${plan.isBest ? '✔ Plan Status: Selected (Best Yield)' : '✖ Plan Status: Alternative'}
-              </span>
-            </div>
-            <div class="flex items-center gap-5">
-              <span class="font-extrabold text-base ${plan.isBest ? 'text-emerald-400' : 'text-red-400'}">
-                Total $: $${Math.round(planTotalVal).toLocaleString()}
-              </span>
-              <span class="font-black text-base text-cyan-300">
-                R.PER CT: $${Math.round(rPerCt).toLocaleString()}
-              </span>
-            </div>
-          </div>
-        `;
-
-        container.appendChild(planCard);
-      });
-    }
-
-    // ⚡ DYNAMIC LIVE CALCULATION ON PARAMETER EDIT
-    window.updatePieceVal = function(pIdx, pcIdx, field, val) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-      const pc = stone.plans[pIdx].pieces[pcIdx];
-      pc[field] = val;
-
-      // Auto-lookup dynamic Rap & Back on parameters change
-      if (['weight', 'shape', 'color', 'clarity', 'cut', 'fls', 'polish', 'sym'].includes(field)) {
-        const match = lookupInstantRate(pc.shape, pc.weight, pc.color, pc.clarity, pc.cut, `${pc.polish}-${pc.sym}`, pc.fls);
-        pc.rapPrice = match.rapPrice;
-        if (field !== 'rapBack') pc.rapBack = match.back;
-      }
-
-      pc.perCt = pc.rapPrice * (1 - (pc.rapBack / 100));
-      pc.totalVal = pc.perCt * pc.weight;
-
-      autoSaveSarineData();
-      renderWorkbench();
-    };
-
-    window.addPieceToPlan = function(pIdx) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-      stone.plans[pIdx].pieces.push({
-        itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 1.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 7600, rapBack: 44.0, perCt: 4256, totalVal: 4256
-      });
-      autoSaveSarineData();
-      renderWorkbench();
-    };
-
-    window.removePiece = function(pIdx, pcIdx) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (stone && stone.plans[pIdx].pieces.length > 1) {
-        stone.plans[pIdx].pieces.splice(pcIdx, 1);
-        autoSaveSarineData();
-        renderWorkbench();
+      } catch (e) {
+        alert("Registration failed: " + e.message);
       }
     };
 
-    document.getElementById('addNewPlanBtn').addEventListener('click', () => {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-      const nextNum = stone.plans.length + 1;
-      stone.plans.push({
-        planNum: nextNum,
-        pieces: [
-          { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 2.00, color: "D", clarity: "VVS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 15000, rapBack: 40.0, perCt: 9000, totalVal: 18000 }
-        ]
-      });
-      autoSaveSarineData();
-      renderWorkbench();
-    });
+    // 🔓 LOGIN WITH PHONE + PIN (ZERO RE-APPROVAL!)
+    window.handleUserLogin = async function() {
+      const phone = document.getElementById('loginPhone').value.trim();
+      const pin = document.getElementById('loginPin').value.trim();
 
-    document.getElementById('addNewStoneBtn').addEventListener('click', () => {
-      const nextId = roughStones.length + 1;
-      roughStones.push({
-        id: Date.now(),
-        packetId: `LOT-${String(nextId).padStart(2, '0')}`,
-        roughWt: 10.00,
-        plannerName: "SAGAR",
-        process: "SARIN MANUAL",
-        tension: "T-0",
-        colorMeter: { m1: "028", m2: "L002", m3: "NFY" },
-        mainComment: "",
-        bossBidPerCt: 0,
-        plans: [
-          { planNum: 1, pieces: [{ itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }] }
-        ]
-      });
-      activeStoneId = roughStones[roughStones.length - 1].id;
-      autoSaveSarineData();
-      renderWorkbench();
-    });
+      if (!phone || !pin) return alert("Enter Phone and 4-Digit PIN!");
 
-    // LOT PARAMETER LISTENERS
-    ['activePacketId', 'activeRoughWt', 'activePlannerName', 'activeProcess', 'activeTension', 'activeMainComment', 'cm1', 'cm2', 'cm3'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => {
-        const stone = roughStones.find(s => s.id === activeStoneId);
-        if (stone) {
-          stone.packetId = document.getElementById('activePacketId').value.trim();
-          stone.roughWt = parseFloat(document.getElementById('activeRoughWt').value) || 0;
-          stone.plannerName = document.getElementById('activePlannerName').value.trim();
-          stone.process = document.getElementById('activeProcess').value.trim();
-          stone.tension = document.getElementById('activeTension').value.trim();
-          stone.mainComment = document.getElementById('activeMainComment').value.trim();
-          stone.colorMeter = {
-            m1: document.getElementById('cm1').value.trim(),
-            m2: document.getElementById('cm2').value.trim(),
-            m3: document.getElementById('cm3').value.trim()
-          };
-          autoSaveSarineData();
-          renderLotsTabs();
-          renderMasterTenderTable();
+      const currentToken = getHardwareToken();
+      const devInfo = getDevicePlatformInfo();
+
+      try {
+        const { data, error } = await supabaseClient
+          .from('app_users')
+          .select('*')
+          .eq('phone', phone)
+          .single();
+
+        if (error || !data) return alert("User not registered! Please click 'New Register' tab.");
+
+        if (data.pin && data.pin !== pin) return alert("Incorrect 4-Digit PIN!");
+
+        if (data.status === 'pending') {
+          document.getElementById('pendingBox').classList.remove('hidden');
+          return;
         }
-      });
-    });
 
-    function renderMasterTenderTable() {
-      const tbody = document.getElementById('masterTenderTableBody');
-      tbody.innerHTML = '';
-      let grandTotal = 0;
+        if (data.status === 'blocked') {
+          return alert("This user account is blocked by Admin.");
+        }
 
-      roughStones.forEach(s => {
-        const bestPlan = s.plans.find(p => p.isBest) || s.plans[0];
-        const polWt = bestPlan.pieces.reduce((sum, p) => sum + p.weight, 0);
-        const polVal = bestPlan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const yieldPct = s.roughWt > 0 ? ((polWt / s.roughWt) * 100) : 0;
-        const rPerCt = s.roughWt > 0 ? (polVal / s.roughWt) : 0;
-        const totalBid = (s.bossBidPerCt || 0) * s.roughWt;
-        grandTotal += polVal;
+        // Slot Check: Slot 1 or Slot 2 match
+        if (data.device_id_1 === currentToken || data.device_id_2 === currentToken) {
+          grantVerifiedAccess(data);
+        } else if (!data.device_id_1) {
+          await supabaseClient.from('app_users').update({ device_id_1: currentToken, device_1_info: devInfo }).eq('phone', phone);
+          grantVerifiedAccess(data);
+        } else if (!data.device_id_2) {
+          await supabaseClient.from('app_users').update({ device_id_2: currentToken, device_2_info: devInfo }).eq('phone', phone);
+          grantVerifiedAccess(data);
+        } else {
+          document.getElementById('deviceMismatchBox').classList.remove('hidden');
+        }
+      } catch (e) {
+        alert("Login error: " + e.message);
+      }
+    };
 
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800 ${s.id === activeStoneId ? 'bg-cyan-950/20' : ''}">
-            <td class="py-2.5 px-3 font-bold text-cyan-400 cursor-pointer" onclick="activeStoneId=${s.id}; renderWorkbench();">${s.packetId}</td>
-            <td class="py-2.5 px-3 font-semibold text-emerald-400">Plan ${bestPlan.planNum} (${bestPlan.pieces.length} pcs)</td>
-            <td class="py-2.5 px-3 font-bold text-amber-300">${s.roughWt.toFixed(2)}</td>
-            <td class="py-2.5 px-3 text-slate-200">${polWt.toFixed(2)}</td>
-            <td class="py-2.5 px-3">${bestPlan.pieces.length} pcs</td>
-            <td class="py-2.5 px-3 font-bold text-emerald-400">${yieldPct.toFixed(1)}%</td>
-            <td class="py-2.5 px-3 font-bold text-slate-100">$${Math.round(polVal).toLocaleString()}</td>
-            <td class="py-2.5 px-3 font-black text-cyan-300">$${Math.round(rPerCt).toLocaleString()}</td>
-            <td class="py-2 px-3 bg-slate-950 border-l border-slate-800 no-print">
-              <input type="number" value="${s.bossBidPerCt || ''}" placeholder="Bid $/ct" onchange="s.bossBidPerCt=parseFloat(this.value)||0; autoSaveSarineData(); renderMasterTenderTable();" class="w-24 bg-slate-900 border border-amber-500/40 rounded px-2 py-1 text-xs text-amber-300 font-bold font-mono outline-none" />
-            </td>
-            <td class="py-2.5 px-3 bg-slate-950 font-bold text-amber-300 no-print">$${Math.round(totalBid).toLocaleString()}</td>
-          </tr>
-        `;
-      });
+    function grantVerifiedAccess(data) {
+      localStorage.setItem("APP_USER_APPROVED", "true");
+      localStorage.setItem("APP_USER_NAME", data.user_name);
+      localStorage.setItem("APP_USER_PHONE", data.phone);
+      localStorage.setItem("BOUND_DEVICE_TOKEN", getHardwareToken());
+      grantAccess(data.user_name, "user");
     }
-
-    // 🎯 1:1 SARINE MULTI-ROW DEEP EXCEL EXPORT (MATCHING SCREENSHOT)
-    document.getElementById('exportExcelBtn').addEventListener('click', () => {
-      const exportRows = [];
-
-      roughStones.forEach(s => {
-        exportRows.push({
-          "COLOR METER": `${s.colorMeter?.m1 || '028'}-${s.colorMeter?.m2 || 'L002'}-${s.colorMeter?.m3 || 'NFY'}`,
-          "PACKET ID": s.packetId,
-          "WEIGHT": s.roughWt,
-          "PLANNER NAME": s.plannerName,
-          "PROCESS": s.process,
-          "TENSION": s.tension,
-          "FLUORESCENCE": "NON",
-          "COMMENT": s.mainComment || ""
-        });
-
-        s.plans.forEach(plan => {
-          const planTotalVal = plan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-          const rPerCt = s.roughWt > 0 ? (planTotalVal / s.roughWt) : 0;
-
-          plan.pieces.forEach((pc, idx) => {
-            exportRows.push({
-              "ITEM CD": pc.itemCd || "",
-              "DOC NO": pc.docNo || "",
-              "LOT NO": pc.lotNo || "",
-              "PLAN": plan.planNum,
-              "SHAPE": pc.shape,
-              "WEIGHT": pc.weight.toFixed(2),
-              "COLOR": pc.color,
-              "CLARITY": pc.clarity,
-              "CUT": pc.cut || "",
-              "POLISH": pc.polish || "EX",
-              "SYMMETRY": pc.sym || "EX",
-              "FLUORESCENCE": pc.fls || "NON",
-              "COMMENT": pc.comment || "",
-              "EYE CLEAN": pc.eyeClean || "YES",
-              "DM": pc.dm || "",
-              "TABLE": pc.table || "",
-              "RATIO": pc.ratio || "",
-              "HEIGHT": pc.height || "",
-              "GIRDLE": pc.girdle || "",
-              "Rap-Price": pc.rapPrice,
-              "Rap%": `${pc.rapBack}%`,
-              "PER CT $": Math.round(pc.perCt),
-              "AFTER DIC": Math.round(pc.totalVal),
-              "Total $": idx === 0 ? (plan.isBest ? `✔ ${Math.round(planTotalVal)}` : `✖ ${Math.round(planTotalVal)}`) : "",
-              "TOTAL VALUE %": idx === 0 ? (plan.isBest ? "100%" : "12%") : "",
-              "R.PER CT": idx === 0 ? Math.round(rPerCt) : ""
-            });
-          });
-        });
-
-        exportRows.push({});
-      });
-
-      const ws = XLSX.utils.json_to_sheet(exportRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Sarine Tender Valuation");
-      XLSX.writeFile(wb, `Sarine_Advisor_Tender_${Date.now()}.xlsx`);
-    });
-
-    // WHATSAPP SHARE
-    document.getElementById('btnShareWhatsapp').addEventListener('click', () => {
-      let msg = "💎 *AURA SARINE TENDER EVALUATION SHEET*\n\n";
-      let grandTotal = 0;
-
-      roughStones.forEach(s => {
-        const bestPlan = s.plans.find(p => p.isBest) || s.plans[0];
-        const polWt = bestPlan.pieces.reduce((sum, p) => sum + p.weight, 0);
-        const polVal = bestPlan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const rPerCt = s.roughWt > 0 ? (polVal / s.roughWt) : 0;
-        grandTotal += polVal;
-
-        msg += `📦 *${s.packetId}* (Rough: ${s.roughWt.toFixed(2)} ct)\n`;
-        msg += `   • Selected: *Plan ${bestPlan.planNum}* (${bestPlan.pieces.length} pcs | ${polWt.toFixed(2)} ct)\n`;
-        msg += `   • *R.PER CT:* $${Math.round(rPerCt).toLocaleString()} /ct\n`;
-        msg += `   • *Total Polish:* $${Math.round(polVal).toLocaleString()}\n`;
-        if (s.bossBidPerCt > 0) {
-          msg += `   • *Boss Bid:* $${s.bossBidPerCt}/ct ($${Math.round(s.bossBidPerCt * s.roughWt).toLocaleString()})\n`;
-        }
-        msg += `\n`;
-      });
-
-      msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *GRAND TOTAL ESTIMATED VALUE:* $${Math.round(grandTotal).toLocaleString()}\n`;
-
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-      window.open(whatsappUrl, '_blank');
-    });
 
     checkUserPermission();
   </script>
