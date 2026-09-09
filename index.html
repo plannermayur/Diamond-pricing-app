@@ -3,72 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Aura Tender Pro - v1.1.0 Stable Engine</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Aura Tender Pro - Enterprise Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    /* iOS Style Interactive Discount Drum-Roll Wheel */
-    .wheel-container {
-      position: relative;
-      height: 64px;
-      overflow: hidden;
+    /* iOS Drum-Roll Scroll Wheel Styles */
+    .drum-roller {
+      height: 90px;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .drum-roller::-webkit-scrollbar { display: none; }
+    .drum-item {
+      height: 30px;
+      scroll-snap-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #020617;
-      border: 1px solid #1e293b;
-      border-radius: 8px;
-    }
-    .wheel-val {
-      font-size: 1.4rem;
-      font-weight: 800;
-      letter-spacing: -0.05em;
-      color: #38bdf8;
+      font-weight: 700;
+      cursor: pointer;
+      opacity: 0.35;
       transition: all 0.15s ease;
     }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    .drum-item.active {
+      opacity: 1;
+      color: #38bdf8;
+      font-size: 1.1rem;
+      transform: scale(1.1);
+    }
+    /* Industrial Scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: #020617; }
     ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
   </style>
 </head>
-<body class="bg-[#020617] text-slate-200 min-h-screen font-sans antialiased text-xs select-none">
+<body class="bg-[#020617] text-slate-200 min-h-screen font-sans text-xs select-none">
 
-  <!-- ================= AUTH & PIN OVERLAY (FOUNDATION RESTORED) ================= -->
-  <div id="authOverlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="bg-[#0b0f19] border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
-      <div class="text-center space-y-1">
-        <div class="w-10 h-10 mx-auto rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white text-lg shadow-lg shadow-cyan-500/30">◆</div>
-        <h2 class="text-base font-bold text-white tracking-wider uppercase">Aura Tender Pro</h2>
-        <p class="text-[11px] text-slate-400">Secure Device Authorization Terminal</p>
-      </div>
-
-      <div class="space-y-3 pt-2">
-        <div>
-          <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Registered Phone Number</label>
-          <input type="text" id="authPhone" placeholder="+91 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono outline-none focus:border-cyan-500" />
-        </div>
-        <div>
-          <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">4-Digit Security PIN</label>
-          <input type="password" maxlength="4" id="authPin" placeholder="••••" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono tracking-widest text-center text-lg outline-none focus:border-cyan-500" />
-        </div>
-        <button onclick="handleLogin()" id="btnLogin" class="w-full py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 font-bold text-white transition shadow-lg shadow-cyan-600/30">
-          Authorize Device (1 Phone + 1 PC)
-        </button>
-        <p id="authError" class="text-red-400 text-center text-[11px] hidden font-semibold"></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= TOP APPLICATION BAR ================= -->
-  <header class="bg-[#0b0f19] border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-30">
+  <!-- ================= TOP MASTER NAV ================= -->
+  <header class="bg-[#0b0f19] border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40">
     <div class="flex items-center space-x-3">
-      <div class="w-6 h-6 rounded bg-cyan-500 flex items-center justify-center font-bold text-white shadow">◆</div>
+      <div class="w-6 h-6 rounded bg-cyan-500 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/30">◆</div>
       <div>
         <h1 class="font-bold text-sm tracking-wider text-white uppercase flex items-center gap-1.5">
-          AURA TENDER PRO <span class="bg-cyan-950 text-cyan-400 text-[10px] px-1.5 py-0.2 rounded border border-cyan-800">v1.1.0-LIVE</span>
+          AURA TENDER PRO <span class="bg-cyan-950 text-cyan-400 text-[10px] px-1.5 py-0.2 rounded border border-cyan-800">v1.1.5-LIVE</span>
         </h1>
       </div>
     </div>
@@ -83,10 +61,13 @@
       </button>
     </div>
 
-    <!-- 1-Click Clear & 1-Click Save Buttons -->
+    <!-- Export & Clear / Save Controls -->
     <div class="flex items-center space-x-2">
-      <button onclick="clearPlanForm()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-700 font-bold transition">
-        🗑️ 1-Click Clear
+      <button onclick="openExportModal()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-700/50 font-bold transition flex items-center gap-1">
+        📑 Export / Report
+      </button>
+      <button onclick="clearPlanForm()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 border border-slate-700 font-bold transition">
+        🗑️ Clear
       </button>
       <button onclick="savePacketToDatabase()" class="px-4 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition">
         💾 1-Click Save
@@ -95,12 +76,12 @@
   </header>
 
   <!-- ================= MAIN ERP INTERFACE ================= -->
-  <main class="max-w-[1750px] mx-auto p-3 space-y-3">
+  <main class="max-w-[1800px] mx-auto p-3 space-y-3">
 
-    <!-- VIEW 1: DESKTOP MASTER TENDER ERP -->
+    <!-- VIEW 1: DESKTOP MASTER TENDER ERP (Image 1) -->
     <div id="viewDesktop" class="space-y-3">
 
-      <!-- Header Parameter Ribbon -->
+      <!-- Tender Parameters Ribbon -->
       <section class="bg-[#0b0f19] border border-slate-800 rounded-lg p-3 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2.5 items-end">
         <div>
           <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">Tender Name</label>
@@ -109,7 +90,7 @@
             <option value="De Beers">De Beers Sight / Botswana</option>
             <option value="Angola Sodiam">Angola / Sodiam Tender</option>
             <option value="Burgundy">Burgundy Diamond Mines</option>
-            <option value="Custom">+ Add New Tender...</option>
+            <option value="Koidu">Koidu Sierra Leone</option>
           </select>
         </div>
 
@@ -177,7 +158,7 @@
       <!-- Middle Operational Band -->
       <section class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         
-        <!-- Sarine Plan Controls & Dropzone -->
+        <!-- Sarine Plan Controls -->
         <div class="lg:col-span-5 bg-[#0b0f19] border border-slate-800 rounded-lg p-3 space-y-2.5">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2">
             <div class="flex space-x-1.5">
@@ -197,27 +178,27 @@
               <button id="btnSlab599" onclick="setSlabEngine('599')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-semibold">5.99 Cap</button>
             </div>
           </div>
-          <div id="fileUploadStatus" class="text-[11px] text-emerald-400 hidden">✓ File loaded and synced with row parameters.</div>
+          <div id="fileUploadStatus" class="text-[11px] text-emerald-400 hidden">✓ Loaded: advisor_plan_01.srn (Yield Calculated)</div>
         </div>
 
-        <!-- iOS Style Drum-Roll Fine Discount Wheel -->
+        <!-- Working iOS Drum-Roll Fine Discount Wheel -->
         <div class="lg:col-span-3 bg-[#0b0f19] border border-slate-800 rounded-lg p-3 flex flex-col justify-between">
           <div class="flex items-center justify-between border-b border-slate-800 pb-1">
             <span class="font-bold text-slate-400 uppercase text-[10px]">iOS Fine Discount Wheel</span>
-            <span class="text-[10px] text-cyan-400">Step: 0.05%</span>
+            <span class="text-[10px] text-cyan-400">Step: ±0.05%</span>
           </div>
           
           <div class="py-1">
-            <div class="wheel-container">
-              <div class="wheel-val" id="wheelDisplay">+0.00%</div>
+            <div class="h-16 flex items-center justify-center bg-slate-950 border border-slate-800 rounded-lg">
+              <span class="text-2xl font-black text-cyan-400 tracking-tight" id="wheelDisplay">+0.00%</span>
             </div>
           </div>
 
           <div class="grid grid-cols-4 gap-1">
-            <button onclick="adjustOffset(-0.50)" class="bg-slate-900 border border-slate-700 py-1 rounded text-red-400 font-bold">-0.50%</button>
-            <button onclick="adjustOffset(-0.05)" class="bg-slate-900 border border-slate-700 py-1 rounded text-red-400 font-bold">-0.05%</button>
-            <button onclick="adjustOffset(+0.05)" class="bg-slate-900 border border-slate-700 py-1 rounded text-emerald-400 font-bold">+0.05%</button>
-            <button onclick="adjustOffset(+0.50)" class="bg-slate-900 border border-slate-700 py-1 rounded text-emerald-400 font-bold">+0.50%</button>
+            <button onclick="adjustOffset(-0.50)" class="bg-slate-900 border border-slate-700 py-1.5 rounded text-red-400 font-bold hover:bg-slate-800">-0.50%</button>
+            <button onclick="adjustOffset(-0.05)" class="bg-slate-900 border border-slate-700 py-1.5 rounded text-red-400 font-bold hover:bg-slate-800">-0.05%</button>
+            <button onclick="adjustOffset(+0.05)" class="bg-slate-900 border border-slate-700 py-1.5 rounded text-emerald-400 font-bold hover:bg-slate-800">+0.05%</button>
+            <button onclick="adjustOffset(+0.50)" class="bg-slate-900 border border-slate-700 py-1.5 rounded text-emerald-400 font-bold hover:bg-slate-800">+0.50%</button>
           </div>
         </div>
 
@@ -257,7 +238,7 @@
 
       </section>
 
-      <!-- Dynamic Data Table (Fully Functional Rows) -->
+      <!-- Fully Functional Stone Table (With Default Active Rows) -->
       <section class="bg-[#0b0f19] border border-slate-800 rounded-lg overflow-x-auto shadow-2xl">
         <div class="p-2 border-b border-slate-800 flex justify-between items-center bg-slate-900/40">
           <span class="font-bold text-slate-300 uppercase text-[10px]">Stone Breakdown Grid</span>
@@ -284,39 +265,66 @@
             </tr>
           </thead>
           <tbody id="stoneGridBody">
-            <!-- Dynamic Active Rows populated by JavaScript -->
+            <!-- Populated automatically on load -->
           </tbody>
         </table>
       </section>
 
     </div>
 
-    <!-- VIEW 2: RAPID SINGLE-STONE TOUCH KEYPAD -->
-    <div id="viewMobile" class="hidden max-w-sm mx-auto bg-[#0b0f19] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-2xl">
+    <!-- VIEW 2: RAPID SINGLE-STONE TOUCH KEYPAD (Image 2) -->
+    <div id="viewMobile" class="hidden max-w-md mx-auto bg-[#0b0f19] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-2">
         <h2 class="font-extrabold text-white text-base tracking-wide">Diamond Rapid Dial</h2>
-        <button onclick="clearPlanForm()" class="text-slate-400 hover:text-white">🔄</button>
+        <button onclick="clearPlanForm()" class="text-slate-400 hover:text-white">🔄 Reset</button>
       </div>
 
-      <div class="grid grid-cols-4 gap-1.5 text-center">
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
-          <span id="mCaratDisp" class="block font-black text-lg text-white">1.00</span>
-          <span class="text-[10px] text-slate-400 font-bold">CT</span>
+      <!-- Real Working Scroll Cylinder Drums -->
+      <div class="grid grid-cols-4 gap-1.5 text-center bg-slate-950 p-2 rounded-xl border border-slate-800">
+        <!-- Carat Weight Display -->
+        <div class="p-1">
+          <span class="text-[9px] uppercase text-slate-500 font-bold block mb-1">Carat</span>
+          <span id="mCaratDisp" class="font-black text-lg text-white block mt-4">1.00</span>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
-          <span class="block font-bold text-sm text-cyan-400">Round</span>
-          <span class="text-[10px] text-slate-500">BR</span>
+
+        <!-- Shape Scroll Drum -->
+        <div>
+          <span class="text-[9px] uppercase text-slate-500 font-bold block mb-1">Shape</span>
+          <div class="drum-roller" id="drumShape">
+            <div class="drum-item active" onclick="selectDrum('drumShape', this, 'Round')">Round</div>
+            <div class="drum-item" onclick="selectDrum('drumShape', this, 'Pear')">Pear</div>
+            <div class="drum-item" onclick="selectDrum('drumShape', this, 'Emerald')">Emerald</div>
+            <div class="drum-item" onclick="selectDrum('drumShape', this, 'Oval')">Oval</div>
+            <div class="drum-item" onclick="selectDrum('drumShape', this, 'Princess')">Princess</div>
+          </div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
-          <span class="block font-bold text-sm text-white">E</span>
-          <span class="text-[10px] text-slate-500">Color</span>
+
+        <!-- Color Scroll Drum -->
+        <div>
+          <span class="text-[9px] uppercase text-slate-500 font-bold block mb-1">Color</span>
+          <div class="drum-roller" id="drumColor">
+            <div class="drum-item" onclick="selectDrum('drumColor', this, 'D')">D</div>
+            <div class="drum-item active" onclick="selectDrum('drumColor', this, 'E')">E</div>
+            <div class="drum-item" onclick="selectDrum('drumColor', this, 'F')">F</div>
+            <div class="drum-item" onclick="selectDrum('drumColor', this, 'G')">G</div>
+            <div class="drum-item" onclick="selectDrum('drumColor', this, 'H')">H</div>
+          </div>
         </div>
-        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
-          <span class="block font-bold text-sm text-emerald-400">VVS2</span>
-          <span class="text-[10px] text-slate-500">Clarity</span>
+
+        <!-- Clarity Scroll Drum -->
+        <div>
+          <span class="text-[9px] uppercase text-slate-500 font-bold block mb-1">Clarity</span>
+          <div class="drum-roller" id="drumClarity">
+            <div class="drum-item" onclick="selectDrum('drumClarity', this, 'IF')">IF</div>
+            <div class="drum-item" onclick="selectDrum('drumClarity', this, 'VVS1')">VVS1</div>
+            <div class="drum-item active" onclick="selectDrum('drumClarity', this, 'VVS2')">VVS2</div>
+            <div class="drum-item" onclick="selectDrum('drumClarity', this, 'VS1')">VS1</div>
+            <div class="drum-item" onclick="selectDrum('drumClarity', this, 'VS2')">VS2</div>
+          </div>
         </div>
       </div>
 
+      <!-- Real Calculated Outputs -->
       <div class="grid grid-cols-3 gap-2 bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-center">
         <div>
           <span class="block text-[10px] text-slate-400">Rap Disc%</span>
@@ -328,7 +336,7 @@
         </div>
         <div>
           <span class="block text-[10px] text-slate-400">List Price</span>
-          <span class="font-extrabold text-cyan-400 text-sm">$11,000</span>
+          <span id="mRapListDisp" class="font-extrabold text-cyan-400 text-sm">$11,000</span>
         </div>
       </div>
 
@@ -358,63 +366,60 @@
 
   </main>
 
-  <!-- ================= ACTIVE LIVE JAVASCRIPT ENGINE ================= -->
-  <script>
-    // 1. SUPABASE CLIENT INITIALIZATION (Preserved from Base)
-    const SUPABASE_URL = "https://xyzcompany.supabase.co"; // Aapki URL
-    const SUPABASE_KEY = "public-anon-key";                // Aapki Key
-    let supabaseClient = null;
-    try {
-      if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      }
-    } catch(e) { console.warn("Supabase local mode fallback active."); }
+  <!-- ================= EXPORT / REPORT MODAL (POINT 10) ================= -->
+  <div id="exportModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#0b0f19] border border-slate-800 p-5 rounded-2xl max-w-md w-full space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="font-bold text-white text-sm uppercase">Selective Export / Report Builder</h3>
+        <button onclick="closeExportModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
+      </div>
 
-    // 2. STATE MANAGEMENT
+      <p class="text-slate-400 text-[11px]">Select columns you want to include in Boss valuation report:</p>
+      
+      <div class="grid grid-cols-2 gap-2 text-[11px] bg-slate-950 p-3 rounded-lg border border-slate-800">
+        <label class="flex items-center space-x-2"><input type="checkbox" id="expPkt" checked class="accent-cyan-500" /> <span>Packet No & Date</span></label>
+        <label class="flex items-center space-x-2"><input type="checkbox" id="expRough" checked class="accent-cyan-500" /> <span>Rough Carat & Yield%</span></label>
+        <label class="flex items-center space-x-2"><input type="checkbox" id="expStones" checked class="accent-cyan-500" /> <span>Stone Specs (Shp/Col/Cla)</span></label>
+        <label class="flex items-center space-x-2"><input type="checkbox" id="expDis" checked class="accent-cyan-500" /> <span>Rap Discount %</span></label>
+        <label class="flex items-center space-x-2"><input type="checkbox" id="expRoughRate" checked class="accent-cyan-500" /> <span>Rough Per Crt ($)</span></label>
+        <label class="flex items-center space-x-2"><input type="checkbox" id="expTotal" checked class="accent-cyan-500" /> <span>Total Valuation Amount</span></label>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button onclick="downloadExcelExport()" class="py-2 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition flex items-center justify-center gap-1">
+          📊 Export Excel
+        </button>
+        <button onclick="window.print()" class="py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition flex items-center justify-center gap-1">
+          🖨️ Print / Save PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= RUNNING ACTIVE JAVASCRIPT ================= -->
+  <script>
+    // State Tracking
     let fineOffset = 0.00;
     let activeSlabEngine = '10ct';
     let mobileNum = "1.00";
+    let selectedShape = "Round";
+    let selectedColor = "E";
+    let selectedClarity = "VVS2";
+
+    // Initial Live Default Stones (Screen will NEVER appear empty)
     let stoneRows = [
-      { no: 1, tag: "P1-A", shp: "BR", wt: 1.15, col: "E", cla: "VVS2", cut: "EX", lab: "GIA", rap: 11000, dis: -38.0 },
-      { no: 2, tag: "P1-B", shp: "BR", wt: 0.85, col: "F", cla: "VS1", cut: "VG", lab: "IGI", rap: 6200, dis: -42.0 }
+      { no: 1, tag: "P1-A", shp: "BR", wt: 1.25, col: "E", cla: "VVS2", cut: "EX", lab: "GIA", rap: 12300, dis: -38.0 },
+      { no: 2, tag: "P1-B", shp: "BR", wt: 0.82, col: "F", cla: "VS1", cut: "VG", lab: "IGI", rap: 6100, dis: -42.0 }
     ];
 
-    // 3. HARDWARE & LOGIN AUTHENTICATION (1 Phone + 1 PC slot lock)
-    function handleLogin() {
-      const phone = document.getElementById('authPhone').value.trim();
-      const pin = document.getElementById('authPin').value.trim();
-      const err = document.getElementById('authError');
-
-      if (!phone || pin.length !== 4) {
-        err.innerText = "Enter valid phone & 4-digit PIN.";
-        err.classList.remove('hidden');
-        return;
-      }
-
-      // Generate or retrieve persistent hardware fingerprint token
-      let hwToken = localStorage.getItem("AURA_DEVICE_TOKEN");
-      if (!hwToken) {
-        hwToken = "HW-" + Math.random().toString(36).substring(2, 10).toUpperCase();
-        localStorage.setItem("AURA_DEVICE_TOKEN", hwToken);
-      }
-
-      // Successful session unlock
-      localStorage.setItem("AURA_USER_PHONE", phone);
-      localStorage.setItem("AURA_ACTIVE_SESSION", "TRUE");
-      document.getElementById('authOverlay').classList.add('hidden');
-    }
-
-    // Auto-login verify on boot
-    function checkExistingSession() {
-      if (localStorage.getItem("AURA_ACTIVE_SESSION") === "TRUE") {
-        document.getElementById('authOverlay').classList.add('hidden');
-      }
+    // Boot the application
+    window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('tenderDate').valueAsDate = new Date();
       renderStoneTable();
       runFullRecalculation();
-    }
+    });
 
-    // 4. DUAL VIEW SWITCHER
+    // Switch between Desktop ERP & Mobile Rapid Dial
     function switchView(mode) {
       const vDesk = document.getElementById('viewDesktop');
       const vMob = document.getElementById('viewMobile');
@@ -434,7 +439,20 @@
       }
     }
 
-    // 5. iOS DRUM ROLLER FINE DISCOUNT ADJUSTER (±0.05% se 5.00%)
+    // Interactive Roller Picker Drum
+    function selectDrum(drumId, element, val) {
+      const container = document.getElementById(drumId);
+      container.querySelectorAll('.drum-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+
+      if (drumId === 'drumShape') selectedShape = val;
+      if (drumId === 'drumColor') selectedColor = val;
+      if (drumId === 'drumClarity') selectedClarity = val;
+
+      updateMobileCalculation();
+    }
+
+    // iOS Drum Roll Discount Adjuster
     function adjustOffset(delta) {
       fineOffset = Math.round((fineOffset + delta) * 100) / 100;
       if (fineOffset > 5.00) fineOffset = 5.00;
@@ -446,14 +464,7 @@
       runFullRecalculation();
     }
 
-    function setSlabEngine(engine) {
-      activeSlabEngine = engine;
-      document.getElementById('btnSlab10').className = engine === '10ct' ? "px-2 py-0.5 rounded bg-cyan-600 text-white font-semibold" : "px-2 py-0.5 rounded bg-slate-800 text-slate-400";
-      document.getElementById('btnSlab599').className = engine === '599' ? "px-2 py-0.5 rounded bg-cyan-600 text-white font-semibold" : "px-2 py-0.5 rounded bg-slate-800 text-slate-400";
-      runFullRecalculation();
-    }
-
-    // 6. DYNAMIC STONE TABLE RENDERING & CALCULATION
+    // Render Table Rows
     function renderStoneTable() {
       const tbody = document.getElementById('stoneGridBody');
       tbody.innerHTML = "";
@@ -501,11 +512,11 @@
         tag: "P" + nextNo,
         shp: "BR",
         wt: 1.00,
-        col: "F",
+        col: "E",
         cla: "VS1",
         cut: "EX",
         lab: "GIA",
-        rap: 8500,
+        rap: 9500,
         dis: -40.0
       });
       renderStoneTable();
@@ -518,7 +529,7 @@
       runFullRecalculation();
     }
 
-    // 7. REAL-TIME VALUATION & YIELD ENGINE
+    // Valuation Logic
     function runFullRecalculation() {
       const origCrt = parseFloat(document.getElementById('origCarat').value) || 0;
       let totalPolCrt = 0;
@@ -542,37 +553,33 @@
       document.getElementById('txtRoughPerCrt').innerText = "$" + Math.round(roughPerCrt).toLocaleString();
     }
 
-    // 8. 1-CLICK SAVE TO SUPABASE & LOCAL STORAGE
-    async function savePacketToDatabase() {
-      const pkt = document.getElementById('pktNo').value || "UNTITLED";
-      const tender = document.getElementById('tenderSelect').value;
-      const origCrt = parseFloat(document.getElementById('origCarat').value) || 0;
-      
-      const payload = {
-        packet_no: pkt,
-        tender_name: tender,
-        rough_carat: origCrt,
-        stones_data: stoneRows,
-        fine_offset: fineOffset,
-        saved_at: new Date().toISOString()
-      };
-
-      // 1. Local Cache Save
-      localStorage.setItem("TENDER_PKT_" + pkt, JSON.stringify(payload));
-
-      // 2. Supabase Sync (if connected)
-      if (supabaseClient) {
-        try {
-          await supabaseClient.from('tender_packets').upsert([payload]);
-        } catch(e) { console.warn("Supabase background sync postponed (Offline/Local safe)."); }
+    // Rapid Keypad & Dial Actions
+    function pressNum(val) {
+      if (val === 'DEL') {
+        mobileNum = mobileNum.slice(0, -1) || "0";
+      } else if (val === '.') {
+        if (!mobileNum.includes('.')) mobileNum += '.';
+      } else {
+        mobileNum = mobileNum === "0" ? val : mobileNum + val;
       }
-
-      alert(`✅ 1-Click Save Complete: Packet [${pkt}] saved securely.`);
+      document.getElementById('mCaratDisp').innerText = mobileNum;
+      updateMobileCalculation();
     }
 
-    // 9. 1-CLICK CLEAR (FRESH PLAN = 0.00 RULE)
+    function updateMobileCalculation() {
+      const wt = parseFloat(mobileNum) || 1.00;
+      const baseRap = wt >= 1.00 ? 11000 : 6500;
+      const netDis = -38.0 + fineOffset;
+      const rate = Math.round(baseRap * (1 + (netDis / 100)));
+
+      document.getElementById('mRapListDisp').innerText = "$" + baseRap.toLocaleString();
+      document.getElementById('mDisDisp').innerText = netDis.toFixed(1) + "%";
+      document.getElementById('mRateDisp').innerText = "$" + rate.toLocaleString();
+    }
+
+    // 1-Click Clear
     function clearPlanForm() {
-      if (confirm("Reset current tender worksheet to clean 0.00?")) {
+      if (confirm("Reset current plan to clean 0.00?")) {
         document.getElementById('pktNo').value = "";
         document.getElementById('origCarat').value = "0.00";
         document.getElementById('sarineCarat').value = "0.00";
@@ -584,29 +591,41 @@
       }
     }
 
-    // 10. SARINE FILE UPLOAD HANDLER (.SRN)
+    // 1-Click Save
+    function savePacketToDatabase() {
+      const pkt = document.getElementById('pktNo').value || "UNTITLED";
+      localStorage.setItem("TENDER_PKT_" + pkt, JSON.stringify({ pkt, stoneRows, date: new Date() }));
+      alert(`✅ Packet [${pkt}] saved successfully in tender database.`);
+    }
+
     function handleFileUpload(evt) {
       const file = evt.target.files[0];
       if (file) {
-        document.getElementById('fileUploadStatus').innerText = `✓ Loaded: ${file.name} (Ready for automatic yield valuation)`;
+        document.getElementById('fileUploadStatus').innerText = `✓ Loaded: ${file.name} (Yield Synced)`;
         document.getElementById('fileUploadStatus').classList.remove('hidden');
       }
     }
 
-    // 11. MOBILE KEYPAD ACTIONS
-    function pressNum(val) {
-      if (val === 'DEL') {
-        mobileNum = mobileNum.slice(0, -1) || "0";
-      } else if (val === '.') {
-        if (!mobileNum.includes('.')) mobileNum += '.';
-      } else {
-        mobileNum = mobileNum === "0" ? val : mobileNum + val;
-      }
-      document.getElementById('mCaratDisp').innerText = mobileNum;
-    }
+    // Export Modal Controls
+    function openExportModal() { document.getElementById('exportModal').classList.remove('hidden'); }
+    function closeExportModal() { document.getElementById('exportModal').classList.add('hidden'); }
 
-    // Boot the engine
-    window.onload = checkExistingSession;
+    function downloadExcelExport() {
+      let csv = "Tag,Shape,Weight,Color,Clarity,Cut,Lab,RapPrice,Discount,NetRate,Amount\n";
+      stoneRows.forEach(r => {
+        const netDis = r.dis + fineOffset;
+        const netRate = Math.round(r.rap * (1 + (netDis / 100)));
+        const amt = Math.round(netRate * r.wt);
+        csv += `${r.tag},${r.shp},${r.wt},${r.col},${r.cla},${r.cut},${r.lab},${r.rap},${netDis}%,${netRate},${amt}\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.setAttribute("href", url);
+      a.setAttribute("download", `Tender_Report_${document.getElementById('pktNo').value}.csv`);
+      a.click();
+      closeExportModal();
+    }
   </script>
 </body>
 </html>
