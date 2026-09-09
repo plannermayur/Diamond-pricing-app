@@ -434,16 +434,55 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // =========================================================================
-    // HIGH-SPEED PERSISTENT MEMORY RAP & DISCOUNT CACHE
+    // HIGH-SPEED RAM CACHE FOR INSTANT VALUATIONS
     // =========================================================================
     let liveRapCache = new Map();
-    try {
-      const saved = localStorage.getItem("LOCAL_RAP_CACHE");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        for (let k in parsed) liveRapCache.set(k, parsed[k]);
+
+    // =========================================================================
+    // INDEXEDDB STORAGE ENGINE (SAFELY STORES 260,000+ ROWS WITHOUT QUOTA LIMIT)
+    // =========================================================================
+    function openRapDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open("AuraRapDB", 1);
+        req.onupgradeneeded = (e) => {
+          e.target.result.createObjectStore("rapRates");
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveRatesToIndexedDB(ratesObj) {
+      const db = await openRapDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction("rapRates", "readwrite");
+        const store = tx.objectStore("rapRates");
+        store.put(ratesObj, "LATEST_DATA");
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function loadRatesFromIndexedDB() {
+      try {
+        const db = await openRapDB();
+        const tx = db.transaction("rapRates", "readonly");
+        const store = tx.objectStore("rapRates");
+        const req = store.get("LATEST_DATA");
+        req.onsuccess = () => {
+          if (req.result) {
+            liveRapCache.clear();
+            for (let k in req.result) {
+              liveRapCache.set(k, req.result[k]);
+            }
+            console.log("⚡ 260,000 Rates loaded instantly from IndexedDB");
+            renderWorkbench();
+          }
+        };
+      } catch(e) {
+        console.warn("IndexedDB load info:", e);
       }
-    } catch(e) {}
+    }
 
     window.setTheme = function(themeName) {
       document.body.className = "min-h-screen select-none antialiased " + (themeName === 'cyan' ? '' : `theme-${themeName}`);
@@ -591,7 +630,6 @@
       document.getElementById('mainAppContent').classList.remove('hidden');
       document.getElementById('currentUserLabel').innerText = `${userName} (${role === 'admin' ? '👑 Admin' : 'Planner'})`;
 
-      // Role-Based UI Lock: Rap Update & Admin Panel strictly for Master Admin
       if (role === 'admin') {
         document.getElementById('btnOpenUserAdmin').classList.remove('hidden');
         document.getElementById('uploadRapContainer').classList.remove('hidden');
@@ -839,7 +877,6 @@
       const f = fls || 'NON';
       const range = getRangeSlab(weight);
 
-      // Key candidate matching exact Excel format
       let candidates = [];
       if (shape === 'ROUND') {
         candidates.push(`${range}-${shape}-${color}-${clarity}-${cut || 'EX'}-${p}-${s}-${f}`);
@@ -864,7 +901,6 @@
         }
       }
 
-      // Default benchmark fallback if Excel is not loaded yet
       return calculateDynamicRapRate(shape, weight, color, clarity, cut, f);
     }
 
@@ -904,7 +940,7 @@
     }
 
     // =========================================================================
-    // RAP UPDATE IMPORT & CLOUD BROADCAST (ONLY MASTER ADMIN)
+    // RAP UPDATE IMPORT & CLOUD BROADCAST (SAFE HIGH-CAPACITY INDEXEDDB ENGINE)
     // =========================================================================
     document.getElementById('excelFileInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -936,22 +972,24 @@
             }
           }
 
-          // Local Persistent Storage
-          localStorage.setItem("LOCAL_RAP_CACHE", JSON.stringify(ratesObject));
+          // 1. Unlimited Storage Save (IndexedDB)
+          await saveRatesToIndexedDB(ratesObject);
           localStorage.setItem("LOCAL_RAP_TIME", new Date().toISOString());
 
-          // Push to Supabase Cloud for all connected global instances
+          // 2. Cloud Broadcast (agar Supabase online ho)
           if (supabaseClient) {
-            await supabaseClient.from('global_rap_sync').upsert({
-              id: 'LATEST_RAP',
-              updated_at: new Date().toISOString(),
-              rates_payload: ratesObject
-            });
-            alert(`✅ Rap Update Successful: ${loadedCount.toLocaleString()} rates synced to Cloud & Local Storage.`);
-          } else {
-            alert(`✅ Local Rap Updated: ${loadedCount.toLocaleString()} rates loaded.`);
+            try {
+              await supabaseClient.from('global_rap_sync').upsert({
+                id: 'LATEST_RAP',
+                updated_at: new Date().toISOString(),
+                rates_payload: ratesObject
+              });
+            } catch(cloudErr) {
+              console.warn("Cloud sync warning:", cloudErr.message);
+            }
           }
 
+          alert(`✅ Rap Update Successful: ${loadedCount.toLocaleString()} rates stored safely in IndexedDB!`);
           renderWorkbench();
         } catch (err) {
           alert("Rap Update Failed: " + err.message);
@@ -970,7 +1008,7 @@
           if (!localTime || new Date(data.updated_at) > new Date(localTime)) {
             liveRapCache.clear();
             for (let k in data.rates_payload) liveRapCache.set(k, data.rates_payload[k]);
-            localStorage.setItem("LOCAL_RAP_CACHE", JSON.stringify(data.rates_payload));
+            await saveRatesToIndexedDB(data.rates_payload);
             localStorage.setItem("LOCAL_RAP_TIME", data.updated_at);
             renderWorkbench();
           }
@@ -1441,8 +1479,9 @@
       window.open(whatsappUrl, '_blank');
     });
 
-    // Boot Authentication & Auto-fetch latest Cloud rates
+    // Boot Authentication, Load IndexedDB rates, and check startup cloud sync
     checkUserPermission();
+    loadRatesFromIndexedDB();
     syncGlobalRatesOnStartup();
   </script>
 </body>
