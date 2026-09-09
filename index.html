@@ -3,1322 +3,474 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>AURA DIAMOND | Sarine Advisor Rough Valuation Suite</title>
-  
+  <title>Aura Tender Pro - v1.1.0 Demo</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
   <style>
-    :root {
-      --bg-main: #040711;
-      --card-bg: rgba(15, 23, 42, 0.85);
-      --accent: #06b6d4;
-      --accent-glow: rgba(6, 182, 212, 0.3);
+    /* iOS Style Drum Roll Picker / Wheel Styling */
+    .wheel-container {
+      position: relative;
+      height: 72px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
     }
-    body.theme-gold {
-      --bg-main: #0b0904;
-      --card-bg: rgba(28, 22, 10, 0.9);
-      --accent: #f59e0b;
-      --accent-glow: rgba(245, 158, 11, 0.3);
+    .wheel-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      color: #38bdf8;
+      transition: transform 0.1s ease;
     }
-    body.theme-emerald {
-      --bg-main: #020c08;
-      --card-bg: rgba(6, 30, 20, 0.9);
-      --accent: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.3);
-    }
-    body.theme-sapphire {
-      --bg-main: #03071e;
-      --card-bg: rgba(15, 23, 50, 0.9);
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.3);
-    }
-    body { background-color: var(--bg-main); color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s ease; }
-    .glass-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .glass-card-glow { background: var(--card-bg); border: 1px solid var(--accent-glow); }
-    .sarine-table th { background: #0f172a; border: 1px solid #334155; padding: 5px 3px; font-size: 10px; text-transform: uppercase; font-weight: 700; text-align: center; }
-    .sarine-table td { border: 1px solid #1e293b; padding: 3px 2px; font-size: 11px; text-align: center; }
-    @media print {
-      body { background: #fff !important; color: #000 !important; }
-      .no-print { display: none !important; }
-      .sarine-table th { background: #eee !important; color: #000 !important; border: 1px solid #000 !important; }
-      .sarine-table td { border: 1px solid #000 !important; color: #000 !important; }
-    }
+    /* Hide default scrollbars for clean ERP table feel */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0b0f19; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
   </style>
 </head>
-<body class="min-h-screen select-none antialiased">
+<body class="bg-[#050811] text-slate-200 min-h-screen font-sans antialiased text-xs select-none">
 
-  <!-- AUTH MODAL WITH REGISTER & PIN LOGIN TABS -->
-  <div id="authLockOverlay" class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 no-print">
-    <div class="glass-card-glow p-6 sm:p-8 rounded-3xl max-w-md w-full text-center space-y-5">
-      <div class="inline-flex p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/20 text-3xl">💎</div>
+  <!-- Top Navigation & Brand Header -->
+  <header class="bg-[#0b0f19] border-b border-slate-800 px-4 py-2 flex flex-wrap items-center justify-between gap-2 sticky top-0 z-40">
+    <div class="flex items-center space-x-3">
+      <div class="w-6 h-6 rounded bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/30">
+        ◆
+      </div>
       <div>
-        <h2 class="text-2xl font-extrabold text-white">AURA TENDER PRO</h2>
-        <p class="text-xs text-slate-400 mt-1">Multi-Device Secured Diamond Terminal</p>
-      </div>
-
-      <!-- Tab Switcher: Login vs Register -->
-      <div class="flex bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1 text-xs font-bold">
-        <button id="tabBtnLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-cyan-600 text-white transition">Login with PIN</button>
-        <button id="tabBtnRegister" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition">New Register</button>
-      </div>
-
-      <!-- State 1: Login Form -->
-      <div id="loginFormBox" class="space-y-3 text-left">
-        <div>
-          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Mobile Number</label>
-          <input type="tel" id="loginPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono" />
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Your 4-Digit Security PIN</label>
-          <input type="password" id="loginPin" maxlength="6" placeholder="****" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono tracking-widest text-center" />
-        </div>
-        <button onclick="handleUserLogin()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition text-sm uppercase shadow-lg shadow-cyan-950">
-          Login Terminal
-        </button>
-      </div>
-
-      <!-- State 2: Register Form -->
-      <div id="registerFormBox" class="hidden space-y-3 text-left">
-        <div>
-          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Full Name</label>
-          <input type="text" id="reqName" placeholder="e.g. Ramesh Bhai" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400" />
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Mobile Number</label>
-          <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono" />
-        </div>
-        <div>
-          <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Create 4-Digit Security PIN</label>
-          <input type="password" id="reqPin" maxlength="6" placeholder="Set PIN (e.g. 1234)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-100 outline-none focus:border-cyan-400 font-mono tracking-widest text-center" />
-        </div>
-        <button onclick="handleUserRegister()" class="w-full bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-white font-bold py-2.5 rounded-xl transition text-sm uppercase shadow-lg">
-          Request Approval
-        </button>
-      </div>
-
-      <!-- Status Notices -->
-      <div id="pendingBox" class="hidden bg-amber-950/40 border border-amber-500/50 p-4 rounded-2xl space-y-2 text-center">
-        <p class="text-amber-400 font-bold text-sm">⏳ Approval Pending</p>
-        <p class="text-xs text-slate-300">Aapka account admin ke verification mein hai. Approve hote hi PIN se direct khul jayega.</p>
-      </div>
-
-      <div id="deviceMismatchBox" class="hidden bg-red-950/40 border border-red-500/50 p-4 rounded-2xl space-y-2 text-center">
-        <p class="text-red-400 font-bold text-sm">🚫 Device Limit Exceeded (Max 2 Devices)</p>
-        <p class="text-xs text-slate-300">Yeh account already 2 devices par active hai. Purana device reset karwane ke liye Admin se sampark karein.</p>
-      </div>
-
-      <!-- Admin PIN Direct Access -->
-      <div class="pt-3 border-t border-slate-800 flex gap-2">
-        <input type="password" id="adminPinInput" placeholder="Master Admin PIN" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs font-mono text-center text-cyan-400 outline-none focus:border-cyan-500" />
-        <button onclick="unlockMasterAdmin()" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs px-4 py-2 rounded-xl border border-slate-700 font-bold uppercase transition">Admin</button>
+        <h1 class="font-bold text-sm tracking-wider text-white uppercase flex items-center gap-1.5">
+          AURA TENDER PRO <span class="bg-cyan-950 text-cyan-400 text-[10px] px-1.5 py-0.2 rounded border border-cyan-800">v1.1.0-DEMO</span>
+        </h1>
       </div>
     </div>
-  </div>
 
-  <!-- ADMIN USERS TRACKING MODAL -->
-  <div id="adminUserModal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 no-print">
-    <div class="glass-card-glow p-6 rounded-3xl max-w-4xl w-full space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+    <!-- Dual Mode Switcher: Desktop Master Grid vs Mobile Rapid Keypad -->
+    <div class="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
+      <button id="btnViewDesktop" onclick="switchView('desktop')" class="px-3 py-1 rounded font-semibold text-white bg-blue-600 transition">
+        🖥️ ERP Grid (Image 1)
+      </button>
+      <button id="btnViewMobile" onclick="switchView('mobile')" class="px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition">
+        📱 Rapid Keypad (Image 2)
+      </button>
+    </div>
+
+    <!-- Quick Action Controls (1-Click Clear & 1-Click Save) -->
+    <div class="flex items-center space-x-2">
+      <button onclick="clearPlanForm()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-red-950 text-slate-300 hover:text-red-400 border border-slate-700 hover:border-red-700 font-bold transition flex items-center gap-1">
+        🗑️ Clear
+      </button>
+      <button onclick="savePacketRecord()" class="px-4 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-600/30 transition flex items-center gap-1">
+        💾 1-Click Save
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-[1750px] mx-auto p-3 space-y-3">
+
+    <!-- VIEW 1: DESKTOP MASTER TENDER ERP (Exact Reference: Image 1) -->
+    <div id="viewDesktop" class="space-y-3">
+
+      <!-- Tender Parameters & Meta Ribbon -->
+      <section class="bg-[#0b0f19] border border-slate-800 rounded-lg p-3 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2.5 items-end">
         <div>
-          <h3 class="font-bold text-base text-cyan-400 flex items-center gap-2">
-            <i class="fa-solid fa-users-gear"></i> User Licenses & Active Device Tracker
-          </h3>
-          <p class="text-[11px] text-slate-400">Track exact device hardware and connection location</p>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Tender Name</label>
+          <select id="tenderSelect" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white font-medium focus:border-cyan-500 outline-none">
+            <option value="Pioneer">Pioneer Tender</option>
+            <option value="De Beers">De Beers Sight / Botswana</option>
+            <option value="Angola Sodiam">Angola / Sodiam Tender</option>
+            <option value="Burgundy">Burgundy Diamond Mines</option>
+            <option value="Custom">+ Add New Tender...</option>
+          </select>
         </div>
-        <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-200 text-lg px-2">✕</button>
-      </div>
-      <div class="overflow-x-auto max-h-96">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-mono">
-            <tr>
-              <th class="py-2.5 px-3">Trader Name</th>
-              <th class="py-2.5 px-3">Phone</th>
-              <th class="py-2.5 px-3">PIN</th>
-              <th class="py-2.5 px-3">Active Devices</th>
-              <th class="py-2.5 px-3">Status</th>
-              <th class="py-2.5 px-3 text-right">Actions</th>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Date</label>
+          <input type="date" id="tenderDate" value="2026-09-09" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white font-medium focus:border-cyan-500 outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">MFG Type</label>
+          <input type="text" value="MFG" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white font-medium focus:border-cyan-500 outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Packet No</label>
+          <input type="text" id="pktNo" placeholder="PKT-001" class="w-full bg-slate-900 border border-cyan-600/50 rounded px-2 py-1.5 text-cyan-400 font-bold focus:border-cyan-400 outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Original Carat (O.Crt)</label>
+          <input type="number" step="0.01" id="origCarat" value="0.00" oninput="recalculateTotals()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white font-bold focus:border-cyan-500 outline-none" />
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Sarine Carat (S.Crt)</label>
+          <input type="number" step="0.01" id="sarineCarat" value="0.00" oninput="recalculateTotals()" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white font-bold focus:border-cyan-500 outline-none" />
+        </div>
+
+        <!-- Secondary Fields: Color, Floro, Tension, Remarks -->
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Color / Floro</label>
+          <div class="grid grid-cols-2 gap-1">
+            <select class="bg-slate-900 border border-slate-700 rounded px-1 py-1.5 text-white">
+              <option>D</option><option>E</option><option>F</option><option>G</option><option>H</option><option>I-J</option>
+            </select>
+            <select class="bg-slate-900 border border-slate-700 rounded px-1 py-1.5 text-white">
+              <option>NONE</option><option>FAINT</option><option>MED</option><option>STRONG</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Tension (Ten)</label>
+          <select class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white">
+            <option>0 (None)</option><option>1 (Low)</option><option>2 (Med)</option><option>3 (High)</option>
+          </select>
+        </div>
+
+        <!-- Multi-Color Checkers (MC1 - MC4 from Image 1) -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Multi-Color Marks (MC1 - MC4)</label>
+          <div class="grid grid-cols-4 gap-1">
+            <input type="text" placeholder="MC1" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-white text-[11px]" />
+            <input type="text" placeholder="MC2" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-white text-[11px]" />
+            <input type="text" placeholder="MC3" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-white text-[11px]" />
+            <input type="text" placeholder="MC4" class="bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-center text-white text-[11px]" />
+          </div>
+        </div>
+
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Remark</label>
+          <input type="text" placeholder="Clean center, open table tension..." class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1.5 text-white focus:border-cyan-500 outline-none" />
+        </div>
+      </section>
+
+      <!-- Middle Work Panel: Sarine Plan Tabs, Live Total Box & iOS Fine Discount Wheel -->
+      <section class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        
+        <!-- Left: Sarine Plan Selector Ribbon & Upload File -->
+        <div class="lg:col-span-5 bg-[#0b0f19] border border-slate-800 rounded-lg p-3 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex space-x-1.5">
+              <button class="px-3 py-1 rounded bg-cyan-600 text-white font-bold text-xs tracking-wider shadow">SSP1 :</button>
+              <button class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs tracking-wider">SSP2 :</button>
+            </div>
+            <!-- File Dropzone for .SRN / Advisor / Video / Photo -->
+            <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-1 rounded text-cyan-400 font-bold flex items-center gap-1 transition">
+              <span>⬆️ Upload Sarine / Media</span>
+              <input type="file" class="hidden" onchange="alert('Sarine .SRN/Advisor raw file loaded successfully.')" />
+            </label>
+          </div>
+
+          <!-- Parameter Shortcuts & Slab Engine Toggle -->
+          <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded border border-slate-800 text-[11px]">
+            <span class="text-slate-400 font-medium">Rap Slab Engine:</span>
+            <div class="flex gap-1">
+              <button class="px-2 py-0.5 rounded bg-blue-600 text-white font-semibold">Standard 10ct+</button>
+              <button class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 hover:text-white">Traditional 5.99 Cap</button>
+            </div>
+          </div>
+
+          <!-- Quick Parameters Line -->
+          <div class="grid grid-cols-4 gap-2 text-[11px]">
+            <div><span class="text-slate-500">Shape:</span> <span class="font-bold text-white">Round (BR)</span></div>
+            <div><span class="text-slate-500">Col/Cla:</span> <span class="font-bold text-white">E / VVS2</span></div>
+            <div><span class="text-slate-500">Cut:</span> <span class="font-bold text-white">EX</span></div>
+            <div><span class="text-slate-500">Lab:</span> <span class="font-bold text-cyan-400">GIA</span></div>
+          </div>
+        </div>
+
+        <!-- Center: iOS Style Drum-Roll Additional % Wheel (-5.00% se +5.00%) -->
+        <div class="lg:col-span-3 bg-[#0b0f19] border border-slate-800 rounded-lg p-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+            <span class="font-bold text-slate-400 uppercase tracking-wider text-[10px]">iOS Discount Roller</span>
+            <span class="text-[10px] text-cyan-400">±0.05% Steps</span>
+          </div>
+          
+          <div class="py-2">
+            <div class="wheel-container">
+              <div class="wheel-val" id="wheelDisplay">+0.00%</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-4 gap-1">
+            <button onclick="adjustOffset(-0.5)" class="bg-slate-900 border border-slate-700 hover:bg-slate-800 py-1 rounded text-red-400 font-bold">-0.50%</button>
+            <button onclick="adjustOffset(-0.05)" class="bg-slate-900 border border-slate-700 hover:bg-slate-800 py-1 rounded text-red-400 font-bold">-0.05%</button>
+            <button onclick="adjustOffset(+0.05)" class="bg-slate-900 border border-slate-700 hover:bg-slate-800 py-1 rounded text-emerald-400 font-bold">+0.05%</button>
+            <button onclick="adjustOffset(+0.5)" class="bg-slate-900 border border-slate-700 hover:bg-slate-800 py-1 rounded text-emerald-400 font-bold">+0.50%</button>
+          </div>
+        </div>
+
+        <!-- Right: Plan Total Live Calculated Box (Exact match from Image 1) -->
+        <div class="lg:col-span-4 bg-[#0b0f19] border border-cyan-800/40 rounded-lg p-3 flex flex-col justify-between">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1 font-bold text-cyan-400 uppercase text-[10px]">
+            <span>Plan Summary Metrics</span>
+            <span class="text-slate-400">Yield Yield Real-time</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 text-center my-1">
+            <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-400">Pol Crt</span>
+              <span id="txtPolCrt" class="font-extrabold text-sm text-white">0.00</span>
+            </div>
+            <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-400">Yield %</span>
+              <span id="txtYield" class="font-extrabold text-sm text-cyan-400">0.00%</span>
+            </div>
+            <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-400">Total Amt ($)</span>
+              <span id="txtTotAmt" class="font-extrabold text-sm text-emerald-400">$0</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-center">
+            <div class="bg-slate-900/80 p-1.5 rounded border border-slate-800">
+              <span class="block text-[10px] text-slate-400">Per Crt (Pol)</span>
+              <span id="txtPerCrt" class="font-extrabold text-sm text-amber-300">$0.00</span>
+            </div>
+            <div class="bg-cyan-950/60 p-1.5 rounded border border-cyan-700/50">
+              <span class="block text-[10px] text-cyan-300">R.PER CT (Rough)</span>
+              <span id="txtRoughPerCrt" class="font-extrabold text-sm text-cyan-300">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Industrial Grid Table (Exact 1:1 columns from Image 1) -->
+      <section class="bg-[#0b0f19] border border-slate-800 rounded-lg overflow-x-auto shadow-2xl">
+        <table class="w-full text-left border-collapse whitespace-nowrap text-[11px]">
+          <thead>
+            <tr class="bg-slate-900/90 text-slate-300 border-b border-slate-700 font-bold uppercase tracking-wider text-[10px]">
+              <th class="p-2 border-r border-slate-800 text-center">No</th>
+              <th class="p-2 border-r border-slate-800">Tag</th>
+              <th class="p-2 border-r border-slate-800">Shp</th>
+              <th class="p-2 border-r border-slate-800 text-right">Polish</th>
+              <th class="p-2 border-r border-slate-800 text-center">Col</th>
+              <th class="p-2 border-r border-slate-800 text-center">C(+/-)</th>
+              <th class="p-2 border-r border-slate-800 text-center">Clarity</th>
+              <th class="p-2 border-r border-slate-800 text-center">Q(+/-)</th>
+              <th class="p-2 border-r border-slate-800 text-center">FL</th>
+              <th class="p-2 border-r border-slate-800 text-center">B/W</th>
+              <th class="p-2 border-r border-slate-800 text-center">Lab</th>
+              <th class="p-2 border-r border-slate-800 text-right">Ratio</th>
+              <th class="p-2 border-r border-slate-800 text-right">TD</th>
+              <th class="p-2 border-r border-slate-800 text-center">Cut</th>
+              <th class="p-2 border-r border-slate-800 text-right text-cyan-400">Rap</th>
+              <th class="p-2 border-r border-slate-800 text-right text-red-400">Dis%</th>
+              <th class="p-2 border-r border-slate-800 text-right text-white">Rate</th>
+              <th class="p-2 border-r border-slate-800 text-right text-amber-300">cDis%</th>
+              <th class="p-2 border-r border-slate-800 text-right text-amber-300">cRate</th>
+              <th class="p-2 border-r border-slate-800 text-right text-emerald-400 font-bold">Amount</th>
+              <th class="p-2">Remark</th>
             </tr>
           </thead>
-          <tbody id="userListBody" class="divide-y divide-slate-800 font-mono"></tbody>
+          <tbody id="tenderTableBody">
+            <!-- Dynamic Demo Stone Rows will appear here -->
+            <tr class="border-b border-slate-800/60 bg-slate-900/20 hover:bg-slate-800/40 font-mono">
+              <td class="p-2 border-r border-slate-800 text-center text-slate-500">1</td>
+              <td class="p-2 border-r border-slate-800 text-white font-bold">P1</td>
+              <td class="p-2 border-r border-slate-800 text-cyan-300">BR</td>
+              <td class="p-2 border-r border-slate-800 text-right font-bold text-white">1.25</td>
+              <td class="p-2 border-r border-slate-800 text-center">E</td>
+              <td class="p-2 border-r border-slate-800 text-center text-slate-500">0</td>
+              <td class="p-2 border-r border-slate-800 text-center font-semibold text-emerald-300">VVS2</td>
+              <td class="p-2 border-r border-slate-800 text-center text-slate-500">0</td>
+              <td class="p-2 border-r border-slate-800 text-center text-slate-400">NONE</td>
+              <td class="p-2 border-r border-slate-800 text-center text-slate-400">NOBL</td>
+              <td class="p-2 border-r border-slate-800 text-center font-bold text-cyan-400">GIA</td>
+              <td class="p-2 border-r border-slate-800 text-right">1.01</td>
+              <td class="p-2 border-r border-slate-800 text-right">61.8</td>
+              <td class="p-2 border-r border-slate-800 text-center text-emerald-400">EX</td>
+              <td class="p-2 border-r border-slate-800 text-right text-cyan-400 font-bold">12,300</td>
+              <td class="p-2 border-r border-slate-800 text-right text-red-400">-42.00</td>
+              <td class="p-2 border-r border-slate-800 text-right text-white">7,134</td>
+              <td class="p-2 border-r border-slate-800 text-right text-amber-300">-42.00</td>
+              <td class="p-2 border-r border-slate-800 text-right text-amber-300">7,134</td>
+              <td class="p-2 border-r border-slate-800 text-right font-bold text-emerald-400">$8,917.50</td>
+              <td class="p-2 text-slate-400">Eye clean, sharp plan</td>
+            </tr>
+          </tbody>
         </table>
-      </div>
-    </div>
-  </div>
+      </section>
 
-  <!-- MAIN APP CONTAINER -->
-  <div id="mainAppContent" class="hidden p-2 sm:p-4 md:p-6 max-w-[1920px] mx-auto space-y-4">
-    
-    <!-- Top Bar -->
-    <header class="glass-card p-3 sm:p-4 rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 no-print">
-      <div class="flex items-center gap-3">
-        <div class="p-2 bg-cyan-600 rounded-xl text-white text-lg">💎</div>
+    </div>
+
+    <!-- VIEW 2: RAPID SINGLE-STONE TOUCH KEYPAD (Exact Reference: Image 2) -->
+    <div id="viewMobile" class="hidden max-w-sm mx-auto bg-[#0b0f19] border border-slate-800 rounded-2xl p-4 space-y-3 shadow-2xl">
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <h2 class="font-extrabold text-white text-base tracking-wide">Diamond Calculator</h2>
+        <button onclick="resetMobileCalc()" class="text-slate-400 hover:text-white">🔄</button>
+      </div>
+
+      <!-- Carat / Shape / Color / Clarity Ribbon -->
+      <div class="grid grid-cols-4 gap-1.5 text-center">
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
+          <span id="mCaratDisp" class="block font-black text-lg text-white">1.00</span>
+          <span class="text-[10px] text-slate-400 font-bold">CT</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
+          <span class="block font-bold text-sm text-cyan-400">Round</span>
+          <span class="text-[10px] text-slate-500">Pear</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
+          <span class="block font-bold text-sm text-white">D</span>
+          <span class="text-[10px] text-slate-500">E</span>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg">
+          <span class="block font-bold text-sm text-emerald-400">IF</span>
+          <span class="text-[10px] text-slate-500">VVS1</span>
+        </div>
+      </div>
+
+      <!-- Rate Outputs -->
+      <div class="grid grid-cols-3 gap-2 bg-slate-900/60 p-2 rounded-lg border border-slate-800">
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-lg sm:text-xl font-extrabold text-white">AURA</h1>
-            <span class="text-[10px] bg-cyan-950 text-cyan-400 font-mono font-bold px-2 py-0.5 rounded border border-cyan-800 uppercase">Sarine Advisor Pro</span>
-          </div>
-          <p class="text-[11px] text-slate-400 font-mono">Role: <span id="currentUserLabel" class="text-cyan-300 font-semibold">Authorized</span></p>
+          <span class="block text-[10px] text-slate-400">Rap %</span>
+          <span class="font-extrabold text-white text-sm">-35.0%</span>
+        </div>
+        <div>
+          <span class="block text-[10px] text-slate-400">Your Price $/CT</span>
+          <span class="font-extrabold text-emerald-400 text-sm">$6,500</span>
+        </div>
+        <div>
+          <span class="block text-[10px] text-slate-400">List Price $</span>
+          <span class="font-extrabold text-cyan-400 text-sm">$10,000</span>
         </div>
       </div>
 
-      <div class="bg-slate-900 p-1 rounded-2xl border border-slate-800 flex items-center text-xs font-semibold">
-        <button id="btnModeQuick" onclick="switchAppMode('quick')" class="px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition">1-Stone Quick</button>
-        <button id="btnModeTender" onclick="switchAppMode('tender')" class="px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition">Sarine Tender Master</button>
-      </div>
+      <!-- Touch Numpad Grid -->
+      <div class="grid grid-cols-4 gap-2 pt-2">
+        <button onclick="pressNum('7')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">7</button>
+        <button onclick="pressNum('8')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">8</button>
+        <button onclick="pressNum('9')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">9</button>
+        <button class="bg-slate-900 border border-slate-700 py-3 rounded-lg text-xs font-bold text-cyan-400">+2.0%</button>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 gap-1">
-          <button onclick="setTheme('cyan')" class="w-5 h-5 rounded-full bg-cyan-500 border border-white/40" title="Cyan Theme"></button>
-          <button onclick="setTheme('gold')" class="w-5 h-5 rounded-full bg-amber-500 border border-white/40" title="Gold Theme"></button>
-          <button onclick="setTheme('emerald')" class="w-5 h-5 rounded-full bg-emerald-500 border border-white/40" title="Emerald Theme"></button>
-          <button onclick="setTheme('sapphire')" class="w-5 h-5 rounded-full bg-blue-500 border border-white/40" title="Sapphire Theme"></button>
-        </div>
+        <button onclick="pressNum('4')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">4</button>
+        <button onclick="pressNum('5')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">5</button>
+        <button onclick="pressNum('6')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">6</button>
+        <button class="bg-slate-900 border border-slate-700 py-3 rounded-lg text-xs font-bold text-white">REPORT</button>
 
-        <button id="btnOpenUserAdmin" onclick="openAdminModal()" class="hidden bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-800 text-xs px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-users-gear"></i> Admin
-        </button>
+        <button onclick="pressNum('1')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">1</button>
+        <button onclick="pressNum('2')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">2</button>
+        <button onclick="pressNum('3')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">3</button>
+        <button class="bg-slate-900 border border-slate-700 py-3 rounded-lg text-xs font-bold text-emerald-400">💾 Save</button>
 
-        <label class="bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 text-xs px-3 py-2 rounded-xl cursor-pointer flex items-center gap-1.5 font-bold shadow-md">
-          <i class="fa-solid fa-file-import"></i>
-          <span>Import Sarine</span>
-          <input type="file" id="sarineImportInput" accept=".xlsx,.xls,.csv" class="hidden" />
-        </label>
-
-        <label id="uploadRapContainer" class="bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-xl cursor-pointer flex items-center gap-1.5 font-semibold">
-          <span>Friday Rap</span>
-          <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" />
-        </label>
-
-        <button onclick="clearTenderData()" class="bg-slate-900 hover:bg-amber-950 text-slate-400 hover:text-amber-400 border border-slate-800 text-xs px-3 py-2 rounded-xl">Reset</button>
-        <button onclick="logoutApp()" class="bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-400 border border-slate-800 text-xs px-3 py-2 rounded-xl">Lock</button>
-      </div>
-    </header>
-
-    <!-- VIEW 1: 1-STONE QUICK LOOKUP VIEW -->
-    <div id="quickSingleView" class="hidden space-y-4 no-print">
-      <div class="glass-card p-5 sm:p-8 rounded-3xl space-y-6">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-          <h2 class="font-bold text-base text-cyan-400">Real-time Single Stone Valuation</h2>
-          <span id="quickRangeBadge" class="text-xs bg-slate-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800 font-mono font-bold">1.00 to 1.29</span>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-          <div class="col-span-2 sm:col-span-2">
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Shape</label>
-            <select id="qShape" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-cyan-300 font-bold outline-none">
-              <option value="ROUND" selected>ROUND</option>
-              <option value="SCMB">SCMB</option>
-              <option value="CMB">CMB</option>
-              <option value="RADIANT">RADIANT</option>
-              <option value="S.RADIANT">S.RADIANT</option>
-              <option value="ASSCHER">ASSCHER</option>
-              <option value="EMERALD">EMERALD</option>
-              <option value="OVAL">OVAL</option>
-              <option value="PEAR">PEAR</option>
-              <option value="PRINSESS">PRINSESS</option>
-              <option value="HEART">HEART</option>
-              <option value="MARQUIES">MARQUIES</option>
-              <option value="ASHOKA">ASHOKA</option>
-              <option value="BAGUETTE">BAGUETTE</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Weight (Ct)</label>
-            <input type="number" id="qCarat" step="0.01" min="0.01" value="1.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-amber-300 font-bold font-mono outline-none" />
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Color (D - Fancy)</label>
-            <select id="qColor" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option selected>D</option><option>E</option><option>F</option><option>G</option>
-              <option>H</option><option>I</option><option>J</option><option>K</option>
-              <option>L</option><option>M</option><option>N</option><option>O-P</option>
-              <option>Q-R</option><option>S-Z</option><option>FANCY</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Clarity (IF - I3)</label>
-            <select id="qClarity" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option>IF</option><option>VVS1</option><option>VVS2</option>
-              <option selected>VS1</option><option>VS2</option><option>SI1</option>
-              <option>SI2</option><option>I1</option><option>I2</option><option>I3</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Cut</label>
-            <select id="qCut" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option value="EX" selected>EX</option>
-              <option value="VG">VG</option>
-              <option value="GD">GD</option>
-              <option value="">NONE</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Pol / Sym</label>
-            <select id="qPolishSym" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option value="EX-EX" selected>EX-EX</option>
-              <option value="VG-EX">VG-EX</option>
-              <option value="VG-VG">VG-VG</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Fls</label>
-            <select id="qFls" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option value="NON" selected>NON</option>
-              <option value="FNT">FNT</option>
-              <option value="MED">MED</option>
-              <option value="STG">STG</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Rap Price</span>
-            <input type="number" id="qRapPriceInput" value="7600" class="w-full bg-transparent text-xl font-bold font-mono text-slate-100 outline-none" />
-          </div>
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Back / Discount %</span>
-            <input type="number" id="qDiscountInput" step="0.1" value="44.0" class="w-full bg-transparent text-xl font-bold font-mono text-emerald-400 outline-none" />
-          </div>
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Net Rate / Ct</span>
-            <div id="qNetPriceDisplay" class="text-xl font-extrabold font-mono text-cyan-300">$4,256</div>
-          </div>
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Total Stone Value</span>
-            <div id="qTotalValDisplay" class="text-xl font-extrabold font-mono text-emerald-300">$4,298.56</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- VIEW 2: SARINE TENDER MASTER WORKBENCH -->
-    <div id="tenderMultiView" class="space-y-4">
-      
-      <!-- Lots Bar -->
-      <div class="glass-card p-3 rounded-2xl flex items-center justify-between gap-3 overflow-x-auto no-print">
-        <div class="flex items-center gap-2 overflow-x-auto pr-2" id="lotsTabsBar"></div>
-        <button id="addNewStoneBtn" class="bg-cyan-600 hover:bg-cyan-500 text-white text-xs px-3 py-2 rounded-xl font-bold whitespace-nowrap shadow-md">
-          + Add Rough Stone
-        </button>
-      </div>
-
-      <!-- SARINE ADVISOR MASTER CARD -->
-      <div class="glass-card-glow p-4 sm:p-5 rounded-3xl space-y-4">
-        
-        <!-- Header Box -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
-          <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-red-900/40 text-center">
-            <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block border-b border-red-900/40 pb-1 mb-1.5">Color Meter</span>
-            <div class="grid grid-cols-3 gap-1 text-[11px] font-mono">
-              <input type="text" id="cm1" value="028" class="bg-slate-950 text-emerald-400 text-center rounded border border-slate-800 py-0.5 outline-none font-bold" />
-              <input type="text" id="cm2" value="L002" class="bg-slate-950 text-emerald-400 text-center rounded border border-slate-800 py-0.5 outline-none font-bold" />
-              <input type="text" id="cm3" value="NFY" class="bg-slate-950 text-emerald-400 text-center rounded border border-slate-800 py-0.5 outline-none font-bold" />
-            </div>
-          </div>
-
-          <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Packet / Lot ID</span>
-            <input type="text" id="activePacketId" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-cyan-300 font-bold font-mono outline-none" />
-          </div>
-
-          <div class="lg:col-span-1 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">Rough Wt</span>
-            <input type="number" id="activeRoughWt" step="0.01" min="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-amber-300 font-bold font-mono outline-none" />
-          </div>
-
-          <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Planner Name</span>
-            <input type="text" id="activePlannerName" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-slate-200 font-bold outline-none" />
-          </div>
-
-          <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block mb-1">Process</span>
-            <input type="text" id="activeProcess" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-sm text-red-400 font-bold font-mono outline-none" />
-          </div>
-
-          <div class="lg:col-span-1 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Tension</span>
-            <input type="text" id="activeTension" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-cyan-400 font-mono outline-none font-bold" />
-          </div>
-
-          <div class="lg:col-span-2 bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] font-bold text-red-400 uppercase tracking-wider block mb-1">Stone Remark</span>
-            <input type="text" id="activeMainComment" placeholder="Rough Comment" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-slate-200 outline-none" />
-          </div>
-        </div>
-
-        <!-- MULTI-PLAN TABLE ACCORDION -->
-        <div class="space-y-4" id="plansAccordionContainer"></div>
-
-        <!-- Add New Plan Action -->
-        <div class="flex justify-between items-center pt-2 border-t border-slate-800/80 no-print">
-          <button id="addNewPlanBtn" class="bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-cyan-800/60 text-xs px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shadow-md">
-            <i class="fa-solid fa-plus"></i> + Add Another Plan (Plan 2, Plan 3...)
-          </button>
-          <div class="text-xs text-slate-400 font-mono">
-            Auto-Selected Valuation: <span id="activeBestPlanBadge" class="text-emerald-400 font-bold">Plan 1</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- MASTER EXCEL SUMMARY & EXPORT ACTION -->
-      <div class="glass-card p-5 rounded-3xl space-y-4">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-3">
-          <div>
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-table text-emerald-400"></i> Master Sarine Tender Evaluation & Export Engine
-            </h3>
-            <p class="text-xs text-slate-400">Automated 1:1 Sarine sheet report matching your planning</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2 no-print">
-            <button id="btnShareWhatsapp" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 shadow-lg">
-              <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp to Boss
-            </button>
-            <button onclick="window.print()" class="bg-slate-900 text-slate-200 border border-slate-700 text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-print"></i> Print PDF
-            </button>
-            <button id="exportExcelBtn" class="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs px-5 py-2.5 rounded-xl font-extrabold flex items-center gap-2 shadow-lg shadow-emerald-950/60">
-              <i class="fa-solid fa-file-excel text-sm"></i> Download 1:1 Sarine Excel Sheet
-            </button>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs text-slate-300">
-            <thead class="bg-slate-950 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-800 font-mono">
-              <tr>
-                <th class="py-3 px-3">Packet ID</th>
-                <th class="py-3 px-3">Auto-Selected Plan</th>
-                <th class="py-3 px-3">Rough Wt</th>
-                <th class="py-3 px-3">Polish Wt</th>
-                <th class="py-3 px-3">Pieces</th>
-                <th class="py-3 px-3">Yield %</th>
-                <th class="py-3 px-3">Total Value ($)</th>
-                <th class="py-3 px-3 font-bold text-cyan-300">R.PER CT ($)</th>
-                <th class="py-3 px-3 bg-slate-950 border-l border-slate-800 text-amber-300 font-bold no-print">Boss Bid ($/ct)</th>
-                <th class="py-3 px-3 bg-slate-950 text-amber-300 font-bold no-print">Total Bid ($)</th>
-              </tr>
-            </thead>
-            <tbody id="masterTenderTableBody" class="divide-y divide-slate-800 font-mono"></tbody>
-          </table>
-        </div>
+        <button onclick="pressNum('.')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">.</button>
+        <button onclick="pressNum('0')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-white">0</button>
+        <button onclick="pressNum('DEL')" class="bg-slate-800 hover:bg-slate-700 py-3 rounded-lg text-lg font-bold text-red-400">⌫</button>
+        <button onclick="resetMobileCalc()" class="bg-amber-600 hover:bg-amber-500 py-3 rounded-lg text-xs font-bold text-white">Clear</button>
       </div>
 
     </div>
 
-  </div>
+  </main>
 
+  <!-- Interactive Logic Engine -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      });
-    }
+    // State Tracking
+    let fineOffset = 0.00;
+    let mobileNum = "1.00";
 
-    const MASTER_ADMIN_PIN = "7788";
-    const SUPABASE_URL = "https://fzibnrnyukyscnlookxp.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_5uzyIfCZOB2syyXzjUmQuA_8dbhROx9";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Switch between Desktop ERP & Mobile Calculator
+    function switchView(view) {
+      const vDesk = document.getElementById('viewDesktop');
+      const vMob = document.getElementById('viewMobile');
+      const bDesk = document.getElementById('btnViewDesktop');
+      const bMob = document.getElementById('btnViewMobile');
 
-    let liveRapCache = new Map();
-    try {
-      const saved = localStorage.getItem("LOCAL_RAP_CACHE");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        for (let k in parsed) liveRapCache.set(k, parsed[k]);
-      }
-    } catch(e) {}
-
-    window.setTheme = function(themeName) {
-      document.body.className = "min-h-screen select-none antialiased " + (themeName === 'cyan' ? '' : `theme-${themeName}`);
-      localStorage.setItem("APP_THEME_COLOR", themeName);
-    };
-    const savedTheme = localStorage.getItem("APP_THEME_COLOR");
-    if (savedTheme) setTheme(savedTheme);
-
-    window.switchAppMode = function(mode) {
-      if (mode === 'quick') {
-        document.getElementById('quickSingleView').classList.remove('hidden');
-        document.getElementById('tenderMultiView').classList.add('hidden');
-        document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
-        document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
-        updateQuickCalculations(false);
+      if (view === 'desktop') {
+        vDesk.classList.remove('hidden');
+        vMob.classList.add('hidden');
+        bDesk.className = "px-3 py-1 rounded font-semibold text-white bg-blue-600 transition";
+        bMob.className = "px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition";
       } else {
-        document.getElementById('tenderMultiView').classList.remove('hidden');
-        document.getElementById('quickSingleView').classList.add('hidden');
-        document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
-        document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
-        renderWorkbench();
-      }
-    };
-
-    const defaultSarineStone = {
-      id: 1,
-      packetId: "NP04",
-      roughWt: 19.08,
-      plannerName: "SAGAR",
-      process: "SARIN MANUAL",
-      tension: "T-0",
-      colorMeter: { m1: "028", m2: "L002", m3: "NFY" },
-      mainComment: "",
-      bossBidPerCt: 0,
-      plans: [
-        {
-          planNum: 1,
-          pieces: [
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }
-          ]
-        },
-        {
-          planNum: 2,
-          pieces: [
-            { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 40.0, perCt: 16800, totalVal: 50400 }
-          ]
-        }
-      ]
-    };
-
-    let roughStones = [defaultSarineStone];
-    try {
-      const stored = localStorage.getItem("SARINE_TENDER_AUTOSAVE");
-      if (stored) roughStones = JSON.parse(stored);
-    } catch(e) {}
-
-    let activeStoneId = roughStones[0] ? roughStones[0].id : 1;
-    let currentUserRole = "user";
-
-    function autoSaveSarineData() {
-      try {
-        localStorage.setItem("SARINE_TENDER_AUTOSAVE", JSON.stringify(roughStones));
-      } catch(e) {}
-    }
-
-    window.clearTenderData = function() {
-      if (confirm("Reset current lots and start a new fresh tender?")) {
-        roughStones = [defaultSarineStone];
-        activeStoneId = 1;
-        autoSaveSarineData();
-        renderWorkbench();
-      }
-    };
-
-    function getHardwareToken() {
-      let token = localStorage.getItem("DEVICE_HARDWARE_TOKEN");
-      if (!token) {
-        token = "DEV-" + Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
-        localStorage.setItem("DEVICE_HARDWARE_TOKEN", token);
-      }
-      return token;
-    }
-
-    function getDevicePlatformInfo() {
-      const ua = navigator.userAgent;
-      let os = "PC";
-      if (/android/i.test(ua)) os = "📱 Android";
-      else if (/iPad|iPhone|iPod/.test(ua)) os = "🍎 iPhone";
-      else if (/Macintosh/i.test(ua)) os = "💻 Mac";
-      else if (/Windows/i.test(ua)) os = "💻 Windows";
-
-      let browser = "Web";
-      if (/chrome|crios/i.test(ua)) browser = "Chrome";
-      else if (/safari/i.test(ua)) browser = "Safari";
-      else if (/firefox/i.test(ua)) browser = "Firefox";
-
-      return `${os} (${browser})`;
-    }
-
-    async function checkUserPermission() {
-      const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
-      if (isMasterAdmin === "true") {
-        grantAccess("Master Admin", "admin");
-        return;
-      }
-
-      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
-      const currentToken = getHardwareToken();
-      const savedToken = localStorage.getItem("BOUND_DEVICE_TOKEN");
-
-      if (cachedApproved === "true" && currentToken === savedToken) {
-        grantAccess(localStorage.getItem("APP_USER_NAME") || "Authorized Trader", "user");
-        return;
-      }
-
-      const savedPhone = localStorage.getItem("APP_USER_PHONE");
-
-      if (!navigator.onLine) {
-        grantAccess("Authorized Offline Planner", "user");
-        return;
-      }
-
-      if (savedPhone) {
-        try {
-          const { data } = await supabaseClient
-            .from('app_users')
-            .select('*')
-            .eq('phone', savedPhone)
-            .single();
-
-          if (data && data.status === 'approved') {
-            if (data.device_id_1 === currentToken || data.device_id_2 === currentToken) {
-              grantVerifiedAccess(data);
-            }
-          }
-        } catch (err) {
-          grantAccess("Planner", "user");
-        }
+        vDesk.classList.add('hidden');
+        vMob.classList.remove('hidden');
+        bMob.className = "px-3 py-1 rounded font-semibold text-white bg-blue-600 transition";
+        bDesk.className = "px-3 py-1 rounded font-semibold text-slate-400 hover:text-white transition";
       }
     }
 
-    function grantAccess(userName, role) {
-      currentUserRole = role;
-      document.getElementById('authLockOverlay').classList.add('hidden');
-      document.getElementById('mainAppContent').classList.remove('hidden');
-      document.getElementById('currentUserLabel').innerText = `${userName} (${role === 'admin' ? '👑 Admin' : 'Planner'})`;
+    // iOS Drum Roll Discount Adjuster
+    function adjustOffset(delta) {
+      fineOffset = Math.round((fineOffset + delta) * 100) / 100;
+      if (fineOffset > 5.00) fineOffset = 5.00;
+      if (fineOffset < -5.00) fineOffset = -5.00;
 
-      if (role === 'admin') {
-        document.getElementById('btnOpenUserAdmin').classList.remove('hidden');
+      const sign = fineOffset > 0 ? "+" : "";
+      document.getElementById('wheelDisplay').innerText = `${sign}${fineOffset.toFixed(2)}%`;
+      recalculateTotals();
+    }
+
+    // Live Calculation Engine
+    function recalculateTotals() {
+      const origCrt = parseFloat(document.getElementById('origCarat').value) || 0;
+      const polCrt = 1.25; // Base demo row polish
+      const baseAmt = 8917.50;
+
+      // Adjust amount with fine offset
+      const netAmt = baseAmt * (1 + (fineOffset / 100));
+      const yieldPct = origCrt > 0 ? (polCrt / origCrt) * 100 : 0;
+      const perCrt = polCrt > 0 ? netAmt / polCrt : 0;
+      const roughPerCrt = origCrt > 0 ? netAmt / origCrt : 0;
+
+      document.getElementById('txtPolCrt').innerText = polCrt.toFixed(2);
+      document.getElementById('txtYield').innerText = yieldPct.toFixed(2) + "%";
+      document.getElementById('txtTotAmt').innerText = "$" + Math.round(netAmt).toLocaleString();
+      document.getElementById('txtPerCrt').innerText = "$" + Math.round(perCrt).toLocaleString();
+      document.getElementById('txtRoughPerCrt').innerText = "$" + Math.round(roughPerCrt).toLocaleString();
+    }
+
+    // 1-Click Clear Function
+    function clearPlanForm() {
+      if (confirm("Reset current plan to 0.00?")) {
+        document.getElementById('pktNo').value = "";
+        document.getElementById('origCarat').value = "0.00";
+        document.getElementById('sarineCarat').value = "0.00";
+        fineOffset = 0.00;
+        document.getElementById('wheelDisplay').innerText = "+0.00%";
+        document.getElementById('txtPolCrt').innerText = "0.00";
+        document.getElementById('txtYield').innerText = "0.00%";
+        document.getElementById('txtTotAmt').innerText = "$0";
+        document.getElementById('txtPerCrt').innerText = "$0.00";
+        document.getElementById('txtRoughPerCrt').innerText = "$0.00";
+      }
+    }
+
+    // 1-Click Save Function
+    function savePacketRecord() {
+      const pkt = document.getElementById('pktNo').value || "UNTITLED";
+      alert(`Packet [${pkt}] saved successfully in local tender cache.`);
+    }
+
+    // Mobile Keypad Actions
+    function pressNum(val) {
+      if (val === 'DEL') {
+        mobileNum = mobileNum.slice(0, -1) || "0";
+      } else if (val === '.') {
+        if (!mobileNum.includes('.')) mobileNum += '.';
       } else {
-        document.getElementById('btnOpenUserAdmin').classList.add('hidden');
+        mobileNum = mobileNum === "0" ? val : mobileNum + val;
       }
-
-      renderWorkbench();
+      document.getElementById('mCaratDisp').innerText = mobileNum;
     }
 
-    window.unlockMasterAdmin = function() {
-      const pin = document.getElementById('adminPinInput').value.trim();
-      if (pin === MASTER_ADMIN_PIN) {
-        sessionStorage.setItem("IS_MASTER_ADMIN", "true");
-        localStorage.setItem("IS_MASTER_ADMIN", "true");
-        grantAccess("Master Admin", "admin");
-        openAdminModal();
-      } else {
-        alert("Incorrect Admin PIN!");
-      }
-    };
-
-    window.openAdminModal = async function() {
-      document.getElementById('adminUserModal').classList.remove('hidden');
-      const tbody = document.getElementById('userListBody');
-      tbody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-slate-400">Loading licenses...</td></tr>';
-      
-      try {
-        const { data, error } = await supabaseClient.from('app_users').select('*').order('created_at', { ascending: false });
-        if (error || !data) {
-          tbody.innerHTML = '<tr><td colspan="6" class="p-3 text-center text-red-400">Error loading data. Check internet!</td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = '';
-        data.forEach(u => {
-          let dev1 = u.device_1_info || (u.device_id_1 ? 'Slot 1 Bound' : 'Empty');
-          let dev2 = u.device_2_info || (u.device_id_2 ? 'Slot 2 Bound' : 'Empty');
-
-          tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/60">
-              <td class="py-2.5 px-3 font-semibold text-slate-200">${u.user_name}</td>
-              <td class="py-2.5 px-3 text-slate-400 font-mono">${u.phone}</td>
-              <td class="py-2.5 px-3 font-mono text-cyan-400 font-bold">${u.pin || '-'}</td>
-              <td class="py-2.5 px-3 text-[10px] text-slate-300">
-                <div>1: ${dev1}</div>
-                <div>2: ${dev2}</div>
-              </td>
-              <td class="py-2.5 px-3 font-bold ${u.status === 'approved' ? 'text-emerald-400' : (u.status === 'blocked' ? 'text-red-400' : 'text-amber-400')}">
-                ${(u.status || 'pending').toUpperCase()}
-              </td>
-              <td class="py-2.5 px-3 text-right space-x-1">
-                <button onclick="approveUser('${u.id}')" class="bg-emerald-900/80 hover:bg-emerald-800 text-emerald-300 px-2 py-1 rounded text-xs">Approve</button>
-                <button onclick="resetUser('${u.id}')" class="bg-amber-900/80 hover:bg-amber-800 text-amber-300 px-2 py-1 rounded text-xs" title="Reset both device slots">Reset Dev</button>
-                <button onclick="blockUser('${u.id}')" class="bg-red-900/80 hover:bg-red-800 text-red-300 px-2 py-1 rounded text-xs">Block</button>
-              </td>
-            </tr>
-          `;
-        });
-      } catch(e) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-red-400">Error: ${e.message}</td></tr>`;
-      }
-    };
-
-    window.closeAdminModal = () => document.getElementById('adminUserModal').classList.add('hidden');
-    window.approveUser = async (id) => { await supabaseClient.from('app_users').update({ status: 'approved' }).eq('id', id); openAdminModal(); };
-    window.blockUser = async (id) => { await supabaseClient.from('app_users').update({ status: 'blocked' }).eq('id', id); openAdminModal(); };
-    window.resetUser = async (id) => { 
-      if (confirm("Reset device slots for this user?")) {
-        await supabaseClient.from('app_users').update({ device_id_1: null, device_id_2: null, device_1_info: null, device_2_info: null }).eq('id', id); 
-        openAdminModal(); 
-      }
-    };
-
-    window.logoutApp = function() {
-      sessionStorage.clear();
-      localStorage.removeItem("APP_USER_APPROVED");
-      localStorage.removeItem("IS_MASTER_ADMIN");
-      location.reload();
-    };
-
-    window.switchAuthTab = function(tab) {
-      if (tab === 'login') {
-        document.getElementById('loginFormBox').classList.remove('hidden');
-        document.getElementById('registerFormBox').classList.add('hidden');
-        document.getElementById('tabBtnLogin').className = "flex-1 py-2 rounded-lg bg-cyan-600 text-white transition";
-        document.getElementById('tabBtnRegister').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition";
-      } else {
-        document.getElementById('registerFormBox').classList.remove('hidden');
-        document.getElementById('loginFormBox').classList.add('hidden');
-        document.getElementById('tabBtnRegister').className = "flex-1 py-2 rounded-lg bg-cyan-600 text-white transition";
-        document.getElementById('tabBtnLogin').className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-slate-200 transition";
-      }
-    };
-
-    // SAFE REGISTRATION (No ON CONFLICT Error)
-    window.handleUserRegister = async function() {
-      const name = document.getElementById('reqName').value.trim();
-      const phone = document.getElementById('reqPhone').value.trim();
-      const pin = document.getElementById('reqPin').value.trim();
-
-      if (!name || !phone || !pin) return alert("Please fill Name, Phone & 4-Digit PIN!");
-
-      const currentToken = getHardwareToken();
-      const devInfo = getDevicePlatformInfo();
-
-      try {
-        const { data: existingUser } = await supabaseClient
-          .from('app_users')
-          .select('id')
-          .eq('phone', phone)
-          .maybeSingle();
-
-        let resError = null;
-
-        if (existingUser) {
-          const { error } = await supabaseClient
-            .from('app_users')
-            .update({
-              user_name: name,
-              pin: pin,
-              device_id_1: currentToken,
-              device_1_info: devInfo,
-              status: 'pending'
-            })
-            .eq('phone', phone);
-          resError = error;
-        } else {
-          const { error } = await supabaseClient
-            .from('app_users')
-            .insert([{
-              user_name: name,
-              phone: phone,
-              pin: pin,
-              device_id_1: currentToken,
-              device_1_info: devInfo,
-              status: 'pending'
-            }]);
-          resError = error;
-        }
-
-        if (resError) {
-          alert("Error: " + resError.message);
-        } else {
-          localStorage.setItem("APP_USER_PHONE", phone);
-          alert("Registration Submitted! Admin will approve once.");
-          switchAuthTab('login');
-          document.getElementById('loginPhone').value = phone;
-        }
-      } catch (e) {
-        alert("Registration failed: " + e.message);
-      }
-    };
-
-    window.handleUserLogin = async function() {
-      const phone = document.getElementById('loginPhone').value.trim();
-      const pin = document.getElementById('loginPin').value.trim();
-
-      if (!phone || !pin) return alert("Enter Phone and 4-Digit PIN!");
-
-      const currentToken = getHardwareToken();
-      const devInfo = getDevicePlatformInfo();
-
-      try {
-        const { data, error } = await supabaseClient
-          .from('app_users')
-          .select('*')
-          .eq('phone', phone)
-          .single();
-
-        if (error || !data) return alert("User not registered! Click 'New Register' tab.");
-
-        if (data.pin && data.pin !== pin) return alert("Incorrect 4-Digit PIN!");
-
-        if (data.status === 'pending') {
-          document.getElementById('pendingBox').classList.remove('hidden');
-          return;
-        }
-
-        if (data.status === 'blocked') {
-          return alert("This account is blocked by Admin.");
-        }
-
-        if (data.device_id_1 === currentToken || data.device_id_2 === currentToken) {
-          grantVerifiedAccess(data);
-        } else if (!data.device_id_1) {
-          await supabaseClient.from('app_users').update({ device_id_1: currentToken, device_1_info: devInfo }).eq('phone', phone);
-          grantVerifiedAccess(data);
-        } else if (!data.device_id_2) {
-          await supabaseClient.from('app_users').update({ device_id_2: currentToken, device_2_info: devInfo }).eq('phone', phone);
-          grantVerifiedAccess(data);
-        } else {
-          document.getElementById('deviceMismatchBox').classList.remove('hidden');
-        }
-      } catch (e) {
-        alert("Login error: " + e.message);
-      }
-    };
-
-    function grantVerifiedAccess(data) {
-      localStorage.setItem("APP_USER_APPROVED", "true");
-      localStorage.setItem("APP_USER_NAME", data.user_name);
-      localStorage.setItem("APP_USER_PHONE", data.phone);
-      localStorage.setItem("BOUND_DEVICE_TOKEN", getHardwareToken());
-      grantAccess(data.user_name, "user");
+    function resetMobileCalc() {
+      mobileNum = "1.00";
+      document.getElementById('mCaratDisp').innerText = mobileNum;
     }
 
-    function getRangeSlab(w) {
-      if (w >= 90.00) return "90.00+";
-      if (w >= 10.00) return "10.00 to 14.99";
-      if (w >= 5.00) return "5.00 to 5.99";
-      if (w >= 4.00) return "4.00 to 4.49";
-      if (w >= 3.00) return "3.00 to 3.49";
-      if (w >= 2.00) return "2.00 to 2.49";
-      if (w >= 1.50) return "1.50 to 1.79";
-      if (w >= 1.00) return "1.00 to 1.29";
-      if (w >= 0.70) return "0.70 to 0.79";
-      if (w >= 0.50) return "0.50 to 0.59";
-      return "0.30 to 0.39";
-    }
-
-    function calculateDynamicRapRate(shape, weight, color, clarity, cut, fls) {
-      let base = 7600;
-      if (weight >= 90.0) base = 69000;
-      else if (weight >= 10.0) base = 63500;
-      else if (weight >= 5.0) base = 57000;
-      else if (weight >= 4.0) base = 42000;
-      else if (weight >= 3.0) base = 28000;
-      else if (weight >= 2.0) base = 15000;
-      else if (weight >= 1.5) base = 10500;
-      else if (weight >= 1.0) base = 7600;
-      else if (weight >= 0.7) base = 4800;
-      else if (weight >= 0.5) base = 3200;
-      else base = 2100;
-
-      const colorMap = { 'D': 1.0, 'E': 0.90, 'F': 0.82, 'G': 0.74, 'H': 0.65, 'I': 0.56, 'J': 0.48, 'K': 0.40, 'L': 0.35, 'M': 0.30, 'N': 0.25, 'O-P': 0.20, 'Q-R': 0.16, 'S-Z': 0.12, 'FANCY': 0.85 };
-      const colMul = colorMap[color] || 0.70;
-
-      const clarityMap = { 'IF': 1.15, 'VVS1': 1.0, 'VVS2': 0.88, 'VS1': 0.78, 'VS2': 0.68, 'SI1': 0.55, 'SI2': 0.44, 'I1': 0.32, 'I2': 0.22, 'I3': 0.15 };
-      const claMul = clarityMap[clarity] || 0.70;
-
-      let shapeMul = (shape === 'ROUND') ? 1.0 : 0.82;
-      let calculatedRap = Math.round((base * colMul * claMul * shapeMul) / 100) * 100;
-
-      let baseBack = (shape === 'ROUND') ? 44.0 : 52.0;
-      if (fls === 'MED') baseBack += 4.0;
-      if (fls === 'STG') baseBack += 8.0;
-
-      return { rapPrice: Math.max(calculatedRap, 600), back: Math.min(Math.max(baseBack, -10.0), 85.0) };
-    }
-
-    function lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls) {
-      const range = getRangeSlab(weight);
-      const [pol, sym] = (polishSym || "EX-EX").split('-');
-
-      let candidates = [];
-      if (shape === 'ROUND') {
-        candidates.push(`${range}-${shape}-${color}-${clarity}-${cut || 'EX'}-${pol}-${sym}-${fls}`);
-      } else {
-        candidates.push(`${range}-${shape}-${color}-${clarity}--${pol}-${sym}-${fls}`);
-        candidates.push(`${range}-${shape}-${color}-${clarity}-${cut}-${pol}-${sym}-${fls}`);
-      }
-
-      for (let k of candidates) {
-        if (liveRapCache.has(k)) return liveRapCache.get(k);
-      }
-
-      return calculateDynamicRapRate(shape, weight, color, clarity, cut, fls);
-    }
-
-    function updateQuickCalculations(isManual = false) {
-      const shape = document.getElementById('qShape').value;
-      const weight = parseFloat(document.getElementById('qCarat').value) || 0;
-      const color = document.getElementById('qColor').value;
-      const clarity = document.getElementById('qClarity').value;
-      const cut = document.getElementById('qCut').value;
-      const polishSym = document.getElementById('qPolishSym').value;
-      const fls = document.getElementById('qFls').value;
-
-      document.getElementById('quickRangeBadge').innerText = getRangeSlab(weight);
-
-      let rapPrice = parseFloat(document.getElementById('qRapPriceInput').value);
-      let discount = parseFloat(document.getElementById('qDiscountInput').value);
-
-      if (!isManual) {
-        const match = lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls);
-        rapPrice = match.rapPrice;
-        discount = match.back;
-        document.getElementById('qRapPriceInput').value = rapPrice;
-        document.getElementById('qDiscountInput').value = discount;
-      }
-
-      const netPrice = rapPrice * (1 - (discount / 100));
-      const totalVal = netPrice * weight;
-
-      document.getElementById('qNetPriceDisplay').innerText = `$${Math.round(netPrice).toLocaleString()}`;
-      document.getElementById('qTotalValDisplay').innerText = `$${totalVal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    ['qShape', 'qCarat', 'qColor', 'qClarity', 'qCut', 'qPolishSym', 'qFls'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => updateQuickCalculations(false));
-      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(false));
-    });
-    ['qRapPriceInput', 'qDiscountInput'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(true));
-    });
-
-    function renderWorkbench() {
-      renderLotsTabs();
-      renderActiveStoneCard();
-      renderMasterTenderTable();
-    }
-
-    function renderLotsTabs() {
-      const container = document.getElementById('lotsTabsBar');
-      container.innerHTML = '';
-      roughStones.forEach(s => {
-        const isActive = s.id === activeStoneId;
-        
-        let maxVal = -1;
-        s.plans.forEach(p => {
-          const val = p.pieces.reduce((sum, pc) => sum + pc.totalVal, 0);
-          if (val > maxVal) maxVal = val;
-        });
-
-        const rPerCt = s.roughWt > 0 ? (maxVal / s.roughWt) : 0;
-
-        const btn = document.createElement('button');
-        btn.onclick = () => { activeStoneId = s.id; renderWorkbench(); };
-        btn.className = `px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 border ${
-          isActive ? 'bg-cyan-600 text-white border-cyan-400 shadow-lg' : 'bg-slate-900 text-slate-300 border-slate-700'
-        }`;
-        btn.innerHTML = `
-          <span>${s.packetId || 'LOT'}</span>
-          <span class="text-[11px] font-mono text-amber-300">${s.roughWt.toFixed(2)}ct</span>
-          <span class="text-[11px] font-mono text-emerald-300">$${Math.round(rPerCt).toLocaleString()}/ct</span>
-        `;
-        container.appendChild(btn);
-      });
-    }
-
-    function renderActiveStoneCard() {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-
-      document.getElementById('activePacketId').value = stone.packetId;
-      document.getElementById('activeRoughWt').value = stone.roughWt;
-      document.getElementById('activePlannerName').value = stone.plannerName;
-      document.getElementById('activeProcess').value = stone.process;
-      document.getElementById('activeTension').value = stone.tension;
-      document.getElementById('activeMainComment').value = stone.mainComment || '';
-      document.getElementById('cm1').value = stone.colorMeter?.m1 || '028';
-      document.getElementById('cm2').value = stone.colorMeter?.m2 || 'L002';
-      document.getElementById('cm3').value = stone.colorMeter?.m3 || 'NFY';
-
-      let maxPlanVal = -1;
-      let bestPlanIndex = 0;
-      stone.plans.forEach((p, idx) => {
-        const val = p.pieces.reduce((sum, pc) => sum + pc.totalVal, 0);
-        if (val > maxPlanVal) {
-          maxPlanVal = val;
-          bestPlanIndex = idx;
-        }
-      });
-
-      stone.plans.forEach((p, idx) => p.isBest = (idx === bestPlanIndex));
-      document.getElementById('activeBestPlanBadge').innerText = `Plan ${stone.plans[bestPlanIndex].planNum}`;
-
-      const container = document.getElementById('plansAccordionContainer');
-      container.innerHTML = '';
-
-      stone.plans.forEach((plan, pIdx) => {
-        const planPolWt = plan.pieces.reduce((sum, p) => sum + p.weight, 0);
-        const planTotalVal = plan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const yieldPct = stone.roughWt > 0 ? ((planPolWt / stone.roughWt) * 100) : 0;
-        const rPerCt = stone.roughWt > 0 ? (planTotalVal / stone.roughWt) : 0;
-
-        const planCard = document.createElement('div');
-        planCard.className = `p-3 rounded-2xl border transition ${
-          plan.isBest ? 'bg-slate-900/90 border-emerald-500/80 shadow-lg' : 'bg-slate-950/70 border-slate-800'
-        }`;
-
-        let rowsHtml = '';
-        plan.pieces.forEach((pc, pcIdx) => {
-          rowsHtml += `
-            <tr class="hover:bg-slate-800/60 font-mono text-center">
-              <td class="text-slate-400 font-bold">${pcIdx + 1}</td>
-              <td><input type="text" value="${pc.itemCd || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'itemCd', this.value)" class="w-12 bg-transparent text-center text-slate-300 outline-none" /></td>
-              <td><input type="text" value="${pc.docNo || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'docNo', this.value)" class="w-10 bg-transparent text-center text-slate-300 outline-none" /></td>
-              <td><input type="text" value="${pc.lotNo || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'lotNo', this.value)" class="w-12 bg-transparent text-center text-slate-300 outline-none" /></td>
-              <td class="font-bold text-cyan-400">${plan.planNum}</td>
-              <td class="font-bold text-slate-200">
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'shape', this.value)" class="bg-slate-900 text-xs text-slate-200 rounded px-1 outline-none font-bold">
-                  <option ${pc.shape==='ROUND'?'selected':''}>ROUND</option>
-                  <option ${pc.shape==='SCMB'?'selected':''}>SCMB</option>
-                  <option ${pc.shape==='CMB'?'selected':''}>CMB</option>
-                  <option ${pc.shape==='RADIANT'?'selected':''}>RADIANT</option>
-                  <option ${pc.shape==='S.RADIANT'?'selected':''}>S.RADIANT</option>
-                  <option ${pc.shape==='ASSCHER'?'selected':''}>ASSCHER</option>
-                  <option ${pc.shape==='EMERALD'?'selected':''}>EMERALD</option>
-                  <option ${pc.shape==='PEAR'?'selected':''}>PEAR</option>
-                  <option ${pc.shape==='OVAL'?'selected':''}>OVAL</option>
-                  <option ${pc.shape==='PRINSESS'?'selected':''}>PRINSESS</option>
-                  <option ${pc.shape==='HEART'?'selected':''}>HEART</option>
-                  <option ${pc.shape==='MARQUIES'?'selected':''}>MARQUIES</option>
-                  <option ${pc.shape==='BAGUETTE'?'selected':''}>BAGUETTE</option>
-                </select>
-              </td>
-              <td>
-                <input type="number" step="0.01" value="${pc.weight.toFixed(2)}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'weight', parseFloat(this.value))" class="w-14 bg-slate-950 font-bold text-amber-300 text-center rounded outline-none" />
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'color', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option ${pc.color==='D'?'selected':''}>D</option><option ${pc.color==='E'?'selected':''}>E</option><option ${pc.color==='F'?'selected':''}>F</option><option ${pc.color==='G'?'selected':''}>G</option><option ${pc.color==='H'?'selected':''}>H</option><option ${pc.color==='I'?'selected':''}>I</option><option ${pc.color==='J'?'selected':''}>J</option><option ${pc.color==='K'?'selected':''}>K</option><option ${pc.color==='L'?'selected':''}>L</option><option ${pc.color==='M'?'selected':''}>M</option><option ${pc.color==='N'?'selected':''}>N</option><option ${pc.color==='O-P'?'selected':''}>O-P</option><option ${pc.color==='Q-R'?'selected':''}>Q-R</option><option ${pc.color==='S-Z'?'selected':''}>S-Z</option><option ${pc.color==='FANCY'?'selected':''}>FANCY</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'clarity', this.value)" class="bg-slate-900 text-red-400 font-bold rounded outline-none">
-                  <option ${pc.clarity==='IF'?'selected':''}>IF</option><option ${pc.clarity==='VVS1'?'selected':''}>VVS1</option><option ${pc.clarity==='VVS2'?'selected':''}>VVS2</option><option ${pc.clarity==='VS1'?'selected':''}>VS1</option><option ${pc.clarity==='VS2'?'selected':''}>VS2</option><option ${pc.clarity==='SI1'?'selected':''}>SI1</option><option ${pc.clarity==='SI2'?'selected':''}>SI2</option><option ${pc.clarity==='I1'?'selected':''}>I1</option><option ${pc.clarity==='I2'?'selected':''}>I2</option><option ${pc.clarity==='I3'?'selected':''}>I3</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'cut', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="EX" ${pc.cut==='EX'?'selected':''}>EX</option><option value="VG" ${pc.cut==='VG'?'selected':''}>VG</option><option value="GD" ${pc.cut==='GD'?'selected':''}>GD</option><option value="" ${!pc.cut?'selected':''}>NONE</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'polish', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="EX" ${pc.polish==='EX'?'selected':''}>EX</option><option value="VG" ${pc.polish==='VG'?'selected':''}>VG</option><option value="GD" ${pc.polish==='GD'?'selected':''}>GD</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'sym', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="EX" ${pc.sym==='EX'?'selected':''}>EX</option><option value="VG" ${pc.sym==='VG'?'selected':''}>VG</option><option value="GD" ${pc.sym==='GD'?'selected':''}>GD</option>
-                </select>
-              </td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'fls', this.value)" class="bg-slate-900 text-slate-200 rounded outline-none font-bold">
-                  <option value="NON" ${pc.fls==='NON'?'selected':''}>NON</option><option value="FNT" ${pc.fls==='FNT'?'selected':''}>FNT</option><option value="MED" ${pc.fls==='MED'?'selected':''}>MED</option><option value="STG" ${pc.fls==='STG'?'selected':''}>STG</option>
-                </select>
-              </td>
-              <td><input type="text" value="${pc.comment || ''}" placeholder="-" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'comment', this.value)" class="w-20 bg-slate-950 text-slate-200 text-left px-1 rounded outline-none" /></td>
-              <td>
-                <select onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'eyeClean', this.value)" class="bg-slate-900 text-emerald-400 rounded outline-none font-bold">
-                  <option value="YES" ${pc.eyeClean==='YES'?'selected':''}>YES</option><option value="NO" ${pc.eyeClean==='NO'?'selected':''}>NO</option>
-                </select>
-              </td>
-              <td><input type="text" value="${pc.dm || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'dm', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.table || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'table', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.ratio || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'ratio', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.height || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'height', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td><input type="text" value="${pc.girdle || ''}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'girdle', this.value)" class="w-8 bg-transparent text-center outline-none" /></td>
-              <td class="font-bold text-slate-200">$${pc.rapPrice.toLocaleString()}</td>
-              <td class="font-bold ${pc.rapBack < 0 ? 'text-red-400' : 'text-emerald-400'}">
-                <input type="number" step="1" value="${pc.rapBack}" onchange="updatePieceVal(${pIdx}, ${pcIdx}, 'rapBack', parseFloat(this.value))" class="w-12 bg-slate-950 text-center rounded outline-none font-bold" />%
-              </td>
-              <td class="font-bold text-cyan-300">$${Math.round(pc.perCt).toLocaleString()}</td>
-              <td class="font-bold text-slate-200">$${Math.round(pc.totalVal).toLocaleString()}</td>
-              <td class="no-print">
-                <button onclick="removePiece(${pIdx}, ${pcIdx})" class="text-slate-500 hover:text-red-400 px-1">✕</button>
-              </td>
-            </tr>
-          `;
-        });
-
-        planCard.innerHTML = `
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-2 mb-2">
-            <div class="flex items-center gap-2">
-              <span class="font-black text-sm text-cyan-400">PLAN ${plan.planNum}</span>
-              <span class="text-xs bg-slate-950 text-amber-300 px-2.5 py-0.5 rounded font-mono font-bold">${plan.pieces.length} Pieces (${planPolWt.toFixed(2)} ct)</span>
-              <span class="text-xs bg-slate-950 text-emerald-400 px-2.5 py-0.5 rounded font-mono font-bold">Yield: ${yieldPct.toFixed(1)}%</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-xs font-extrabold px-3 py-1 rounded-xl transition flex items-center gap-1.5 ${
-                plan.isBest ? 'bg-emerald-950 text-emerald-400 border border-emerald-600' : 'bg-slate-900 text-slate-400 border border-slate-700'
-              }">
-                ${plan.isBest ? '✔ AUTO SELECTED (HIGHEST $)' : '★ Alternative Plan'}
-              </span>
-              <button onclick="addPieceToPlan(${pIdx})" class="text-xs bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 px-2.5 py-1 rounded-lg font-bold no-print">
-                + Add Stone
-              </button>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left sarine-table text-slate-300">
-              <thead>
-                <tr class="text-center">
-                  <th>#</th><th>ITEM CD</th><th>DOC NO</th><th>LOT NO</th><th>PLAN</th><th>SHAPE</th><th>WEIGHT</th><th>COLOR</th><th>CLARITY</th><th>CUT</th><th>POLISH</th><th>SYM</th><th>FLS</th><th>COMMENT</th><th>EYE CLN</th><th>DM</th><th>TBL</th><th>RATIO</th><th>HGT</th><th>GRD</th><th>Rap-Price</th><th>Rap%</th><th>PER CT $</th><th>AFTER DIC</th><th class="no-print">ACT</th>
-                </tr>
-              </thead>
-              <tbody>${rowsHtml}</tbody>
-            </table>
-          </div>
-
-          <div class="flex flex-col sm:flex-row justify-between items-center bg-slate-950/90 p-2.5 rounded-xl border border-slate-800/80 mt-2 font-mono text-xs">
-            <div class="flex items-center gap-4">
-              <span class="font-bold text-amber-400">Total Polish Wt: ${planPolWt.toFixed(2)} ct</span>
-              <span class="font-bold ${plan.isBest ? 'text-emerald-400' : 'text-slate-400'}">
-                ${plan.isBest ? '✔ Plan Status: Selected (Best Yield)' : '✖ Plan Status: Alternative'}
-              </span>
-            </div>
-            <div class="flex items-center gap-5">
-              <span class="font-extrabold text-base ${plan.isBest ? 'text-emerald-400' : 'text-red-400'}">
-                Total $: $${Math.round(planTotalVal).toLocaleString()}
-              </span>
-              <span class="font-black text-base text-cyan-300">
-                R.PER CT: $${Math.round(rPerCt).toLocaleString()}
-              </span>
-            </div>
-          </div>
-        `;
-
-        container.appendChild(planCard);
-      });
-    }
-
-    window.updatePieceVal = function(pIdx, pcIdx, field, val) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-      const pc = stone.plans[pIdx].pieces[pcIdx];
-      pc[field] = val;
-
-      if (['weight', 'shape', 'color', 'clarity', 'cut', 'fls', 'polish', 'sym'].includes(field)) {
-        const match = lookupInstantRate(pc.shape, pc.weight, pc.color, pc.clarity, pc.cut, `${pc.polish}-${pc.sym}`, pc.fls);
-        pc.rapPrice = match.rapPrice;
-        if (field !== 'rapBack') pc.rapBack = match.back;
-      }
-
-      pc.perCt = pc.rapPrice * (1 - (pc.rapBack / 100));
-      pc.totalVal = pc.perCt * pc.weight;
-
-      autoSaveSarineData();
-      renderWorkbench();
+    // Initialize defaults on load
+    window.onload = function() {
+      recalculateTotals();
     };
-
-    window.addPieceToPlan = function(pIdx) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-      stone.plans[pIdx].pieces.push({
-        itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 1.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 7600, rapBack: 44.0, perCt: 4256, totalVal: 4256
-      });
-      autoSaveSarineData();
-      renderWorkbench();
-    };
-
-    window.removePiece = function(pIdx, pcIdx) {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (stone && stone.plans[pIdx].pieces.length > 1) {
-        stone.plans[pIdx].pieces.splice(pcIdx, 1);
-        autoSaveSarineData();
-        renderWorkbench();
-      }
-    };
-
-    document.getElementById('addNewPlanBtn').addEventListener('click', () => {
-      const stone = roughStones.find(s => s.id === activeStoneId);
-      if (!stone) return;
-      const nextNum = stone.plans.length + 1;
-      stone.plans.push({
-        planNum: nextNum,
-        pieces: [
-          { itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 2.00, color: "D", clarity: "VVS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 15000, rapBack: 40.0, perCt: 9000, totalVal: 18000 }
-        ]
-      });
-      autoSaveSarineData();
-      renderWorkbench();
-    });
-
-    document.getElementById('addNewStoneBtn').addEventListener('click', () => {
-      const nextId = roughStones.length + 1;
-      roughStones.push({
-        id: Date.now(),
-        packetId: `LOT-${String(nextId).padStart(2, '0')}`,
-        roughWt: 10.00,
-        plannerName: "SAGAR",
-        process: "SARIN MANUAL",
-        tension: "T-0",
-        colorMeter: { m1: "028", m2: "L002", m3: "NFY" },
-        mainComment: "",
-        bossBidPerCt: 0,
-        plans: [
-          { planNum: 1, pieces: [{ itemCd: "", docNo: "", lotNo: "", shape: "ROUND", weight: 3.00, color: "D", clarity: "VS1", cut: "EX", polish: "EX", sym: "EX", fls: "NON", comment: "", eyeClean: "YES", dm: "", table: "", ratio: "", height: "", girdle: "", rapPrice: 28000, rapBack: 44.0, perCt: 15680, totalVal: 47040 }] }
-        ]
-      });
-      activeStoneId = roughStones[roughStones.length - 1].id;
-      autoSaveSarineData();
-      renderWorkbench();
-    });
-
-    ['activePacketId', 'activeRoughWt', 'activePlannerName', 'activeProcess', 'activeTension', 'activeMainComment', 'cm1', 'cm2', 'cm3'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => {
-        const stone = roughStones.find(s => s.id === activeStoneId);
-        if (stone) {
-          stone.packetId = document.getElementById('activePacketId').value.trim();
-          stone.roughWt = parseFloat(document.getElementById('activeRoughWt').value) || 0;
-          stone.plannerName = document.getElementById('activePlannerName').value.trim();
-          stone.process = document.getElementById('activeProcess').value.trim();
-          stone.tension = document.getElementById('activeTension').value.trim();
-          stone.mainComment = document.getElementById('activeMainComment').value.trim();
-          stone.colorMeter = {
-            m1: document.getElementById('cm1').value.trim(),
-            m2: document.getElementById('cm2').value.trim(),
-            m3: document.getElementById('cm3').value.trim()
-          };
-          autoSaveSarineData();
-          renderLotsTabs();
-          renderMasterTenderTable();
-        }
-      });
-    });
-
-    function renderMasterTenderTable() {
-      const tbody = document.getElementById('masterTenderTableBody');
-      tbody.innerHTML = '';
-      let grandTotal = 0;
-
-      roughStones.forEach(s => {
-        const bestPlan = s.plans.find(p => p.isBest) || s.plans[0];
-        const polWt = bestPlan.pieces.reduce((sum, p) => sum + p.weight, 0);
-        const polVal = bestPlan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const yieldPct = s.roughWt > 0 ? ((polWt / s.roughWt) * 100) : 0;
-        const rPerCt = s.roughWt > 0 ? (polVal / s.roughWt) : 0;
-        const totalBid = (s.bossBidPerCt || 0) * s.roughWt;
-        grandTotal += polVal;
-
-        tbody.innerHTML += `
-          <tr class="hover:bg-slate-800 ${s.id === activeStoneId ? 'bg-cyan-950/20' : ''}">
-            <td class="py-2.5 px-3 font-bold text-cyan-400 cursor-pointer" onclick="activeStoneId=${s.id}; renderWorkbench();">${s.packetId}</td>
-            <td class="py-2.5 px-3 font-semibold text-emerald-400">Plan ${bestPlan.planNum} (${bestPlan.pieces.length} pcs)</td>
-            <td class="py-2.5 px-3 font-bold text-amber-300">${s.roughWt.toFixed(2)}</td>
-            <td class="py-2.5 px-3 text-slate-200">${polWt.toFixed(2)}</td>
-            <td class="py-2.5 px-3">${bestPlan.pieces.length} pcs</td>
-            <td class="py-2.5 px-3 font-bold text-emerald-400">${yieldPct.toFixed(1)}%</td>
-            <td class="py-2.5 px-3 font-bold text-slate-100">$${Math.round(polVal).toLocaleString()}</td>
-            <td class="py-2.5 px-3 font-black text-cyan-300">$${Math.round(rPerCt).toLocaleString()}</td>
-            <td class="py-2 px-3 bg-slate-950 border-l border-slate-800 no-print">
-              <input type="number" value="${s.bossBidPerCt || ''}" placeholder="Bid $/ct" onchange="s.bossBidPerCt=parseFloat(this.value)||0; autoSaveSarineData(); renderMasterTenderTable();" class="w-24 bg-slate-900 border border-amber-500/40 rounded px-2 py-1 text-xs text-amber-300 font-bold font-mono outline-none" />
-            </td>
-            <td class="py-2.5 px-3 bg-slate-950 font-bold text-amber-300 no-print">$${Math.round(totalBid).toLocaleString()}</td>
-          </tr>
-        `;
-      });
-    }
-
-    document.getElementById('exportExcelBtn').addEventListener('click', () => {
-      const exportRows = [];
-
-      roughStones.forEach(s => {
-        exportRows.push({
-          "COLOR METER": `${s.colorMeter?.m1 || '028'}-${s.colorMeter?.m2 || 'L002'}-${s.colorMeter?.m3 || 'NFY'}`,
-          "PACKET ID": s.packetId,
-          "WEIGHT": s.roughWt,
-          "PLANNER NAME": s.plannerName,
-          "PROCESS": s.process,
-          "TENSION": s.tension,
-          "FLUORESCENCE": "NON",
-          "COMMENT": s.mainComment || ""
-        });
-
-        s.plans.forEach(plan => {
-          const planTotalVal = plan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-          const rPerCt = s.roughWt > 0 ? (planTotalVal / s.roughWt) : 0;
-
-          plan.pieces.forEach((pc, idx) => {
-            exportRows.push({
-              "ITEM CD": pc.itemCd || "",
-              "DOC NO": pc.docNo || "",
-              "LOT NO": pc.lotNo || "",
-              "PLAN": plan.planNum,
-              "SHAPE": pc.shape,
-              "WEIGHT": pc.weight.toFixed(2),
-              "COLOR": pc.color,
-              "CLARITY": pc.clarity,
-              "CUT": pc.cut || "",
-              "POLISH": pc.polish || "EX",
-              "SYMMETRY": pc.sym || "EX",
-              "FLUORESCENCE": pc.fls || "NON",
-              "COMMENT": pc.comment || "",
-              "EYE CLEAN": pc.eyeClean || "YES",
-              "DM": pc.dm || "",
-              "TABLE": pc.table || "",
-              "RATIO": pc.ratio || "",
-              "HEIGHT": pc.height || "",
-              "GIRDLE": pc.girdle || "",
-              "Rap-Price": pc.rapPrice,
-              "Rap%": `${pc.rapBack}%`,
-              "PER CT $": Math.round(pc.perCt),
-              "AFTER DIC": Math.round(pc.totalVal),
-              "Total $": idx === 0 ? (plan.isBest ? `✔ ${Math.round(planTotalVal)}` : `✖ ${Math.round(planTotalVal)}`) : "",
-              "TOTAL VALUE %": idx === 0 ? (plan.isBest ? "100%" : "12%") : "",
-              "R.PER CT": idx === 0 ? Math.round(rPerCt) : ""
-            });
-          });
-        });
-
-        exportRows.push({});
-      });
-
-      const ws = XLSX.utils.json_to_sheet(exportRows);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Sarine Tender Valuation");
-      XLSX.writeFile(wb, `Sarine_Advisor_Tender_${Date.now()}.xlsx`);
-    });
-
-    document.getElementById('btnShareWhatsapp').addEventListener('click', () => {
-      let msg = "💎 *AURA SARINE TENDER EVALUATION SHEET*\n\n";
-      let grandTotal = 0;
-
-      roughStones.forEach(s => {
-        const bestPlan = s.plans.find(p => p.isBest) || s.plans[0];
-        const polWt = bestPlan.pieces.reduce((sum, p) => sum + p.weight, 0);
-        const polVal = bestPlan.pieces.reduce((sum, p) => sum + p.totalVal, 0);
-        const rPerCt = s.roughWt > 0 ? (polVal / s.roughWt) : 0;
-        grandTotal += polVal;
-
-        msg += `📦 *${s.packetId}* (Rough: ${s.roughWt.toFixed(2)} ct)\n`;
-        msg += `   • Selected: *Plan ${bestPlan.planNum}* (${bestPlan.pieces.length} pcs | ${polWt.toFixed(2)} ct)\n`;
-        msg += `   • *R.PER CT:* $${Math.round(rPerCt).toLocaleString()} /ct\n`;
-        msg += `   • *Total Polish:* $${Math.round(polVal).toLocaleString()}\n`;
-        if (s.bossBidPerCt > 0) {
-          msg += `   • *Boss Bid:* $${s.bossBidPerCt}/ct ($${Math.round(s.bossBidPerCt * s.roughWt).toLocaleString()})\n`;
-        }
-        msg += `\n`;
-      });
-
-      msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-      msg += `💰 *GRAND TOTAL ESTIMATED VALUE:* $${Math.round(grandTotal).toLocaleString()}\n`;
-
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
-      window.open(whatsappUrl, '_blank');
-    });
-
-    checkUserPermission();
   </script>
 </body>
 </html>
