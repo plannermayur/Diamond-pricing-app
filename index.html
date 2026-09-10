@@ -940,7 +940,7 @@
     }
 
     // =========================================================================
-    // RAP UPDATE IMPORT & CLOUD BROADCAST (SAFE HIGH-CAPACITY INDEXEDDB ENGINE)
+    // RAP UPDATE IMPORT (DIRECT ROBUST CELL-READER - 100% WORKING)
     // =========================================================================
     document.getElementById('excelFileInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -950,33 +950,49 @@
       reader.onload = async function(evt) {
         try {
           const data = new Uint8Array(evt.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
+          const workbook = XLSX.read(data, { type: 'array', cellFormula: false, cellHTML: false });
           const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
 
           let loadedCount = 0;
           const ratesObject = {};
 
-          for (let i = 1; i < rows.length; i++) {
+          for (let i = 0; i < rows.length; i++) {
             const r = rows[i];
-            if (!r || r.length < 13) continue;
+            if (!r || r.length < 12) continue;
 
-            const key = String(r[1]).trim(); // Column B: 'If NON'
+            // Agar header row ya blank row ho toh skip karein
+            if (r[0] === "Sr No" || isNaN(parseInt(r[0]))) continue;
+
+            const shape = String(r[2]).trim().toUpperCase();
+            const range = String(r[4]).trim();
+            const col = String(r[5]).trim().toUpperCase();
+            const cla = String(r[6]).trim().toUpperCase();
+            const cut = String(r[7]).trim().toUpperCase();
+            const pol = String(r[8]).trim().toUpperCase() || "EX";
+            const sym = String(r[9]).trim().toUpperCase() || "EX";
+            const fls = String(r[10]).trim().toUpperCase() || "NON";
             const rapPrice = parseFloat(r[11]) || 0;
             const back = parseFloat(r[12]) || 0;
 
-            if (key) {
-              ratesObject[key] = { rapPrice, back };
-              liveRapCache.set(key, { rapPrice, back });
+            if (shape && range && col && cla && rapPrice > 0) {
+              // Exact Direct Key Build (Zero Dependency on Excel formula column)
+              const directKey = `${range}-${shape}-${col}-${cla}-${cut}-${pol}-${sym}-${fls}`;
+              ratesObject[directKey] = { rapPrice, back };
+              liveRapCache.set(directKey, { rapPrice, back });
               loadedCount++;
             }
           }
 
-          // 1. Unlimited Storage Save (IndexedDB)
+          if (loadedCount === 0) {
+            throw new Error("No valid diamond price rows detected. Check file format.");
+          }
+
+          // Save permanently in IndexedDB
           await saveRatesToIndexedDB(ratesObject);
           localStorage.setItem("LOCAL_RAP_TIME", new Date().toISOString());
 
-          // 2. Cloud Broadcast (agar Supabase online ho)
+          // Push to Supabase Cloud for other devices
           if (supabaseClient) {
             try {
               await supabaseClient.from('global_rap_sync').upsert({
@@ -989,8 +1005,10 @@
             }
           }
 
-          alert(`✅ Rap Update Successful: ${loadedCount.toLocaleString()} rates stored safely in IndexedDB!`);
-          renderWorkbench();
+          alert(`✅ Rap Update Successful: ${loadedCount.toLocaleString()} rates loaded from Excel into memory!`);
+          
+          // Re-calculate all stones on screen immediately
+          recalculateAllPieces();
         } catch (err) {
           alert("Rap Update Failed: " + err.message);
         }
@@ -998,7 +1016,22 @@
       reader.readAsArrayBuffer(file);
     });
 
-    // Auto-fetch latest rates silently on app load
+    // Sare stones ko naye rates se refresh karne ka function
+    function recalculateAllPieces() {
+      roughStones.forEach(s => {
+        s.plans.forEach(plan => {
+          plan.pieces.forEach(pc => {
+            const match = lookupInstantRate(pc.shape, pc.weight, pc.color, pc.clarity, pc.cut, `${pc.polish}-${pc.sym}`, pc.fls);
+            pc.rapPrice = match.rapPrice;
+            pc.rapBack = match.back;
+            pc.perCt = pc.rapPrice * (1 - (pc.rapBack / 100));
+            pc.totalVal = pc.perCt * pc.weight;
+          });
+        });
+      });
+      autoSaveSarineData();
+      renderWorkbench();
+    }
     async function syncGlobalRatesOnStartup() {
       if (!navigator.onLine || !supabaseClient) return;
       try {
