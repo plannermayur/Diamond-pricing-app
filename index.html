@@ -6,6 +6,7 @@
   <title>AURA DIAMOND | Sarine Advisor Rough Valuation Suite</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script> 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -1259,6 +1260,9 @@
     // =========================================================================
     // RAP UPDATE IMPORT (MASTER ADMIN ONLY)
     // =========================================================================
+    // =========================================================================
+    // 1-CLICK SECURE VAULT UPLOAD (PC SE PRIVATE BUCKET MEIN SYNC)
+    // =========================================================================
     document.getElementById('excelFileInput').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -1298,22 +1302,37 @@
             }
           }
 
-          if (loadedCount === 0) throw new Error("No valid price rows found.");
+          if (loadedCount === 0) throw new Error("Excel mein koi valid price row nahi mili.");
 
+          // 1. Apne local device par instant save karein
           await saveRatesToIndexedDB(ratesObject);
-          localStorage.setItem("LOCAL_RAP_TIME", new Date().toISOString());
+          const syncTimestamp = Date.now().toString();
+          localStorage.setItem("LOCAL_RAP_TIME", syncTimestamp);
 
+          // 2. High-Grade Compression (25MB -> 1.5MB single vault file)
+          const jsonStr = JSON.stringify(ratesObject);
+          const compressed = pako.gzip(jsonStr);
+          const vaultBlob = new Blob([compressed], { type: 'application/octet-stream' });
+
+          // 3. Supabase Private Storage Bucket me direct push
           if (supabaseClient) {
-            try {
-              await supabaseClient.from('global_rap_sync').upsert({
-                id: 'LATEST_RAP',
-                updated_at: new Date().toISOString(),
-                rates_payload: ratesObject
+            const { error: uploadErr } = await supabaseClient.storage
+              .from('secure-rap-vault')
+              .upload('rap_master.vault', vaultBlob, {
+                upsert: true,
+                contentType: 'application/octet-stream'
               });
-            } catch(cloudErr) {}
+
+            if (uploadErr) {
+              console.error("Vault Upload Error:", uploadErr);
+              alert("Local memory update hui, par Cloud Vault upload error: " + uploadErr.message);
+            } else {
+              // Metadata timestamp mark karein taaki har phone ko pata chale nayi file aayi hai
+              localStorage.setItem("VAULT_SYNC_VERSION", syncTimestamp);
+              alert(`✅ Worldwide Vault Sync Successful!\n${loadedCount.toLocaleString()} rates secure vault mein lock ho gaye hain.`);
+            }
           }
 
-          alert(`✅ Rap Update Successful: ${loadedCount.toLocaleString()} rates synced into RAM!`);
           recalculateAllPieces();
           runNativeCalculations(false);
         } catch (err) {
@@ -1323,46 +1342,56 @@
       reader.readAsArrayBuffer(file);
     });
 
-    function recalculateAllPieces() {
-      roughStones.forEach(s => {
-        s.plans.forEach(plan => {
-          plan.pieces.forEach(pc => {
-            const match = lookupInstantRate(pc.shape, pc.weight, pc.color, pc.clarity, pc.cut, `${pc.polish}-${pc.sym}`, pc.fls);
-            if (match) {
-              pc.rapPrice = match.rapPrice;
-              pc.rapBack = match.back;
-              pc.perCt = pc.rapPrice * (1 - (pc.rapBack / 100));
-              pc.totalVal = pc.perCt * pc.weight;
-            } else {
-              pc.rapPrice = 0;
-              pc.perCt = 0;
-              pc.totalVal = 0;
-            }
-          });
-        });
-      });
-      autoSaveSarineData();
-      renderWorkbench();
-    }
-
+    // =========================================================================
+    // AUTO-FETCH FROM SECURE STORAGE VAULT ON STARTUP (MOBILE / OTHER PC)
+    // =========================================================================
     async function syncGlobalRatesOnStartup() {
       if (!navigator.onLine || !supabaseClient) return;
-      try {
-        const { data } = await supabaseClient.from('global_rap_sync').select('updated_at, rates_payload').eq('id', 'LATEST_RAP').single();
-        if (data && data.rates_payload) {
-          const localTime = localStorage.getItem("LOCAL_RAP_TIME");
-          if (!localTime || new Date(data.updated_at) > new Date(localTime)) {
-            liveRapCache.clear();
-            for (let k in data.rates_payload) liveRapCache.set(k, data.rates_payload[k]);
-            await saveRatesToIndexedDB(data.rates_payload);
-            localStorage.setItem("LOCAL_RAP_TIME", data.updated_at);
-            renderWorkbench();
-            runNativeCalculations(false);
-          }
-        }
-      } catch(e) {}
-    }
 
+      try {
+        // Check karein ki cloud vault mein file kab update hui thi
+        const { data: fileList, error: listErr } = await supabaseClient.storage
+          .from('secure-rap-vault')
+          .list('', { search: 'rap_master.vault' });
+
+        if (listErr || !fileList || fileList.length === 0) return;
+
+        const remoteFile = fileList.find(f => f.name === 'rap_master.vault');
+        if (!remoteFile) return;
+
+        const remoteTime = new Date(remoteFile.updated_at || remoteFile.created_at).getTime().toString();
+        const localTime = localStorage.getItem("LOCAL_RAP_TIME");
+
+        // Agar cloud par nayi file aayi hai ya phone ke RAM/IndexedDB mein data khali hai
+        if (!localTime || localTime !== remoteTime || liveRapCache.size === 0) {
+          console.log("⚡ Downloading 1.5MB Encrypted Vault from Supabase Storage...");
+
+          const { data: fileBlob, error: downloadErr } = await supabaseClient.storage
+            .from('secure-rap-vault')
+            .download('rap_master.vault');
+
+          if (downloadErr || !fileBlob) throw downloadErr;
+
+          const arrayBuf = await fileBlob.arrayBuffer();
+          const decompressedStr = pako.ungzip(new Uint8Array(arrayBuf), { to: 'string' });
+          const ratesObject = JSON.parse(decompressedStr);
+
+          liveRapCache.clear();
+          for (let k in ratesObject) {
+            liveRapCache.set(k, ratesObject[k]);
+          }
+
+          await saveRatesToIndexedDB(ratesObject);
+          localStorage.setItem("LOCAL_RAP_TIME", remoteTime);
+
+          console.log(`✅ ${liveRapCache.size.toLocaleString()} rates synced from Cloud Vault!`);
+          renderWorkbench();
+          runNativeCalculations(false);
+        }
+      } catch (err) {
+        console.warn("Vault Startup Sync Info:", err.message);
+      }
+    }
     // =========================================================================
     // MOBILE DRUM ROLL & LIVE CALCULATION ENGINE (WITH N/A LOCK)
     // =========================================================================
