@@ -1391,6 +1391,26 @@
       } catch (err) {
         console.warn("Vault Startup Sync Info:", err.message);
       }
+    }function recalculateAllPieces() {
+      roughStones.forEach(s => {
+        s.plans.forEach(plan => {
+          plan.pieces.forEach(pc => {
+            const match = lookupInstantRate(pc.shape, pc.weight, pc.color, pc.clarity, pc.cut, `${pc.polish}-${pc.sym}`, pc.fls);
+            if (match) {
+              pc.rapPrice = match.rapPrice;
+              pc.rapBack = match.back;
+              pc.perCt = pc.rapPrice * (1 - (pc.rapBack / 100));
+              pc.totalVal = pc.perCt * pc.weight;
+            } else {
+              pc.rapPrice = 0;
+              pc.perCt = 0;
+              pc.totalVal = 0;
+            }
+          });
+        });
+      });
+      autoSaveSarineData();
+      renderWorkbench();
     }
     // =========================================================================
     // MOBILE DRUM ROLL & LIVE CALCULATION ENGINE (WITH N/A LOCK)
