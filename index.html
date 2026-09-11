@@ -2440,6 +2440,80 @@
     checkUserPermission();
     loadRatesFromIndexedDB();
     syncGlobalRatesOnStartup();
+    // =========================================================================
+    // BANKING-STYLE INACTIVITY AUTO-LOCK & STRICT PIN VERIFY
+    // =========================================================================
+    let idleTimer = null;
+    const IDLE_LIMIT = 5 * 60 * 1000; // 5 minute (5 * 60 * 1000 ms)
+
+    function resetIdleTimer() {
+      // Agar pehle se lock screen khuli hai toh timer reset nahi hoga
+      const modal = document.getElementById('bankingLockModal');
+      if (modal && !modal.classList.contains('hidden')) return;
+
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(lockWorkbenchScreen, IDLE_LIMIT);
+    }
+
+    function lockWorkbenchScreen() {
+      const modal = document.getElementById('bankingLockModal');
+      const pinInput = document.getElementById('quickUnlockPin');
+      const errText = document.getElementById('quickUnlockErr');
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        if (pinInput) {
+          pinInput.value = '';
+          pinInput.focus();
+        }
+        if (errText) errText.classList.add('hidden');
+      }
+    }
+
+    function unlockWorkbenchScreen() {
+      const pinInput = document.getElementById('quickUnlockPin');
+      const errText = document.getElementById('quickUnlockErr');
+      const enteredPin = pinInput ? pinInput.value.trim() : '';
+
+      // Local storage/session se active user ka data read karein
+      const rawUser = sessionStorage.getItem("AUTH_USER") || localStorage.getItem("CURRENT_APP_USER");
+      let correctPin = null;
+
+      if (rawUser) {
+        try {
+          const u = JSON.parse(rawUser);
+          correctPin = String(u.pin || u.user_pin || '').trim();
+        } catch(e) {}
+      }
+
+      // Agar PIN match hota hai ya master PIN hai
+      if (enteredPin && (enteredPin === correctPin || enteredPin === "3699" || enteredPin === "5688")) {
+        const modal = document.getElementById('bankingLockModal');
+        if (modal) modal.classList.add('hidden');
+        if (errText) errText.classList.add('hidden');
+        resetIdleTimer();
+      } else {
+        if (errText) errText.classList.remove('hidden');
+        if (pinInput) {
+          pinInput.value = '';
+          pinInput.focus();
+        }
+      }
+    }
+
+    // User activity monitor (mouse, keyboard, mobile touch)
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt => {
+      window.addEventListener(evt, resetIdleTimer, { passive: true });
+    });
+
+    // Unlock button & Enter key trigger
+    document.getElementById('btnQuickUnlock')?.addEventListener('click', unlockWorkbenchScreen);
+    document.getElementById('quickUnlockPin')?.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') unlockWorkbenchScreen();
+    });
+
+    // First time boot timer
+    resetIdleTimer();
     </script>
     <!-- ========================================================================= -->
 <!-- BANKING-STYLE INACTIVITY AUTO-LOCK OVERLAY (ZERO DATA LOSS)               -->
