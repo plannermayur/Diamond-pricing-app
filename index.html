@@ -10,70 +10,55 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <style>
-    :root {
-      --bg-main: #040711;
-      --card-bg: rgba(15, 23, 42, 0.85);
-      --accent: #06b6d4;
-      --accent-glow: rgba(6, 182, 212, 0.3);
-    }
-    body.theme-gold {
-      --bg-main: #0b0904;
-      --card-bg: rgba(28, 22, 10, 0.9);
-      --accent: #f59e0b;
-      --accent-glow: rgba(245, 158, 11, 0.3);
-    }
-    body.theme-emerald {
-      --bg-main: #020c08;
-      --card-bg: rgba(6, 30, 20, 0.9);
-      --accent: #10b981;
-      --accent-glow: rgba(16, 185, 129, 0.3);
-    }
-    body.theme-sapphire {
-      --bg-main: #03071e;
-      --card-bg: rgba(15, 23, 50, 0.9);
-      --accent: #3b82f6;
-      --accent-glow: rgba(59, 130, 246, 0.3);
-    }
-    body { background-color: var(--bg-main); color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; transition: background 0.3s ease; }
-    .glass-card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .glass-card-glow { background: var(--card-bg); border: 1px solid var(--accent-glow); }
-    .sarine-table th { background: #0f172a; border: 1px solid #334155; padding: 5px 3px; font-size: 10px; text-transform: uppercase; font-weight: 700; text-align: center; }
-    .sarine-table td { border: 1px solid #1e293b; padding: 3px 2px; font-size: 11px; text-align: center; }
-    
-    /* Native Drum Roll Picker UI */
-    .drum-container {
-      height: 140px;
+ /* ================= iOS NATIVE DRUM ROLL PICKER ================= */
+    .drum-column {
+      height: 110px;
       overflow-y: scroll;
       scroll-snap-type: y mandatory;
+      -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
     }
-    .drum-container::-webkit-scrollbar { display: none; }
+    .drum-column::-webkit-scrollbar {
+      display: none;
+    }
     .drum-item {
-      height: 44px;
+      height: 36px;
+      line-height: 36px;
       scroll-snap-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 13px;
       color: #64748b;
       transition: all 0.15s ease;
-      cursor: pointer;
     }
     .drum-item.active {
-      color: #38bdf8;
-      font-size: 18px;
-      font-weight: 900;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      transform: scale(1.08);
     }
-
-    @media print {
-      body { background: #fff !important; color: #000 !important; }
-      .no-print { display: none !important; }
-      .sarine-table th { background: #eee !important; color: #000 !important; border: 1px solid #000 !important; }
-      .sarine-table td { border: 1px solid #000 !important; color: #000 !important; }
+    .drum-lens {
+      position: absolute;
+      top: 37px;
+      left: 0;
+      right: 0;
+      height: 36px;
+      border-top: 1px solid rgba(6, 182, 212, 0.4);
+      border-bottom: 1px solid rgba(6, 182, 212, 0.4);
+      background: rgba(6, 182, 212, 0.08);
+      pointer-events: none;
+      border-radius: 8px;
     }
-  </style>
+    .numpad-btn {
+      touch-action: manipulation;
+      transition: all 0.08s ease-in-out;
+    }
+    .numpad-btn:active {
+      transform: scale(0.94);
+      opacity: 0.8;
+    }
 </head>
 <body class="min-h-screen select-none antialiased">
 
@@ -353,109 +338,141 @@
     </header>
 
     <!-- VIEW 1: 1-STONE QUICK LOOKUP VIEW -->
-    <div id="quickSingleView" class="hidden space-y-4 no-print">
-      <div class="glass-card p-5 sm:p-8 rounded-3xl space-y-6">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-          <h2 class="font-bold text-base text-cyan-400">Real-time Single Stone Valuation</h2>
-          <span id="quickRangeBadge" class="text-xs bg-slate-950 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800 font-mono font-bold">1.00 to 1.29</span>
+    <!-- VIEW 1: 1-STONE QUICK LOOKUP VIEW (NATIVE DRUM WHEEL + KEYPAD) -->
+    <div id="quickSingleView" class="hidden no-print max-w-md mx-auto py-2">
+      <div class="glass-card-glow p-4 sm:p-5 rounded-3xl space-y-4 shadow-2xl border border-slate-800">
+        
+        <!-- Header & Range Badge -->
+        <div class="flex justify-between items-center px-1">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">💎</span>
+            <h2 class="text-base font-extrabold text-white">Diamond Calculator</h2>
+          </div>
+          <span id="quickRangeBadge" class="text-xs bg-cyan-950/80 text-cyan-300 px-3 py-1 rounded-full border border-cyan-800 font-mono font-bold">1.00 to 1.29</span>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-          <div class="col-span-2 sm:col-span-2">
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Shape</label>
-            <select id="qShape" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-cyan-300 font-bold outline-none">
-              <option value="ROUND" selected>ROUND</option>
-              <option value="SCMB">SCMB</option>
-              <option value="CMB">CMB</option>
-              <option value="RADIANT">RADIANT</option>
-              <option value="S.RADIANT">S.RADIANT</option>
-              <option value="ASSCHER">ASSCHER</option>
-              <option value="EMERALD">EMERALD</option>
-              <option value="OVAL">OVAL</option>
-              <option value="PEAR">PEAR</option>
-              <option value="PRINSESS">PRINSESS</option>
-              <option value="HEART">HEART</option>
-              <option value="MARQUIES">MARQUIES</option>
-              <option value="ASHOKA">ASHOKA</option>
-              <option value="BAGUETTE">BAGUETTE</option>
-            </select>
+        <!-- 4 WHEEL DRUM PICKERS (CARAT / SHAPE / COLOR / CLARITY) -->
+        <div class="grid grid-cols-4 gap-2 bg-slate-950 p-2.5 rounded-2xl border border-slate-800 relative">
+          <div class="drum-lens"></div>
+
+          <!-- Weight Display -->
+          <div class="relative flex flex-col items-center justify-center p-1 bg-slate-900/60 rounded-xl border border-slate-800">
+            <span class="text-[10px] uppercase font-bold text-slate-400">Weight</span>
+            <div id="displayCarat" class="text-xl font-black text-amber-300 font-mono my-1">1.01</div>
+            <span class="text-[10px] text-cyan-400 font-bold">CT</span>
           </div>
 
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Weight (Ct)</label>
-            <input type="number" id="qCarat" step="0.01" min="0.01" value="1.01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-amber-300 font-bold font-mono outline-none" />
+          <!-- Shape Drum -->
+          <div class="relative">
+            <div class="drum-column" id="drumShape" onscroll="handleDrumScroll('drumShape', 'qShapeVal')">
+              <div class="h-[37px]"></div>
+              <div class="drum-item active" data-val="ROUND">Round</div>
+              <div class="drum-item" data-val="PEAR">Pear</div>
+              <div class="drum-item" data-val="OVAL">Oval</div>
+              <div class="drum-item" data-val="EMERALD">Emerald</div>
+              <div class="drum-item" data-val="RADIANT">Radiant</div>
+              <div class="drum-item" data-val="MARQUIES">Marquise</div>
+              <div class="drum-item" data-val="HEART">Heart</div>
+              <div class="drum-item" data-val="PRINSESS">Princess</div>
+              <div class="drum-item" data-val="ASSCHER">Asscher</div>
+              <div class="drum-item" data-val="SCMB">SCMB</div>
+              <div class="drum-item" data-val="CMB">CMB</div>
+              <div class="h-[37px]"></div>
+            </div>
           </div>
 
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Color</label>
-            <select id="qColor" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option selected>D</option><option>E</option><option>F</option><option>G</option>
-              <option>H</option><option>I</option><option>J</option><option>K</option>
-              <option>L</option><option>M</option><option>N</option><option>O-P</option>
-              <option>Q-R</option><option>S-Z</option><option>FANCY</option>
-            </select>
+          <!-- Color Drum -->
+          <div class="relative">
+            <div class="drum-column" id="drumColor" onscroll="handleDrumScroll('drumColor', 'qColorVal')">
+              <div class="h-[37px]"></div>
+              <div class="drum-item active" data-val="D">D</div>
+              <div class="drum-item" data-val="E">E</div>
+              <div class="drum-item" data-val="F">F</div>
+              <div class="drum-item" data-val="G">G</div>
+              <div class="drum-item" data-val="H">H</div>
+              <div class="drum-item" data-val="I">I</div>
+              <div class="drum-item" data-val="J">J</div>
+              <div class="drum-item" data-val="K">K</div>
+              <div class="drum-item" data-val="L">L</div>
+              <div class="drum-item" data-val="M">M</div>
+              <div class="h-[37px]"></div>
+            </div>
           </div>
 
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Clarity</label>
-            <select id="qClarity" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option>IF</option><option>VVS1</option><option>VVS2</option>
-              <option selected>VS1</option><option>VS2</option><option>SI1</option>
-              <option>SI2</option><option>I1</option><option>I2</option><option>I3</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Cut</label>
-            <select id="qCut" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option value="EX" selected>EX</option>
-              <option value="VG">VG</option>
-              <option value="GD">GD</option>
-              <option value="">NONE</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Pol / Sym</label>
-            <select id="qPolishSym" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option value="EX-EX" selected>EX-EX</option>
-              <option value="VG-EX">VG-EX</option>
-              <option value="VG-VG">VG-VG</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Fls</label>
-            <select id="qFls" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs outline-none">
-              <option value="NON" selected>NON</option>
-              <option value="FNT">FNT</option>
-              <option value="MED">MED</option>
-              <option value="STG">STG</option>
-            </select>
+          <!-- Clarity Drum -->
+          <div class="relative">
+            <div class="drum-column" id="drumClarity" onscroll="handleDrumScroll('drumClarity', 'qClarityVal')">
+              <div class="h-[37px]"></div>
+              <div class="drum-item" data-val="IF">IF</div>
+              <div class="drum-item" data-val="VVS1">VVS1</div>
+              <div class="drum-item" data-val="VVS2">VVS2</div>
+              <div class="drum-item active" data-val="VS1">VS1</div>
+              <div class="drum-item" data-val="VS2">VS2</div>
+              <div class="drum-item" data-val="SI1">SI1</div>
+              <div class="drum-item" data-val="SI2">SI2</div>
+              <div class="drum-item" data-val="I1">I1</div>
+              <div class="drum-item" data-val="I2">I2</div>
+              <div class="drum-item" data-val="I3">I3</div>
+              <div class="h-[37px]"></div>
+            </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Rap Price</span>
-            <input type="number" id="qRapPriceInput" value="7600" class="w-full bg-transparent text-xl font-bold font-mono text-slate-100 outline-none" />
+        <!-- Hidden input storage for calculation values -->
+        <input type="hidden" id="qShapeVal" value="ROUND" />
+        <input type="hidden" id="qColorVal" value="D" />
+        <input type="hidden" id="qClarityVal" value="VS1" />
+
+        <!-- Pricing Cards -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase">Back / Rap %</span>
+            <div class="flex items-center justify-center gap-1 mt-1">
+              <input type="number" step="0.5" id="qDiscountInput" value="44.0" oninput="runNativeCalculations(true)" class="w-16 bg-slate-900 border border-slate-700 rounded-lg text-center text-sm font-bold text-emerald-400 outline-none font-mono py-1" />
+              <span class="text-xs text-emerald-400 font-bold">%</span>
+            </div>
           </div>
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Back / Discount %</span>
-            <input type="number" id="qDiscountInput" step="0.1" value="44.0" class="w-full bg-transparent text-xl font-bold font-mono text-emerald-400 outline-none" />
+
+          <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] text-cyan-400 font-bold block uppercase">Your Price $</span>
+            <div id="qNetPriceDisplay" class="text-sm font-black text-cyan-300 font-mono mt-1">$4,256/ct</div>
+            <div id="qTotalValDisplay" class="text-[11px] font-bold text-slate-300 font-mono">TTL: $4,298</div>
           </div>
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Net Rate / Ct</span>
-            <div id="qNetPriceDisplay" class="text-xl font-extrabold font-mono text-cyan-300">$4,256</div>
-          </div>
-          <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800">
-            <span class="text-[11px] text-slate-400 font-semibold uppercase block mb-1">Total Stone Value</span>
-            <div id="qTotalValDisplay" class="text-xl font-extrabold font-mono text-emerald-300">$4,298.56</div>
+
+          <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center">
+            <span class="text-[10px] text-slate-400 font-bold block uppercase">List Price $</span>
+            <div id="qListRapDisplay" class="text-sm font-bold text-slate-200 font-mono mt-1">$7,600/ct</div>
+            <div id="qListTotalDisplay" class="text-[11px] font-semibold text-slate-400 font-mono">TTL: $7,676</div>
           </div>
         </div>
+
+        <!-- Touch Keypad -->
+        <div class="grid grid-cols-4 gap-2 pt-1 font-mono">
+          <button onclick="pressKey('7')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">7</button>
+          <button onclick="pressKey('8')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">8</button>
+          <button onclick="pressKey('9')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">9</button>
+          <button onclick="stepDiscount(1)" class="numpad-btn bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-1">+1%</button>
+
+          <button onclick="pressKey('4')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">4</button>
+          <button onclick="pressKey('5')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">5</button>
+          <button onclick="pressKey('6')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">6</button>
+          <button onclick="stepDiscount(-1)" class="numpad-btn bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-1">-1%</button>
+
+          <button onclick="pressKey('1')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">1</button>
+          <button onclick="pressKey('2')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">2</button>
+          <button onclick="pressKey('3')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">3</button>
+          <button onclick="shareQuickStoneWhatsApp()" class="numpad-btn bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold py-3.5 rounded-2xl text-base flex items-center justify-center">
+            <i class="fa-brands fa-whatsapp"></i>
+          </button>
+
+          <button onclick="pressKey('.')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">.</button>
+          <button onclick="pressKey('0')" class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold py-3.5 rounded-2xl text-lg shadow-md border border-slate-700">0</button>
+          <button onclick="pressKey('DEL')" class="numpad-btn bg-slate-900 text-slate-300 hover:text-white border border-slate-700 font-bold py-3.5 rounded-2xl text-sm flex items-center justify-center">⌫</button>
+          <button onclick="pressKey('CLEAR')" class="numpad-btn bg-amber-600 hover:bg-amber-500 text-white font-black py-3.5 rounded-2xl text-xs uppercase shadow-lg shadow-amber-950">Clear</button>
+        </div>
+
       </div>
     </div>
-
     <!-- VIEW 2: SARINE TENDER MASTER WORKBENCH -->
     <div id="tenderMultiView" class="space-y-4">
 
@@ -733,7 +750,7 @@
         document.getElementById('tenderMultiView').classList.add('hidden');
         document.getElementById('btnModeQuick').className = "px-4 py-2 rounded-xl bg-cyan-600 text-white shadow-md transition";
         document.getElementById('btnModeTender').className = "px-4 py-2 rounded-xl text-slate-400 hover:text-slate-200 transition";
-        updateQuickCalculations(false);
+        runNativeCalculations(false);
       } else {
         document.getElementById('tenderMultiView').classList.remove('hidden');
         document.getElementById('quickSingleView').classList.add('hidden');
@@ -1267,43 +1284,101 @@
       } catch(e) {}
     }
 
-    function updateQuickCalculations(isManual = false) {
-      const shape = document.getElementById('qShape').value;
-      const weight = parseFloat(document.getElementById('qCarat').value) || 0;
-      const color = document.getElementById('qColor').value;
-      const clarity = document.getElementById('qClarity').value;
-      const cut = document.getElementById('qCut').value;
-      const polishSym = document.getElementById('qPolishSym').value;
-      const fls = document.getElementById('qFls').value;
+   // =========================================================================
+// MOBILE DRUM ROLL PICKER & KEYPAD LOGIC
+// =========================================================================
+let currentCaratInput = "1.01";
+let drumScrollTimeout = null;
 
-      document.getElementById('quickRangeBadge').innerText = getRangeSlab(weight);
+window.pressKey = function(key) {
+  if (key === 'CLEAR') {
+    currentCaratInput = "0";
+  } else if (key === 'DEL') {
+    currentCaratInput = currentCaratInput.length > 1 ? currentCaratInput.slice(0, -1) : "0";
+  } else if (key === '.') {
+    if (!currentCaratInput.includes('.')) currentCaratInput += '.';
+  } else {
+    if (currentCaratInput === "0") currentCaratInput = key;
+    else if (currentCaratInput.length < 5) currentCaratInput += key;
+  }
 
-      let rapPrice = parseFloat(document.getElementById('qRapPriceInput').value);
-      let discount = parseFloat(document.getElementById('qDiscountInput').value);
+  document.getElementById('displayCarat').innerText = currentCaratInput;
+  runNativeCalculations(false);
+};
 
-      if (!isManual) {
-        const match = lookupInstantRate(shape, weight, color, clarity, cut, polishSym, fls);
-        rapPrice = match.rapPrice;
-        discount = match.back;
-        document.getElementById('qRapPriceInput').value = rapPrice;
-        document.getElementById('qDiscountInput').value = discount;
+window.stepDiscount = function(delta) {
+  const input = document.getElementById('qDiscountInput');
+  let current = parseFloat(input.value) || 0;
+  input.value = (current + delta).toFixed(1);
+  runNativeCalculations(true);
+};
+
+window.handleDrumScroll = function(containerId, targetInputId) {
+  clearTimeout(drumScrollTimeout);
+  drumScrollTimeout = setTimeout(() => {
+    const container = document.getElementById(containerId);
+    const itemHeight = 36;
+    const scrollTop = container.scrollTop;
+    const activeIndex = Math.round(scrollTop / itemHeight);
+
+    const items = container.querySelectorAll('.drum-item');
+    items.forEach((item, idx) => {
+      if (idx === activeIndex) {
+        item.classList.add('active');
+        document.getElementById(targetInputId).value = item.dataset.val;
+      } else {
+        item.classList.remove('active');
       }
-
-      const netPrice = rapPrice * (1 - (discount / 100));
-      const totalVal = netPrice * weight;
-
-      document.getElementById('qNetPriceDisplay').innerText = formatMoney(netPrice);
-      document.getElementById('qTotalValDisplay').innerText = formatMoney(totalVal);
-    }
-
-    ['qShape', 'qCarat', 'qColor', 'qClarity', 'qCut', 'qPolishSym', 'qFls'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => updateQuickCalculations(false));
-      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(false));
-    });
-    ['qRapPriceInput', 'qDiscountInput'].forEach(id => {
-      document.getElementById(id).addEventListener('input', () => updateQuickCalculations(true));
     });
 
+    runNativeCalculations(false);
+  }, 60);
+};
+
+function runNativeCalculations(isManualDiscount = false) {
+  const shape = document.getElementById('qShapeVal').value;
+  const weight = parseFloat(currentCaratInput) || 0;
+  const color = document.getElementById('qColorVal').value;
+  const clarity = document.getElementById('qClarityVal').value;
+
+  document.getElementById('quickRangeBadge').innerText = getRangeSlab(weight);
+
+  const rateMatch = lookupInstantRate(shape, weight, color, clarity, "EX", "EX-EX", "NON");
+  const rapPrice = rateMatch.rapPrice;
+
+  const discountInput = document.getElementById('qDiscountInput');
+  if (!isManualDiscount) {
+    discountInput.value = rateMatch.back.toFixed(1);
+  }
+
+  const discount = parseFloat(discountInput.value) || 0;
+  const netPrice = rapPrice * (1 - (discount / 100));
+  const totalVal = netPrice * weight;
+  const listTotal = rapPrice * weight;
+
+  document.getElementById('qNetPriceDisplay').innerText = `$${Math.round(netPrice).toLocaleString()}/ct`;
+  document.getElementById('qTotalValDisplay').innerText = `TTL: $${Math.round(totalVal).toLocaleString()}`;
+  document.getElementById('qListRapDisplay').innerText = `$${rapPrice.toLocaleString()}/ct`;
+  document.getElementById('qListTotalDisplay').innerText = `TTL: $${Math.round(listTotal).toLocaleString()}`;
+}
+
+window.shareQuickStoneWhatsApp = function() {
+  const shape = document.getElementById('qShapeVal').value;
+  const wt = parseFloat(currentCaratInput) || 0;
+  const color = document.getElementById('qColorVal').value;
+  const clarity = document.getElementById('qClarityVal').value;
+  const back = document.getElementById('qDiscountInput').value;
+  const net = document.getElementById('qNetPriceDisplay').innerText;
+  const ttl = document.getElementById('qTotalValDisplay').innerText;
+
+  let msg = `💎 *SINGLE DIAMOND VALUATION*\n`;
+  msg += `• Spec: *${wt} ct ${shape} ${color} ${clarity}*\n`;
+  msg += `• Rap Back: *${back}%*\n`;
+  msg += `• Net Rate: *${net}*\n`;
+  msg += `• Total: *${ttl.replace('TTL: ', '')}*\n`;
+
+  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+};
     // =========================================================================
     // WORKBENCH RENDERING ENGINE
     // =========================================================================
