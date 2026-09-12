@@ -969,11 +969,13 @@
       return `${os} (${browser})`;
     }
 
-    async function checkUserPermission() {
-      const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
-      if (isMasterAdmin === "true") {
-        grantAccess("Master Admin", "admin");
-        return;
+   async function checkUserPermission() {
+     const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
+     const isSessionUnlocked = sessionStorage.getItem("WORKBENCH_SESSION_ACTIVE");
+
+     if (isMasterAdmin === "true" && isSessionUnlocked === "true") {
+       grantAccess("Master Admin", "admin");
+       return;
       }
 
       // Link se 1st time open hone par strict lock check (Tab close = Session Lock)
@@ -1047,6 +1049,7 @@
       if (pin === MASTER_ADMIN_PIN) {
         sessionStorage.setItem("IS_MASTER_ADMIN", "true");
         localStorage.setItem("IS_MASTER_ADMIN", "true");
+        sessionStorage.setItem("WORKBENCH_SESSION_ACTIVE", "true");
         grantAccess("Master Admin", "admin");
         openAdminModal();
       } else {
