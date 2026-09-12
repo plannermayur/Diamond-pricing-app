@@ -2538,6 +2538,19 @@
 
     // First time boot timer
     resetIdleTimer();
+    // =========================================================================
+    // INSTANT LIVE HEARTBEAT PING (ACTIVE NOW TRACKER)
+    // =========================================================================
+    async function sendActiveHeartbeat() {
+      if (!supabaseClient || !navigator.onLine) return;
+      const phone = localStorage.getItem("APP_USER_PHONE") || "8320536988";
+      try {
+        await supabaseClient.from('app_users').update({ last_seen: new Date().toISOString() }).eq('phone', phone);
+      } catch(e) {}
+    }
+
+    sendActiveHeartbeat();
+    setInterval(sendActiveHeartbeat, 30000);
     </script>
     <!-- ========================================================================= -->
 <!-- BANKING-STYLE INACTIVITY AUTO-LOCK OVERLAY (ZERO DATA LOSS)               -->
