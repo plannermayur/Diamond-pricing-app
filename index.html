@@ -1046,52 +1046,108 @@
       }
     };
 
+    // =========================================================================
+    // ADMIN TABS & REAL-TIME PRESENCE LOGIC
+    // =========================================================================
+    window.switchAdminTab = function(tab) {
+      const activeSec = document.getElementById('tabContentActive');
+      const licenseSec = document.getElementById('tabContentLicenses');
+      const btnActive = document.getElementById('tabBtnActiveNow');
+      const btnLicenses = document.getElementById('tabBtnLicenses');
+
+      if (tab === 'active') {
+        activeSec.classList.remove('hidden');
+        licenseSec.classList.add('hidden');
+        btnActive.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-all";
+        btnLicenses.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all";
+      } else {
+        activeSec.classList.add('hidden');
+        licenseSec.classList.remove('hidden');
+        btnLicenses.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 transition-all";
+        btnActive.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all";
+      }
+    };
+
     window.openAdminModal = async function() {
       document.getElementById('adminUserModal').classList.remove('hidden');
       const tbody = document.getElementById('userListBody');
-      tbody.innerHTML = '<tr><td colspan="7" class="p-3 text-center text-slate-400">Loading licenses...</td></tr>';
+      const activeList = document.getElementById('activeListContainer');
+      
+      if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="p-3 text-center text-slate-400">Loading licenses...</td></tr>';
+      if (activeList) activeList.innerHTML = '<div class="p-3 text-center text-slate-400">Checking active terminals...</div>';
 
       try {
         const { data, error } = await supabaseClient.from('app_users').select('*').order('created_at', { ascending: false });
         if (error || !data) {
-          tbody.innerHTML = '<tr><td colspan="7" class="p-3 text-center text-red-400">Error loading licenses.</td></tr>';
+          if (tbody) tbody.innerHTML = '<tr><td colspan="7" class="p-3 text-center text-red-400">Error loading data.</td></tr>';
+          if (activeList) activeList.innerHTML = '<div class="p-3 text-center text-red-400">Error loading terminals.</div>';
           return;
         }
 
-        tbody.innerHTML = '';
-        data.forEach(u => {
-          let dev1 = u.device_1_info || (u.device_id_1 ? 'Slot 1 Bound' : 'Empty');
-          let dev2 = u.device_2_info || (u.device_id_2 ? 'Slot 2 Bound' : 'Empty');
+        const countBadge = document.getElementById('licenseBadgeCount');
+        if (countBadge) countBadge.innerText = data.length;
+        
+        if (tbody) tbody.innerHTML = '';
+        let onlineCount = 0;
+        let activeCardsHtml = '';
+        const now = Date.now();
 
-          tbody.innerHTML += `
-            <tr class="hover:bg-slate-800/60">
-              <td class="py-2.5 px-3 font-semibold text-slate-200">${u.user_name}</td>
-              <td class="py-2.5 px-3 text-slate-400 font-mono">${u.phone}</td>
-              <td class="py-2.5 px-3 font-mono text-cyan-400 font-bold">${u.pin || '-'}</td>
-              <td class="py-2.5 px-3">
-                <select onchange="updateUserRole('${u.id}', this.value)" class="bg-slate-900 text-cyan-300 font-bold rounded px-1.5 py-0.5 border border-slate-700 outline-none">
-                  <option value="trader" ${u.role === 'trader' ? 'selected' : ''}>Trader (Boss)</option>
-                  <option value="planner" ${u.role === 'planner' ? 'selected' : ''}>Planner</option>
-                  <option value="viewer" ${u.role === 'viewer' ? 'selected' : ''}>Viewer</option>
-                </select>
-              </td>
-              <td class="py-2.5 px-3 text-[10px] text-slate-300">
-                <div>1: ${dev1}</div>
-                <div>2: ${dev2}</div>
-              </td>
-              <td class="py-2.5 px-3 font-bold ${u.status === 'approved' ? 'text-emerald-400' : (u.status === 'blocked' ? 'text-red-400' : 'text-amber-400')}">
-                ${(u.status || 'pending').toUpperCase()}
-              </td>
-              <td class="py-2.5 px-3 text-right space-x-1">
-                <button onclick="approveUser('${u.id}')" class="bg-emerald-900/80 hover:bg-emerald-800 text-emerald-300 px-2 py-1 rounded text-xs">Approve</button>
-                <button onclick="resetUser('${u.id}')" class="bg-amber-900/80 hover:bg-amber-800 text-amber-300 px-2 py-1 rounded text-xs" title="Reset device slots">Reset Dev</button>
-                <button onclick="blockUser('${u.id}')" class="bg-red-900/80 hover:bg-red-800 text-red-300 px-2 py-1 rounded text-xs">Block</button>
-              </td>
-            </tr>
-          `;
+        data.forEach(u => {
+          let devSlot = u.device_id ? 'Device Bound' : 'No Device Bound';
+
+          if (tbody) {
+            tbody.innerHTML += `
+              <tr class="hover:bg-slate-800/60">
+                <td class="py-2.5 px-3 font-semibold text-slate-200">${u.user_name}</td>
+                <td class="py-2.5 px-3 text-slate-400 font-mono">${u.phone}</td>
+                <td class="py-2.5 px-3 font-mono text-cyan-400 font-bold">${u.pin || '-'}</td>
+                <td class="py-2.5 px-3">
+                  <select onchange="updateUserRole('${u.id}', this.value)" class="bg-slate-900 text-cyan-300 font-bold rounded px-1.5 py-0.5 border border-slate-700 outline-none">
+                    <option value="trader" ${u.role === 'trader' ? 'selected' : ''}>Trader (Boss)</option>
+                    <option value="planner" ${u.role === 'planner' ? 'selected' : ''}>Planner</option>
+                    <option value="viewer" ${u.role === 'viewer' ? 'selected' : ''}>Viewer</option>
+                  </select>
+                </td>
+                <td class="py-2.5 px-3 text-[11px] text-slate-300">${devSlot}</td>
+                <td class="py-2.5 px-3 font-bold ${u.status === 'approved' ? 'text-emerald-400' : (u.status === 'blocked' ? 'text-red-400' : 'text-amber-400')}">
+                  ${(u.status || 'pending').toUpperCase()}
+                </td>
+                <td class="py-2.5 px-3 text-right space-x-1">
+                  <button onclick="approveUser('${u.id}')" class="bg-emerald-900/80 hover:bg-emerald-800 text-emerald-300 px-2 py-1 rounded text-xs">Approve</button>
+                  <button onclick="resetUser('${u.id}')" class="bg-amber-900/80 hover:bg-amber-800 text-amber-300 px-2 py-1 rounded text-xs" title="Reset device slot">Reset Dev</button>
+                  <button onclick="blockUser('${u.id}')" class="bg-red-900/80 hover:bg-red-800 text-red-300 px-2 py-1 rounded text-xs">Block</button>
+                </td>
+              </tr>
+            `;
+          }
+
+          // Check if active (last seen within 3 minutes)
+          const lastSeen = u.last_seen ? new Date(u.last_seen).getTime() : 0;
+          const isOnline = (now - lastSeen) < (3 * 60 * 1000);
+
+          if (isOnline) {
+            onlineCount++;
+            activeCardsHtml += `
+              <div class="p-3 bg-slate-900/70 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <span class="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <div>
+                    <div class="font-bold text-white">${u.user_name} <span class="text-xs text-cyan-400 font-mono">(${u.role ? u.role.toUpperCase() : 'TRADER'})</span></div>
+                    <div class="text-[10px] text-slate-400">${u.phone} • Active Workbench Session</div>
+                  </div>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">ONLINE</span>
+              </div>
+            `;
+          }
         });
+
+        const activeBadge = document.getElementById('activeBadgeCount');
+        if (activeBadge) activeBadge.innerText = onlineCount;
+        if (activeList) activeList.innerHTML = activeCardsHtml || '<div class="p-4 text-center text-slate-500">No users currently active on workbench.</div>';
+
       } catch(e) {
-        tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-red-400">Error: ${e.message}</td></tr>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-red-400">Error: ${e.message}</td></tr>`;
       }
     };
 
@@ -1100,11 +1156,11 @@
     window.blockUser = async (id) => { await supabaseClient.from('app_users').update({ status: 'blocked' }).eq('id', id); openAdminModal(); };
     window.updateUserRole = async (id, role) => { await supabaseClient.from('app_users').update({ role }).eq('id', id); };
     window.resetUser = async (id) => { 
-      if (confirm("Reset device slots for this user?")) {
-        await supabaseClient.from('app_users').update({ device_id_1: null, device_id_2: null, device_1_info: null, device_2_info: null }).eq('id', id); 
+      if (confirm("Reset device slot for this user?")) {
+        await supabaseClient.from('app_users').update({ device_id: null }).eq('id', id); 
         openAdminModal(); 
       }
-    };
+      };
 
     window.logoutApp = function() {
       sessionStorage.clear();
