@@ -1,4 +1,4 @@
-const CACHE_NAME = 'aura-diamond-v4';
+const CACHE_NAME = 'aura-diamond-v5';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -23,11 +23,20 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Supabase aur external APIs ko cache na karein taaki data block na ho
+  if (event.request.url.includes('supabase.co')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
+        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+          return networkResponse;
+        }
+        const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, networkResponse.clone());
+          cache.put(event.request, responseToCache);
         });
         return networkResponse;
       })
