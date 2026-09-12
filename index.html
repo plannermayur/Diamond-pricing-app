@@ -1044,16 +1044,31 @@
       renderWorkbench();
     }
 
-    window.unlockMasterAdmin = function() {
-      const pin = document.getElementById('adminPinInput').value.trim();
-      if (pin === MASTER_ADMIN_PIN) {
+   window.unlockMasterAdmin = function() {
+      const pinInput = document.getElementById('adminPinInput');
+      const pin = pinInput ? pinInput.value.trim() : '';
+
+      // Master Admin PINs (7788, 3699, ya 5688 koi bhi chalega)
+      if (pin === "7788" || pin === "3699" || pin === "5688") {
         sessionStorage.setItem("IS_MASTER_ADMIN", "true");
         localStorage.setItem("IS_MASTER_ADMIN", "true");
         sessionStorage.setItem("WORKBENCH_SESSION_ACTIVE", "true");
+
+        // 1. Lock screen turant chupayein
+        const overlay = document.getElementById('authLockOverlay');
+        if (overlay) overlay.classList.add('hidden');
+
+        // 2. Workbench screen dikhayein
+        const mainContent = document.getElementById('mainAppContent');
+        if (mainContent) mainContent.classList.remove('hidden');
+
+        // 3. Access grant karein
         grantAccess("Master Admin", "admin");
+
+        // 4. Admin management modal kholein
         openAdminModal();
       } else {
-        alert("Incorrect Admin PIN!");
+        alert("Incorrect Admin PIN! Sahi PIN darj karein.");
       }
     };
 
