@@ -200,7 +200,7 @@
     </div>
   </div>
 
-  <!-- ADMIN USERS TRACKING MODAL -->
+ <!-- ADMIN USERS TRACKING MODAL -->
   <div id="adminUserModal" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 no-print">
     <div class="glass-card-glow p-6 rounded-3xl max-w-4xl w-full space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -208,29 +208,53 @@
           <h3 class="font-bold text-base text-cyan-400 flex items-center gap-2">
             <i class="fa-solid fa-users-gear"></i> User Licenses, Roles & Active Device Tracker
           </h3>
-          <p class="text-[11px] text-slate-400">Manage Trader, Planner & Viewer roles and device hardware bindings</p>
+          <p class="text-[11px] text-slate-400">Manage Trader, Planner & Viewer roles, active sessions, and hardware bindings</p>
         </div>
         <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-200 text-lg px-2">✕</button>
       </div>
-      <div class="overflow-x-auto max-h-96">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-mono">
-            <tr>
-              <th class="py-2.5 px-3">Name</th>
-              <th class="py-2.5 px-3">Phone</th>
-              <th class="py-2.5 px-3">PIN</th>
-              <th class="py-2.5 px-3">Role</th>
-              <th class="py-2.5 px-3">Active Devices</th>
-              <th class="py-2.5 px-3">Status</th>
-              <th class="py-2.5 px-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="userListBody" class="divide-y divide-slate-800 font-mono"></tbody>
-        </table>
+
+      <!-- Clean Admin Tabs -->
+      <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+        <button id="tabBtnActiveNow" onclick="switchAdminTab('active')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 transition-all">
+          <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Active Now (<span id="activeBadgeCount">0</span>)
+        </button>
+        <button id="tabBtnLicenses" onclick="switchAdminTab('licenses')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all">
+          <i class="fa-solid fa-id-card"></i>
+          License Approvals (<span id="licenseBadgeCount">0</span>)
+        </button>
+      </div>
+
+      <!-- TAB 1: Real-time Active Sessions -->
+      <div id="tabContentActive" class="space-y-3">
+        <div class="text-[11px] text-slate-400">Users active on their workbench right now (Live Heartbeat):</div>
+        <div id="activeListContainer" class="space-y-2 max-h-80 overflow-y-auto pr-1 divide-y divide-slate-800/60 font-mono text-xs">
+          <!-- Active user cards load here -->
+        </div>
+      </div>
+
+      <!-- TAB 2: Full License Approvals & Role Assignment -->
+      <div id="tabContentLicenses" class="space-y-3 hidden">
+        <div class="text-[11px] text-slate-400">Manage all registered users, roles, approvals, and hardware device slots:</div>
+        <div class="overflow-x-auto max-h-80">
+          <table class="w-full text-left text-xs text-slate-300">
+            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-mono">
+              <tr>
+                <th class="py-2.5 px-3">Name</th>
+                <th class="py-2.5 px-3">Phone</th>
+                <th class="py-2.5 px-3">PIN</th>
+                <th class="py-2.5 px-3">Role</th>
+                <th class="py-2.5 px-3">Active Devices</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userListBody" class="divide-y divide-slate-800 font-mono"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-
   <!-- POINT 5: PLAN VS PLAN COMPARISON MODAL -->
   <div id="planCompareModal" class="hidden fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-4 no-print">
     <div class="glass-card-glow p-6 rounded-3xl max-w-4xl w-full space-y-4">
