@@ -969,12 +969,61 @@
       return `${os} (${browser})`;
     }
 
-   async function checkUserPermission() {
-     const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
-     const isSessionUnlocked = sessionStorage.getItem("WORKBENCH_SESSION_ACTIVE");
+  async function checkUserPermission() {
+      const isMasterAdmin = sessionStorage.getItem("IS_MASTER_ADMIN") || localStorage.getItem("IS_MASTER_ADMIN");
+      const isSessionUnlocked = sessionStorage.getItem("WORKBENCH_SESSION_ACTIVE");
+      const currentToken = getHardwareToken();
+      const savedToken = localStorage.getItem("BOUND_DEVICE_TOKEN");
+      const cachedApproved = localStorage.getItem("APP_USER_APPROVED");
 
-     if (isMasterAdmin === "true" && isSessionUnlocked === "true") {
-       grantAccess("Master Admin", "admin");
+      // 1. Master Admin Unlock Check
+      if (isMasterAdmin === "true" && isSessionUnlocked === "true") {
+        grantAccess("Master Admin", "admin");
+        return;
+      }
+
+      // 2. Approved User Check (Browser / Tab close par lock screen)
+      if (cachedApproved === "true" && currentToken === savedToken) {
+        if (isSessionUnlocked !== "true") {
+          document.getElementById('authLockOverlay').classList.remove('hidden');
+          document.getElementById('mainAppContent').classList.add('hidden');
+          switchAuthTab('login');
+          const savedPhone = localStorage.getItem("APP_USER_PHONE");
+          if (savedPhone) {
+            document.getElementById('loginPhone').value = savedPhone;
+            document.getElementById('loginPin').focus();
+          }
+          return;
+        }
+        grantAccess(localStorage.getItem("APP_USER_NAME") || "Authorized Trader", localStorage.getItem("APP_USER_ROLE") || "trader");
+        return;
+      }
+
+      const savedPhone = localStorage.getItem("APP_USER_PHONE");
+
+      if (!navigator.onLine) {
+        grantAccess("Authorized Offline Planner", "planner");
+        return;
+      }
+
+      if (savedPhone) {
+        try {
+          const { data } = await supabaseClient
+            .from('app_users')
+            .select('*')
+            .eq('phone', savedPhone)
+            .single();
+
+          if (data && data.status === 'approved') {
+            if (data.device_id_1 === currentToken || data.device_id_2 === currentToken) {
+              grantVerifiedAccess(data);
+            }
+          }
+        } catch (err) {
+          grantAccess("Planner", "planner");
+        }
+      }
+    }
        return;
       }
 
